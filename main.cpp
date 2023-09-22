@@ -3,37 +3,37 @@
 #include <string.h>
 #include <math.h>
 #include <conio.h>
+#include <conio2.h>
 
 #define TF 10
+#define QUANT 20
 
-typedef struct Fornecedores
+struct Fornecedores
 {
     int CodForn;
-    char NomeForn[20];
-    char Cidade[20];
+    char NomeForn[QUANT];
+    char Cidade[QUANT];
+};
+struct TpData
+{
+	int Dia, Mes, Ano;
 };
 
-typedef struct Produtos {
-    int CodProd;
-    char Desc[20];
-    int Estoque;
+struct Produtos {
+    int CodProd, Estoque;
+    char Desc[QUANT];
     float Preco;
-    struct DtValidade {
-        int Dia;
-        int Mes;
-        int Ano;
-    };
-    Fornecedores CodForn; //essa parada eh a chave primaria?
-};
+    TpData DtValidade;
+}; Fornecedores CodForn; //essa parada eh a chave primaria?
 
-typedef struct Clientes {
-    int CPF[11];
-    char NomeCli[20];
-    int QtdeCompras[20];
+struct Clientes {
+    int CPF[QUANT];
+    char NomeCli[QUANT];
+    int QtdeCompras[QUANT];
     double ValorTotComprado;
 };
 
-typedef struct Vendas {
+struct Vendas {
     int CodVenda;
     Clientes CPF[11];
     struct DtValidade {
@@ -44,7 +44,7 @@ typedef struct Vendas {
     float TotVenda;
 };
 
-typedef struct Vendas_Produtos {
+struct Vendas_Produtos {
     Vendas CodVenda;
     Produtos CodProd;
     int Qtde;
@@ -59,6 +59,80 @@ int ValidarCPF(Clientes CPF){
 	} else
 		printf("\nCPF inválido!\n\n");
 	
+}
+
+int BusProdCod(Produtos Tab[TF], int TL, int CodProd)
+{
+	
+	printf("**Busca o produto pelo codigo**");
+	int i=0;
+	while (i<TL && CodProd!=Tab[i].CodProd)
+			i++;
+	if (i<TL)
+		return i;
+	else
+		return -1;
+	
+}
+
+void CadastProd(Produtos Tab[TF], int &TL)
+{
+	int AuxCod, pos;
+	clrscr();
+	printf("\n**Cadastro de Produtos**\n");
+	printf("Codigo: ");
+	scanf("%d",&AuxCod);
+	while (TL<TF && AuxCod>0)
+	{
+		pos = BusProdCod(Tab,TL,AuxCod);
+		if (pos == -1)
+		{
+			Tab[TL].CodProd = AuxCod;
+			
+			printf("Descricao: ");
+			fflush(stdin);
+			gets(Tab[TL].Desc);
+			
+			printf("Estoque: ");
+			scanf("%d",&Tab[TL].Estoque);
+			
+			printf("Preco: R$ ");
+			scanf("%f",&Tab[TL].Preco);
+			
+			printf("Data de Validade [dd mm aaaa]: ");
+			scanf("%d %d %d", &Tab[TL].DtValidade.Dia, &Tab[TL].DtValidade.Mes, &Tab[TL].DtValidade.Ano);
+			TL++;
+		}
+		else
+			{
+				printf("\nCodigo do Produto ja Cadastrado!\n");
+				getch();
+			}
+					
+		printf("\nCodigo: ");
+		scanf("%d",&AuxCod);
+	}
+}
+
+void Relatorio(Produtos Tab[TF], int TL)
+{
+	int i;
+	clrscr();
+	printf("\nRelatorio de Produtos\n");
+	if (TL==0)
+		printf("\nNao ha Produtos Cadastrados!\n");
+	else
+			for(i=0; i<TL; i++)
+			{
+				printf("\nCodigo de Venda: %d\n",Tab[i].CodProd);
+				printf("\nProdutos: \n%d\n",Tab[i].CodVenda);
+				printf("%s\n",Tab[i].Descr);
+				printf("%d\n",Tab[i].Estoque);
+				printf("R$ %.2f\n",Tab[i].Preco);
+				printf("%s\n", Tab[i].NomeForn);
+				printf("%f\n",Tab[i].Preco);
+			}
+	getch();
 }
 
 void Menu () {
@@ -76,25 +150,22 @@ void Menu () {
 	    case 'A': printf("[A] - Inserir Elementos\n");
 	        /* code */
 	        break;
-		case 'A': printf("[B] - Cadastrar um novo produto\n");
+		case 'B': printf("[B] - Cadastrar um novo produto\n");
 	        /* code */
 	        break;
-	    case 'A': printf("[C] - Excluir produto\n");
+	    case 'C': printf("[C] - Excluir produto\n");
 	        /* code */
 	        break;
-	    case 'A': printf("[D] - Relatorio\n");
+	    case 'D': printf("[D] - Relatorio\n");
 	        /* code */
 	        break;
-	    case 'A': printf("[A] - Inserir Elementos\n");
-	        /* code */
-	        break;
-	    
+	    	    
     }
 
 }
 
 
-int main(){
+int main(void){
     Fornecedores index_fornecedores[TF];
     Produtos index_produtos[TF];
     Clientes index_clientes[TF];
