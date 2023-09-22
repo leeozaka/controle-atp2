@@ -51,8 +51,29 @@ typedef struct Vendas_Produtos {
     float ValorUnitario;
 };
 
+void Menu () {
+    char opc;
+    printf("A - Inserir Elementos\n");
+    printf("Digite a opção a seguir: ");
+    fflush(stdin);
+    scanf("%c", &opc);
+    switch (opc)
+    {
+    case 'A':
+        /* code */
+        break;
+    }
+
+}
+
 
 int main(){
+    Fornecedores index_fornecedores[TF];
+    Produtos index_produtos[TF];
+    Clientes index_clientes[TF];
+    Vendas index_vendas[TF];
+    Vendas_Produtos vendas[TF];
+
 
     return 0;
 }
