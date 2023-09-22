@@ -23,7 +23,7 @@ typedef struct Produtos {
         int Mes;
         int Ano;
     };
-    Fornecedores CodForn;
+    Fornecedores CodForn; //essa parada eh a chave primaria?
 };
 
 typedef struct Clientes {
@@ -51,17 +51,44 @@ typedef struct Vendas_Produtos {
     float ValorUnitario;
 };
 
+int ValidarCPF(Clientes CPF){
+	int i, j;
+	if (strlen(CPF) == 11){
+		//colocar para verificar se todos os caracteres sao numeros?
+		//codigo..	
+	} else
+		printf("\nCPF inv�lido!\n\n");
+	
+}
+
 void Menu () {
     char opc;
-    printf("A - Inserir Elementos\n");
-    printf("Digite a opção a seguir: ");
+    printf("[A] - Inserir Elementos\n");
+    printf("[B] - Cadastrar um novo produto\n");
+    printf("[C] - Excluir produto\n");
+    printf("[D] - Relatorio\n");
+	printf("[E] - Ordenar Relatorio\n")
+	printf("Digite a opcao a seguir: ");
     fflush(stdin);
     scanf("%c", &opc);
     switch (opc)
     {
-    case 'A':
-        /* code */
-        break;
+	    case 'A': printf("[A] - Inserir Elementos\n");
+	        /* code */
+	        break;
+		case 'A': printf("[B] - Cadastrar um novo produto\n");
+	        /* code */
+	        break;
+	    case 'A': printf("[C] - Excluir produto\n");
+	        /* code */
+	        break;
+	    case 'A': printf("[D] - Relatorio\n");
+	        /* code */
+	        break;
+	    case 'A': printf("[A] - Inserir Elementos\n");
+	        /* code */
+	        break;
+	    
     }
 
 }
