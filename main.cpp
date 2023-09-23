@@ -81,7 +81,7 @@ int validarCPF(char cpf[11])
     else
     {
         /// digito 1---------------------------------------------------
-        for (i = 0, j = 10; i < strlen(cpf) - 2; i++, j--) /// multiplica os números de 10 a 2 e soma os resultados dentro de digito1
+        for (i = 0, j = 10; i < strlen(cpf) - 2; i++, j--)
             digito1 += (cpf[i] - 48) * j;
         digito1 %= 11;
         if (digito1 < 2)
@@ -112,8 +112,8 @@ void CadastraCliente(Clientes clientes[TF], int &TL)
     char CPF[11];
     int i;
     printf("Digite seu CPF: ");
-    scanf("%s", &CPF);
-    for (i = 0; i < 11 && CPF[i] >= 0 && CPF[i] <= 9; i++)
+    gets(CPF);
+    for (i = 0; i < 11 && CPF[i] >= 48 && CPF[i] <= 57; i++)
         ; // verifica se todos caracteres estao entre 0 e 9
     if (i == 11)
     {
