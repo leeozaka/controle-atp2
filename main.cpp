@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <strings.h>
 #include <math.h>
 #include <conio.h>
@@ -158,12 +159,19 @@ int ConsultaFornecedor(Fornecedores lista_fornecedores[TF], int TL, int find)
     return i == TL ? -1 : lista_fornecedores[i].CodForn;
 }
 
-void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL)
+void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod) 
+//int *cod passa NULL se o código do fornecedor já nao foi inserido em outra funçao, exmeplo no cast do Menu(); 
 {
     int codforn, busca;
 
-    printf("Digite o cod. do %do Fornecedor: ", TL + 1);
-    scanf("%d", &codforn);
+    if (cod == NULL)
+    {
+        printf("Digite o cod. do %do Fornecedor: ", TL + 1);
+        scanf("%d", &codforn);
+    } else {
+        codforn = *cod; 
+    }
+    
     codforn = abs(codforn);
     do // vai digitar o codigo certo sim
     {
@@ -177,18 +185,19 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL)
         }
     } while (busca != -1);
     fornecedores[TL].CodForn = codforn;
-    printf("Nome: ");
+    printf("\nNome: ");
     fflush(stdin);
     gets(fornecedores[TL].NomeForn);
     printf("Cidade:");
     fflush(stdin);
     gets(fornecedores[TL].Cidade);
     TL++;
-    printf("Fornecedor cadastrado!\n");
+    printf("Fornecedor cod.%d, %s cadastrado!\n", fornecedores[TL-1].CodForn,fornecedores[TL-1].NomeForn);
 }
 
 void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_Produtos, int &TL_Fornecedores)
 {
+    int * ptr_codigo;
     int AuxCod, pos, helper, codigo;
     char arg;
     // clrscr();
@@ -222,24 +231,25 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
             printf("Busca fornecedor, codigo: ");
             fflush(stdin);
             scanf("%d", &helper);
+            ptr_codigo = &helper;
             codigo = ConsultaFornecedor(fornecedores, TL_Fornecedores, helper);
 
             if (codigo == -1)
             {
                 printf("Fornecedor n encontrado. Cadastrar fornecedor? S/N");
-                arg = (getchar());
+                arg = toupper(getch());
 
-                if (arg == 's' && arg == 'S')
+                if (arg == 'S')
                 {
-                    CadastraFornecedor(fornecedores, TL_Fornecedores);
+                    CadastraFornecedor(fornecedores, TL_Fornecedores, ptr_codigo);
                     produtos[TL_Produtos].CodForn = codigo;
                     TL_Produtos++;
-                    printf("Produto e fornecedor cadastrado\n");
+                    printf("\nProduto cadastrado\n");
                     getch();
                 }
                 else
                 {
-                    printf("Produto n/ cadastrado: Fornecedor nao encontrado\n");
+                    printf("\nProduto n/ cadastrado: Fornecedor nao encontrado\n");
                     getch();
                 }
             }
@@ -251,9 +261,6 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
                 printf("Produto cadastrado!\n");
                 getch();
             }
-            printf("\n**Cadastro de Produtos**\n");
-            printf("Codigo: ");
-            scanf("%d", &AuxCod);
         }
         else
         {
@@ -300,12 +307,12 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
 
         printf("[A] - Inserir Elementos\n");
         printf("[B] - Cadastrar um novo produto\n");
-        printf("[C] - Excluir produto\n");
+        printf("[C] - Cadastrar um novo Fornecedor\n");
         printf("[D] - Cadastrar Cliente\n");
         printf("[E] - Ordenar Relatorio\n");
         printf("Digite a opcao a seguir: ");
         fflush(stdin);
-        scanf("%c", &opc);
+        opc = toupper(getch());
         switch (opc)
         {
         case 'A':
@@ -315,7 +322,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
             CadastraProd(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
             break;
         case 'C':
-            /* code */
+            CadastraFornecedor(index_fornecedores,TL_fornecedores,NULL);
             break;
         case 'D':
             CadastraCliente(index_clientes, TL_clientes);
