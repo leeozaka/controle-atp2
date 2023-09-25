@@ -70,9 +70,9 @@ int ValidarCPF(int CPF[11]){{
 
 } */
 
-int validarCPF(char cpf[11])
+int validarCPF(char cpf[11]) // corrigido 25-09
 {
-    int i, j, digito1 = 0, digito2 = 0;
+    int i, digito1 = 0, digito2 = 0, helper;
     if ((strcmp(cpf, "00000000000") == 0) || (strcmp(cpf, "11111111111") == 0) || (strcmp(cpf, "22222222222") == 0) ||
         (strcmp(cpf, "33333333333") == 0) || (strcmp(cpf, "44444444444") == 0) || (strcmp(cpf, "55555555555") == 0) ||
         (strcmp(cpf, "66666666666") == 0) || (strcmp(cpf, "77777777777") == 0) || (strcmp(cpf, "88888888888") == 0) ||
@@ -80,27 +80,27 @@ int validarCPF(char cpf[11])
         return 0; /// se o CPF tiver todos os números iguais ele é inválido.
     else
     {
-        /// digito 1---------------------------------------------------
-        for (i = 0, j = 10; i < strlen(cpf) - 2; i++, j--)
-            digito1 += (cpf[i] - 48) * j;
+        // digito 1
+        for (i = 0; i < strlen(cpf) - 2; i++)
+            digito1 += (cpf[i] - '0') * (i + 1);
+
         digito1 %= 11;
-        if (digito1 < 2)
+        if (digito1 == 10)
             digito1 = 0;
-        else
-            digito1 = 11 - digito1;
-        if ((cpf[9] - 48) != digito1)
+        if ((cpf[8] - '0') == digito1)
             return 0;
+
         else
-        /// digito 2--------------------------------------------------
+        // digito 2
         {
-            for (i = 0, j = 11; i < strlen(cpf) - 1; i++, j--)
-                digito2 += (cpf[i] - 48) * j;
+            // for (i = 0, j = 11; i < strlen(cpf) - 1; i++, j--)
+            // digito2 += (cpf[i] - '0') * j;
+            for (i = 0; i < strlen(cpf) - 2; i++)
+                digito2 += (cpf[i] - '0') * i;
             digito2 %= 11;
-            if (digito2 < 2)
+            if (digito2 == 10)
                 digito2 = 0;
-            else
-                digito2 = 11 - digito2;
-            if ((cpf[10] - 48) != digito2)
+            if ((cpf[10] - '0') != digito2)
                 return 0;
         }
     }
@@ -119,6 +119,8 @@ void CadastraCliente(Clientes clientes[TF], int &TL)
     {
         if (validarCPF(CPF) == 1)
         {
+            // precisa VERIFICAR SE CPF JA ESTÁ CADASTRADO !!!!!!!
+            
             strcpy(clientes[TL].CPF, CPF);
             fflush(stdin);
             printf("Digite o nome: ");
@@ -159,8 +161,8 @@ int ConsultaFornecedor(Fornecedores lista_fornecedores[TF], int TL, int find)
     return i == TL ? -1 : lista_fornecedores[i].CodForn;
 }
 
-void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod) 
-//int *cod passa NULL se o código do fornecedor já nao foi inserido em outra funçao, exmeplo no cast do Menu(); 
+void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
+// int *cod passa NULL se o código do fornecedor já nao foi inserido em outra funçao, exmeplo no cast do Menu();
 {
     int codforn, busca;
 
@@ -168,10 +170,12 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
     {
         printf("Digite o cod. do %do Fornecedor: ", TL + 1);
         scanf("%d", &codforn);
-    } else {
-        codforn = *cod; 
     }
-    
+    else
+    {
+        codforn = *cod;
+    }
+
     codforn = abs(codforn);
     do // vai digitar o codigo certo sim
     {
@@ -192,12 +196,12 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
     fflush(stdin);
     gets(fornecedores[TL].Cidade);
     TL++;
-    printf("Fornecedor cod.%d, %s cadastrado!\n", fornecedores[TL-1].CodForn,fornecedores[TL-1].NomeForn);
+    printf("Fornecedor cod.%d, %s cadastrado!\n", fornecedores[TL - 1].CodForn, fornecedores[TL - 1].NomeForn);
 }
 
 void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_Produtos, int &TL_Fornecedores)
 {
-    int * ptr_codigo;
+    int *ptr_codigo;
     int AuxCod, pos, helper, codigo;
     char arg;
     // clrscr();
@@ -322,7 +326,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
             CadastraProd(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
             break;
         case 'C':
-            CadastraFornecedor(index_fornecedores,TL_fornecedores,NULL);
+            CadastraFornecedor(index_fornecedores, TL_fornecedores, NULL);
             break;
         case 'D':
             CadastraCliente(index_clientes, TL_clientes);
