@@ -27,7 +27,7 @@ struct Produtos
     char Desc[QUANT];
     float Preco;
     TpData DtValidade;
-    int CodForn; // essa parada eh a chave primaria? -> sim
+    int CodForn;
 };
 
 struct Clientes
@@ -61,7 +61,7 @@ int validarCPF(char cpf[11]) // corrigido 25-09
         (strcmp(cpf, "33333333333") == 0) || (strcmp(cpf, "44444444444") == 0) || (strcmp(cpf, "55555555555") == 0) ||
         (strcmp(cpf, "66666666666") == 0) || (strcmp(cpf, "77777777777") == 0) || (strcmp(cpf, "88888888888") == 0) ||
         (strcmp(cpf, "99999999999") == 0))
-        return 0; /// se o CPF tiver todos os nÃºmeros iguais ele Ã© invÃ¡lido.
+        return 0; 
     else
     {
         // digito 1
@@ -77,8 +77,6 @@ int validarCPF(char cpf[11]) // corrigido 25-09
         else
         // digito 2
         {
-            // for (i = 0, j = 11; i < strlen(cpf) - 1; i++, j--)
-            // digito2 += (cpf[i] - '0') * j;
             for (i = 0; i < strlen(cpf) - 2; i++)
                 digito2 += (cpf[i] - '0') * i;
             digito2 %= 11;
@@ -299,17 +297,23 @@ void AlterarProdCadastrado(Produtos Tab[TF], int &TL){
 	getch();
 	printf("Insira o codigo do produto: \n");
 	fflush(stdin);
-	scanf("%d"&Aux);
+	scanf("%d",&Aux);
 	while(Aux>0){
-//		sera que usar a função CadastraProd para fazer uma alteração de um produto cadastrado, n daria?
-//		ai procura a posição que está o produto (verificando o codigo) e altera toda a linha da tabela dele
-//		também faz uma verificação para ver se o codigo do produto existe mesmo ou não 
+//		sera que usar a funï¿½ï¿½o CadastraProd para fazer uma alteraï¿½ï¿½o de um produto cadastrado, n daria?
+//		ai procura a posiï¿½ï¿½o que estï¿½ o produto (verificando o codigo) e altera toda a linha da tabela dele
+//		tambï¿½m faz uma verificaï¿½ï¿½o para ver se o codigo do produto existe mesmo ou nï¿½o 
 
-//		finalizar o código aqui...
+// ---- >>>> Eu pensei nessa opÃ§Ã£o mas Ã© melhor fazer um switch > case e alterar alguma informaÃ§ao e validar nessa funcao mesmo
+// ---- >>>> Para reutilizar CadastraProd seria interessante apenas se fosse mudar TODAS as infos dentro do produto
+
+// ---- >>>> TL n'precisa ser por referencia
+
+
+//		finalizar o cï¿½digo aqui...
 		
 		printf("Insira o codigo do produto: \n");
 		fflush(stdin);
-		scanf("%d"&Aux);
+		scanf("%d",&Aux);
 	}
 }
 
