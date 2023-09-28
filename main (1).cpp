@@ -291,6 +291,29 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
     getch();
 }
 */
+
+void ExcluirProd(Produtos Tab[TF], int TL)
+{
+	int i, j, Aux;
+	printf("\n**Exclusao de produto**\n");
+	printf("Digite o codigo do produto a excluir: ");
+	scanf("%d", &Aux);
+	while(Aux > 0)
+	{
+		//j=BuscaExaustiva(Tab[TF], TL, Aux); //copiar o BuscaExaustiva do exemplo na sala
+		if(j != -1)
+		{
+			for(i=j; i<TL-1; i++)
+				Tab[i] = Tab[i+1];
+			
+		} else{
+			printf("\nProduto nao encontrado!\n");
+		}
+		printf("Digite o codigo do produto a excluir: ");
+		scanf("%d", &Aux);
+	}
+}
+
 void AlterarProdCadastrado(Produtos Tab[TF], int &TL){
 	int Aux;
 	printf("\n**Alterar produto ja cadastrado**\n");
@@ -319,46 +342,276 @@ void AlterarProdCadastrado(Produtos Tab[TF], int &TL){
 
 void InsereElementos();
 
-void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clientes index_clientes[TF], Vendas index_vendas[TF], Vendas_Produtos index_vendasprod[TF])
+void Moldura(int CI, int LI, int CF, int LF, int TC, int BG)
 {
-    // Tamanhos relativos
-    int TL_fornecedores = 0, TL_produtos = 0, TL_clientes = 0, TL_vendas = 0, TL_cupons = 0;
-    char opc;
-    do
-    {
-
-        printf("[A] - Inserir Elementos\n");
-        printf("[B] - Cadastrar um novo produto\n");
-        printf("[ ] - Alterar produto ja cadastrado\n");
-        printf("[C] - Cadastrar um novo Fornecedor\n");
-        printf("[D] - Cadastrar Cliente\n");
-        printf("[E] - Ordenar Relatorio\n");
-        printf("Digite a opcao a seguir: ");
-        fflush(stdin);
-        opc = toupper(getch());
-        switch (opc)
-        {
-        case 'A':
-            /* code */
-            break;
-        case 'B':
-            CadastraProd(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
-            break;
-        case 'C':
-            CadastraFornecedor(index_fornecedores, TL_fornecedores, NULL);
-            break;
-        case 'D':
-            CadastraCliente(index_clientes, TL_clientes);
-            break;
-        case 'F':
-            /* code */
-            break;
-        }
-    } while (opc != 27);
+	
 }
+
+void ClrScrenzona(int LI, int CI, int LF, int CF)
+{
+	int i;
+	int j;
+	for(i=LI;i<=LF;i++)
+	{
+		for(j=CI;j<=CF;j++)
+		{
+			gotoxy(j,i);
+			printf("%c",32);
+		}
+	}
+}
+
+void Menu(void)
+{
+	int Tab[TF], opc;
+	do{
+		ClrScrenzona(23,3,23,78);
+		gotoxy(3,23);
+		printf("Selecione um item:\n");
+		ClrScrenzona(8, 3, 20, 24);
+		gotoxy(4,9);
+		printf("[A] - CLIENTES\n");
+		gotoxy(4,10);
+		printf("[B] - FORNECEDORES\n");
+		gotoxy(4,11);
+		printf("[C] - PRODUTOS\n");
+		
+		opc = toupper(getche());
+		
+		switch(opc)
+		{
+			case 'A':
+				do
+				{
+					ClrScrenzona(23,3,23,78);
+					gotoxy(3,23);
+					printf("*Selecione uma operacao em clientes*\n");
+					// a mostrar:
+					ClrScrenzona(8,3,20,24);
+					gotoxy(4,9);
+					printf("[A] - CADASTRO\n");
+					gotoxy(4,10);
+					printf("[B] - CONSULTA\n");
+					gotoxy(4,11);
+					printf("[C] - EXCLUSAO\n");
+					gotoxy(4,12);
+					printf("[D] - ALTERACAO\n");
+					gotoxy(4,13);
+					printf("[E] - RELATORIO\n");
+					gotoxy(4,14);
+					opc = toupper(getche());
+					
+					switch(opc)
+					{
+						case 'A': CadastraProd(Tab[TF],TL);
+							break;
+						case 'B':
+							break;
+						case 'C':
+							break;
+						case 'D':
+							break;
+						case 'E':
+							break;
+						default:
+							if(opc != 27)
+							{
+								ClrScrenzona(23,3,23,78);
+								gotoxy(3,23);
+								printf("\n##INEXISTENTE!##\nSelecione novamente\n");
+								gotoxy(51,23);
+								getche();	
+							}
+						break;	
+					}	
+				}while(opc != 27);
+				break;
+			
+			case 'B': opc = 0;
+				do
+				{
+					ClrScrenzona(23,3,23,78);
+					gotoxy(3,23);
+					printf("*Selecione uma operacao em fornecedores*\n");
+					// a mostrar:
+					ClrScrenzona(8,3,20,24);
+					gotoxy(4,9);
+					printf("[A] - CADASTRO\n");
+					gotoxy(4,10);
+					printf("[B] - CONSULTA\n");
+					gotoxy(4,11);
+					printf("[C] - EXCLUSAO\n");
+					gotoxy(4,12);
+					printf("[D] - ALTERACAO\n");
+					gotoxy(4,13);
+					printf("[E] - RELATORIO\n");
+					gotoxy(4,14);
+					opc = toupper(getche());
+					
+					switch(opc)
+					{
+						case 'A': CadastraProd(Tab[TF],TL);
+							break;
+						case 'B': ConsultaFornecedor(Tab[TF],TL);
+							break;
+						case 'C': ExcluirProd(Tab[TF],TL);
+							break;
+						case 'D': AlterarProdCadastrado(Tab[TF],TL);
+							break;
+						case 'E': Relatorio(Tab[TF],TL);
+							break;
+						default:
+							if(opc != 27)
+							{
+								ClrScrenzona(23,3,23,78);
+								gotoxy(3,23);
+								printf("\n##INEXISTENTE!##\nSelecione novamente\n");
+								gotoxy(51,23);
+								getche();	
+							}
+						break;	
+					}	
+				}while(opc != 27);
+				break;
+				
+			case 'C': opc = 0;
+				do
+				{
+					ClrScrenzona(23,3,23,78);
+					gotoxy(3,23);
+					printf("*Selecione uma operacao em produtos*\n");
+					// a mostrar:
+					ClrScrenzona(8,3,20,24);
+					gotoxy(4,9);
+					printf("[A] - CADASTRO\n");
+					gotoxy(4,10);
+					printf("[B] - CONSULTA\n");
+					gotoxy(4,11);
+					printf("[C] - EXCLUSAO\n");
+					gotoxy(4,12);
+					printf("[D] - ALTERACAO\n");
+					gotoxy(4,13);
+					printf("[E] - RELATORIO\n");
+					gotoxy(4,14);
+					opc = toupper(getche());
+					
+					switch(opc)
+					{
+						case 'A': CadastraProd(Tab[TF],TL);
+							break;
+						case 'B': 
+							break;
+						case 'C': ExcluirProd(Tab[TF],TL);
+							break;
+						case 'D': AlterarProdCadastrado(Tab[TF],TL);
+							break;
+						case 'E':
+							break;
+						default:
+							if(opc != 27)
+							{
+								ClrScrenzona(23,3,23,78);
+								gotoxy(3,23);
+								printf("\n##INEXISTENTE!##\nSelecione novamente\n");
+								gotoxy(51,23);
+								getche();	
+							}
+						break;	
+					}	
+				}while(opc != 27);
+				opc = 0;
+				break;
+			default:
+				if(opc!=27)
+				{
+					ClrScrenzona(23,3,23,78);
+					gotoxy(3,23);
+					printf("\n##INEXISTENTE!##\nSelecione novamente\n");
+					gotoxy(51,23);
+					getche();		
+				}
+			break;	
+		}
+		if(opc == 27//Sair do loop
+		{
+			do{
+				ClrScrenzona(23,3,23,78);
+				gotoxy(3,23);
+				printf("CONFIRMACAO: 'Gostaria de sair?'<S/N>");
+				gotoxy(41,23);
+				
+				opc = toupper(getche());
+				
+				switch(opc)
+				{
+					case 'S': opc == 27;//para sair do sistema
+						break;
+					case 'N': opc == 0; //nao sair
+						break;
+					default:
+						if(opc != 83 || opc != 78)
+						{
+							ClrScrenzona(23,3,23,78);
+							gotoxy(3,23);
+							printf("\n##INEXISTENTE!##\nSelecione novamente\n");
+							gotoxy(52,23);
+							getche();
+						}
+				}
+			}while(opc != 27);
+		}
+		
+	}while(opc != 27);
+}
+//
+//void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clientes index_clientes[TF], Vendas index_vendas[TF], Vendas_Produtos index_vendasprod[TF])
+//{
+//
+//    int TL_fornecedores = 0, TL_produtos = 0, TL_clientes = 0, TL_vendas = 0, TL_cupons = 0, op;
+//    char opc;
+//    do
+//    {
+//        printf("[A] - Inserir Elementos\n");
+//        printf("[B] - Cadastrar um novo produto\n");
+//        printf("[ ] - Alterar produto ja cadastrado\n");
+//        printf("[C] - Cadastrar um novo Fornecedor\n");
+//        printf("[D] - Cadastrar Cliente\n");
+//        printf("[E] - Ordenar Relatorio\n");
+//        printf("Digite a opcao a seguir: ");
+//        fflush(stdin);
+//        opc = toupper(getch());
+//        switch (opc)
+//        {
+//        case 'A':
+//            /* code */
+//            break;
+//        case 'B':
+//            CadastraProd(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
+//            break;
+//        case 'C':
+//            CadastraFornecedor(index_fornecedores, TL_fornecedores, NULL);
+//            break;
+//        case 'D':
+//            CadastraCliente(index_clientes, TL_clientes);
+//            break;
+//        case 'F':
+//            /* code */
+//            break;
+//        default:
+//        	if(opc != /*colocar as letras*/)
+//        		LimparTela(23,3,23,78);
+//        		gotoxy(3,23);
+//        		
+//        		printf("\nOpcao Incorreta\nSelecione novamente\n");
+//        		gotoxt(52,23);
+//        		getch();
+//        }
+//    } while (opc != 27);
+//}
 
 int main(void)
 {
+
     Fornecedores index_fornecedores[TF];
     Produtos index_produtos[TF];
     Clientes index_clientes[TF];
