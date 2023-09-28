@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <strings.h>
+#include <string.h>
 #include <math.h>
 #include <conio2.h>
 
@@ -291,19 +291,20 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
 }
 */
 
-void ExcluirProd(Produtos Tab[TF], int TL)
+void ExcluirProd(Produtos produtos[], int &TL)
 {
-    int i, j, Aux;
+    int i, Aux, ponto;
     printf("\n**Exclusao de produto**\n");
     printf("Digite o codigo do produto a excluir: ");
     scanf("%d", &Aux);
     while (Aux > 0)
     {
-        // j=BuscaExaustiva(Tab[TF], TL, Aux); //copiar o BuscaExaustiva do exemplo na sala
-        if (j != -1)
+        ponto = BusProdCod(produtos, TL, Aux);
+        if (ponto != -1)
         {
-            for (i = j; i < TL - 1; i++)
-                Tab[i] = Tab[i + 1];
+            for (i = ponto; i < TL - 1; i++)
+                produtos[i] = produtos[i + 1];
+            TL--;
         }
         else
         {
@@ -314,9 +315,12 @@ void ExcluirProd(Produtos Tab[TF], int TL)
     }
 }
 
-void AlterarProdCadastrado(Produtos Tab[TF], int &TL)
+void AlterarProdCadastrado(Produtos produtos[], int TL)
 {
-    int Aux;
+    TpData aux;
+    char resp;
+    int Aux, ponto;
+    float Aux_Preco;
     printf("\n**Alterar produto ja cadastrado**\n");
     getch();
     printf("Insira o codigo do produto: \n");
@@ -324,16 +328,45 @@ void AlterarProdCadastrado(Produtos Tab[TF], int &TL)
     scanf("%d", &Aux);
     while (Aux > 0)
     {
-        //		sera que usar a fun��o CadastraProd para fazer uma altera��o de um produto cadastrado, n daria?
-        //		ai procura a posi��o que est� o produto (verificando o codigo) e altera toda a linha da tabela dele
-        //		tamb�m faz uma verifica��o para ver se o codigo do produto existe mesmo ou n�o
-
-        // ---- >>>> Eu pensei nessa opção mas é melhor fazer um switch > case e alterar alguma informaçao e validar nessa funcao mesmo
-        // ---- >>>> Para reutilizar CadastraProd seria interessante apenas se fosse mudar TODAS as infos dentro do produto
-
-        // ---- >>>> TL n'precisa ser por referencia
-
-        //		finalizar o c�digo aqui...
+        ponto = BusProdCod(produtos, TL, Aux);
+        if (ponto == -1)
+        {
+            printf("Erro ao procurar pelo Codigo!\n");
+        }
+        else
+        {
+            printf("Qual elemento alterar do %s? ", produtos[ponto].Desc);
+            printf("A - Estoque");
+            printf("B - Preco");
+            printf("C - Validade");
+            fflush(stdin);
+            resp = toupper(getch());
+            switch (resp)
+            {
+            case 'A':
+                printf("Qual a nova quantidade do %s? ", produtos[ponto].Desc);
+                while (scanf(" %d", &Aux) <= 0)
+                    printf("Valor inválido\n");
+                produtos[ponto].Estoque = Aux;
+                break;
+            case 'B':
+                printf("Qual o novo preço do %s? R$ ", produtos[ponto].Desc);
+                while (scanf(" %f", &Aux_Preco) < 0)
+                    printf("Preco invalido\n");
+                produtos[ponto].Preco = Aux_Preco;
+                break;
+            case 'C':
+                printf("Qual a nova validade do %s? ", produtos[ponto].Desc);
+                scanf("%d %d %d", &aux.Dia, &aux.Mes, &aux.Ano);
+                if (aux.Dia > 0 && aux.Mes > 0 && aux.Ano > 0)
+                {
+                    produtos[ponto].DtValidade = aux;
+                }
+                else
+                    printf("Data invalida!");
+                break;
+            }
+        }
 
         printf("Insira o codigo do produto: \n");
         fflush(stdin);
@@ -409,11 +442,13 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     CadastraCliente(index_clientes, TL_clientes);
                     break;
                 case 'B':
-
+                    //ConsultaClientes(index_clientes, TL_clientes);
                     break;
                 case 'C':
+                    //DeletaClientes(index_clientes, TL_clientes);
                     break;
                 case 'D':
+                    //EditaClientes(index_clientes, TL_clientes);
                     break;
                 case 'E':
                     break;
@@ -459,16 +494,16 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     CadastraFornecedor(index_fornecedores, TL_fornecedores, NULL);
                     break;
                 case 'B':
-                    //ConsultaFornecedor(index_fornecedores, TL_fornecedores);
+                    // ConsultaFornecedor(index_fornecedores, TL_fornecedores);
                     break;
                 case 'C':
-                    //ExcluirProd(Tab[TF], TL);
+                    // ExcluirFornecedor(index_fornecedores, TL fornecedores);
                     break;
                 case 'D':
-                    //AlterarProdCadastrado(Tab[TF], TL);
+                    // AlterarDadosFornecedor(index_fornecedores, TL_fornecedores);
                     break;
                 case 'E':
-                    //Relatorio(Tab[TF], TL);
+                    // Relatorio(index_fornecedores, TL fornecedores);
                     break;
                 default:
                     if (opc != 27)
@@ -514,10 +549,10 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 case 'B':
                     break;
                 case 'C':
-                    //ExcluirProd(Tab[TF], TL);
+                    ExcluirProd(index_produtos, TL_produtos);
                     break;
                 case 'D':
-                    //AlterarProdCadastrado(Tab[TF], TL);
+                    AlterarProdCadastrado(index_produtos, TL_produtos);
                     break;
                 case 'E':
                     break;
@@ -580,51 +615,6 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
 
     } while (opc != 27);
 }
-//
-// void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clientes index_clientes[TF], Vendas index_vendas[TF], Vendas_Produtos index_vendasprod[TF])
-//{
-//
-//    int TL_fornecedores = 0, TL_produtos = 0, TL_clientes = 0, TL_vendas = 0, TL_cupons = 0, op;
-//    char opc;
-//    do
-//    {
-//        printf("[A] - Inserir Elementos\n");
-//        printf("[B] - Cadastrar um novo produto\n");
-//        printf("[ ] - Alterar produto ja cadastrado\n");
-//        printf("[C] - Cadastrar um novo Fornecedor\n");
-//        printf("[D] - Cadastrar Cliente\n");
-//        printf("[E] - Ordenar Relatorio\n");
-//        printf("Digite a opcao a seguir: ");
-//        fflush(stdin);
-//        opc = toupper(getch());
-//        switch (opc)
-//        {
-//        case 'A':
-//            /* code */
-//            break;
-//        case 'B':
-//            CadastraProd(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
-//            break;
-//        case 'C':
-//            CadastraFornecedor(index_fornecedores, TL_fornecedores, NULL);
-//            break;
-//        case 'D':
-//            CadastraCliente(index_clientes, TL_clientes);
-//            break;
-//        case 'F':
-//            /* code */
-//            break;
-//        default:
-//        	if(opc != /*colocar as letras*/)
-//        		LimparTela(23,3,23,78);
-//        		gotoxy(3,23);
-//
-//        		printf("\nOpcao Incorreta\nSelecione novamente\n");
-//        		gotoxt(52,23);
-//        		getch();
-//        }
-//    } while (opc != 27);
-//}
 
 int main(void)
 {
