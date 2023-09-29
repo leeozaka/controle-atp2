@@ -56,6 +56,11 @@ struct Vendas_Produtos
 int validarCPF(char cpf[11]) // corrigido 25-09
 {
     int i, digito1 = 0, digito2 = 0, helper;
+    for (i = 0; i < 11 && cpf[i] >= 48 && cpf[i] <= 57; i++)
+        ;
+    if (i < 11)
+        return 0;
+    ; // verifica se todos caracteres estao entre 0 e 9
     if ((strcmp(cpf, "00000000000") == 0) || (strcmp(cpf, "11111111111") == 0) || (strcmp(cpf, "22222222222") == 0) ||
         (strcmp(cpf, "33333333333") == 0) || (strcmp(cpf, "44444444444") == 0) || (strcmp(cpf, "55555555555") == 0) ||
         (strcmp(cpf, "66666666666") == 0) || (strcmp(cpf, "77777777777") == 0) || (strcmp(cpf, "88888888888") == 0) ||
@@ -94,43 +99,48 @@ void CadastraCliente(Clientes clientes[TF], int &TL)
     int i, validar = 0;
     printf("Digite seu CPF: ");
     gets(CPF);
-    for (i = 0; i < 11 && CPF[i] >= 48 && CPF[i] <= 57; i++)
-        ; // verifica se todos caracteres estao entre 0 e 9
-    if (i == 11)
+    if (validarCPF(CPF) == 1)
     {
-        if (validarCPF(CPF) == 1)
+        for (i = 0; i < TL && validar != 1; i++)
         {
-            for (i = 0; i < TL && validar != 1; i++)
-            {
-                if (strcmp(clientes[i].CPF, CPF) == 0)
-                    validar = 1;
-            }
-            if (validar == 1)
-            {
-                printf("\nCPF ja cadastrado\n!");
-                getch();
-            }
-            else
-            {
-                strcpy(clientes[TL].CPF, CPF);
-                fflush(stdin);
-                printf("Digite o nome: ");
-                gets(clientes[TL].NomeCli);
-                TL++;
-                printf("Cliente cadastrado com sucesso!");
-                getch();
-            }
+            if (strcmp(clientes[i].CPF, CPF) == 0)
+                validar = 1;
+        }
+        if (validar == 1)
+        {
+            printf("\nCPF ja cadastrado\n!");
+            getch();
         }
         else
         {
-            printf("\nO número de identificação informado não está correto.\n");
+            strcpy(clientes[TL].CPF, CPF);
+            fflush(stdin);
+            printf("Digite o nome: ");
+            gets(clientes[TL].NomeCli);
+            // clientes[TL].QtdeCompras=0;
+            clientes[TL].ValorTotComprado = 0;
+            TL++;
+            printf("Cliente cadastrado com sucesso!");
             getch();
         }
     }
     else
     {
-        printf("\nO número de identificação deve conter apenas números!\n");
+        printf("\nO número de identificação informado não está correto.\n");
         getch();
+    }
+}
+
+void ConsultaClientes(Clientes clientes[], int TL) //n sei se é pra mostrar todos nessa consulta
+{
+    printf("Clientes cadastrados:\n");
+    for (int i = 0; i < TL; i++)
+    {
+        printf("cadastro %i\n", i + 1);
+        puts(clientes[i].CPF);
+        puts(clientes[i].NomeCli);
+        printf("%d compras %.2f Total\n", clientes[i].QtdeCompras, clientes[i].ValorTotComprado);
+        puts("---------------------------------\n");
     }
 }
 
@@ -290,7 +300,33 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
     getch();
 }
 */
-
+void DeletaClientes(Clientes clientes[], int &TL)
+{
+    int pos;
+    char cpf[11];
+    printf("Cpf do Cliente a ser deletado: ");
+    fflush(stdin);
+    gets(cpf);
+    if (validarCPF(cpf) == 1)
+    {
+        for (int i = 0, pos = -1; i < TL && pos == -1; i++)
+            if ((strcmp(clientes[i].CPF, cpf)) == 0)
+                pos = i;
+        if (pos >= 0)
+        {
+            for (int i = pos; i < TL - 1; i++)
+            {
+                clientes[i] = clientes[i + 1];
+            }
+            TL--;
+            printf("Cliente removido com sucesso!");
+        }
+        else
+        {
+            printf("Erro ao remover cliente.");
+        }
+    }
+}
 void ExcluirProd(Produtos produtos[], int &TL)
 {
     int i, Aux, ponto;
@@ -410,7 +446,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
         printf("[B] - FORNECEDORES\n");
         gotoxy(4, 11);
         printf("[C] - PRODUTOS\n");
-
+        //vai ser necessário a opçao D - Vendas com nova venda, excluir venda, e aqui sim, relatorio geral de vendas
         opc = toupper(getche());
 
         switch (opc)
@@ -442,13 +478,13 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     CadastraCliente(index_clientes, TL_clientes);
                     break;
                 case 'B':
-                    //ConsultaClientes(index_clientes, TL_clientes);
+                    ConsultaClientes(index_clientes, TL_clientes);
                     break;
                 case 'C':
-                    //DeletaClientes(index_clientes, TL_clientes);
+                    DeletaClientes(index_clientes, TL_clientes);
                     break;
                 case 'D':
-                    //EditaClientes(index_clientes, TL_clientes);
+                    // EditaClientes(index_clientes, TL_clientes);
                     break;
                 case 'E':
                     break;
