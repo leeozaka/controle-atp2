@@ -33,7 +33,7 @@ struct Clientes
 {
     char CPF[11];
     char NomeCli[QUANT];
-    int QtdeCompras[QUANT];
+    int QtdeCompras;
     double ValorTotComprado;
 };
 
@@ -41,7 +41,7 @@ struct Vendas
 {
     int CodVenda;
     char CPF[11];
-    TpData DtValidade;
+    TpData DtVenda;
     float TotVenda;
 };
 
@@ -131,7 +131,7 @@ void CadastraCliente(Clientes clientes[TF], int &TL)
     }
 }
 
-void ConsultaClientes(Clientes clientes[], int TL) //n sei se é pra mostrar todos nessa consulta
+void ConsultaClientes(Clientes clientes[], int TL) // n sei se é pra mostrar todos nessa consulta
 {
     printf("Clientes cadastrados:\n");
     for (int i = 0; i < TL; i++)
@@ -143,11 +143,30 @@ void ConsultaClientes(Clientes clientes[], int TL) //n sei se é pra mostrar tod
         puts("---------------------------------\n");
     }
 }
+int getPosClientes(Clientes clientes[], int TL, char cpf[])
+{
+    for (int i = 0; i < TL; i++)
+    {
+        if (strcmp(clientes[i].CPF, cpf) == 1)
+            return i;
+    }
+    return -1;
+}
 
 int BusProdCod(Produtos Tab[TF], int TL, int CodProd)
 {
     int i = 0;
     while (i < TL && CodProd != Tab[i].CodProd)
+        i++;
+    if (i < TL)
+        return i;
+    else
+        return -1;
+}
+int BusFornCod(Fornecedores Tab[TF], int TL, int cod)
+{
+    int i = 0;
+    while (i < TL && cod != Tab[i].CodForn)
         i++;
     if (i < TL)
         return i;
@@ -372,9 +391,9 @@ void AlterarProdCadastrado(Produtos produtos[], int TL)
         else
         {
             printf("Qual elemento alterar do %s? ", produtos[ponto].Desc);
-            printf("A - Estoque");
-            printf("B - Preco");
-            printf("C - Validade");
+            printf("A - Estoque\n");
+            printf("B - Preco\n");
+            printf("C - Validade\n");
             fflush(stdin);
             resp = toupper(getch());
             switch (resp)
@@ -408,6 +427,121 @@ void AlterarProdCadastrado(Produtos produtos[], int TL)
         fflush(stdin);
         scanf("%d", &Aux);
     }
+}
+
+void ConsultaProd(Produtos produtos[], int TL)
+{
+    int ponto, i;
+    printf("cod. a ser consultado: ");
+    scanf("%d", &ponto);
+    i = BusProdCod(produtos, TL, ponto);
+    if (i >= 0)
+    {
+        printf("Codigo: %d\n", produtos[i].CodProd);
+        puts(produtos[i].Desc);
+        printf("Quantidade em estoque:%d\n", produtos[i].Estoque);
+        printf("%d %d %d\n", produtos[i].DtValidade.Dia, produtos[i].DtValidade.Mes, produtos[i].DtValidade.Ano);
+    }
+    else
+    {
+        printf("Erro! Produto nao encontrado!\n");
+    }
+}
+
+void EditaClientes(Clientes clientes[], int TL)
+{
+    int opcao, pos;
+    char cpf[11], opc;
+    if (TL > 0)
+    {
+        printf("CPF a ser editado: ");
+        gets(cpf);
+        if (validarCPF(cpf) == 1)
+        {
+            pos = getPosClientes(clientes, TL, cpf);
+            printf("%s %s\n", clientes[pos].CPF, clientes[pos].NomeCli);
+            printf("Mudar: \n");
+            printf("A-Nome\n");
+            printf("B-Zerar Compras\n");
+            opc = toupper(getch());
+            switch (opc)
+            {
+            case 'A':
+                gets(clientes[pos].NomeCli);
+                break;
+            case 'B':
+                clientes[pos].QtdeCompras = 0;
+                clientes[pos].QtdeCompras = 0;
+                // buscar compras no cpf e deletar do index_vendas;
+                break;
+            }
+        }
+        else
+        {
+            printf("CPF n encontrado! \n");
+        }
+    }
+    else
+    {
+        printf("Lista vazia!\n");
+    }
+}
+
+void ConsultaFornecedor(Fornecedores fornecedores[], int TL)
+{
+    int i, xD;
+    printf("Busca fornecedor pelo cod. :");
+    fflush(stdin);
+    scanf("%d", &xD);
+    if (xD >= 0)
+    {
+        i = BusFornCod(fornecedores, TL, xD);
+        if (i >= 0)
+        {
+            printf("%d\n%s\n%s", fornecedores[i].CodForn, fornecedores[i].NomeForn, fornecedores[i].Cidade);
+        }
+        else
+        {
+            printf("FORNECEDOR NAO ENCONTRADO!\n");
+        }
+    }
+    else
+    {
+        printf("Apenas cod's positivos\n");
+    }
+}
+
+void ExcluirFornecedor(Fornecedores fornecedores[], int &TL)
+{
+    int i;
+    char a;
+    printf("Busca fornecedor pelo cod. : ");
+    fflush(stdin);
+    scanf("%d", &i);
+    i = BusFornCod(fornecedores, TL, i);
+    if (i >= 0)
+    {
+        printf("Deletar %s? S/N", fornecedores[i].NomeForn);
+        fflush(stdin);
+        a = toupper(getch());
+        if (a == 'S')
+        {
+            for (; i < TL - 1; i++)
+            {
+                fornecedores[i] = fornecedores[i + 1];
+            }
+            TL--;
+            printf("Deletado com sucesso!\n");
+        }
+    }
+    else
+    {
+        printf("Fornecedor nao encontrado \n");
+    }
+}
+
+int novaVenda (Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos rootProdutos[],Vendas rootVendas[], int &TLclientes, int &TLfornecedores, int &TLprodutos, int &TLvendas) {
+
 }
 
 void InsereElementos();
@@ -446,7 +580,9 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
         printf("[B] - FORNECEDORES\n");
         gotoxy(4, 11);
         printf("[C] - PRODUTOS\n");
-        //vai ser necessário a opçao D - Vendas com nova venda, excluir venda, e aqui sim, relatorio geral de vendas
+        gotoxy(4, 12);
+        printf("[D] - VENDAS");
+        gotoxy(4,13);
         opc = toupper(getche());
 
         switch (opc)
@@ -484,7 +620,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     DeletaClientes(index_clientes, TL_clientes);
                     break;
                 case 'D':
-                    // EditaClientes(index_clientes, TL_clientes);
+                    EditaClientes(index_clientes, TL_clientes);
                     break;
                 case 'E':
                     break;
@@ -520,8 +656,6 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 gotoxy(4, 12);
                 printf("[D] - ALTERACAO\n");
                 gotoxy(4, 13);
-                printf("[E] - RELATORIO\n");
-                gotoxy(4, 14);
                 opc = toupper(getche());
 
                 switch (opc)
@@ -530,17 +664,15 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     CadastraFornecedor(index_fornecedores, TL_fornecedores, NULL);
                     break;
                 case 'B':
-                    // ConsultaFornecedor(index_fornecedores, TL_fornecedores);
+                    ConsultaFornecedor(index_fornecedores, TL_fornecedores);
                     break;
                 case 'C':
-                    // ExcluirFornecedor(index_fornecedores, TL fornecedores);
+                    ExcluirFornecedor(index_fornecedores, TL_fornecedores);
                     break;
                 case 'D':
                     // AlterarDadosFornecedor(index_fornecedores, TL_fornecedores);
                     break;
-                case 'E':
-                    // Relatorio(index_fornecedores, TL fornecedores);
-                    break;
+
                 default:
                     if (opc != 27)
                     {
@@ -573,8 +705,6 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 gotoxy(4, 12);
                 printf("[D] - ALTERACAO\n");
                 gotoxy(4, 13);
-                printf("[E] - RELATORIO\n");
-                gotoxy(4, 14);
                 opc = toupper(getche());
 
                 switch (opc)
@@ -583,6 +713,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     CadastraProd(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
                     break;
                 case 'B':
+                    ConsultaProd(index_produtos, TL_produtos);
                     break;
                 case 'C':
                     ExcluirProd(index_produtos, TL_produtos);
@@ -590,8 +721,58 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 case 'D':
                     AlterarProdCadastrado(index_produtos, TL_produtos);
                     break;
-                case 'E':
+
+                default:
+                    if (opc != 27)
+                    {
+                        ClrScrenzona(23, 3, 23, 78);
+                        gotoxy(3, 23);
+                        printf("\n##INEXISTENTE!##\nSelecione novamente\n");
+                        gotoxy(51, 23);
+                        getche();
+                    }
                     break;
+                }
+            } while (opc != 27);
+            opc = 0;
+            break;
+
+        case 'D':
+            do
+            {
+                ClrScrenzona(23, 3, 23, 78);
+                gotoxy(3, 23);
+                printf("*Selecione uma operacao em VENDAS*\n");
+                // a mostrar:
+                ClrScrenzona(8, 3, 20, 24);
+                gotoxy(4, 9);
+                printf("[A] - NOVA VENDA\n");
+                gotoxy(4, 10);
+                printf("[B] - CONSULTA VENDAS\n");
+                gotoxy(4, 11);
+                printf("[C] - EXCLUSAO DE VENDA\n");
+                gotoxy(4, 12);
+                printf("[D] - ALTERACAO EM VENDA\n");
+                gotoxy(4, 13);
+                printf("[E] - RELATORIO DE VENDAS TOTAL");
+                opc = toupper(getche());
+
+                switch (opc)
+                {
+                case 'A':
+                    novaVenda(index_clientes,index_fornecedores,index_produtos,index_vendas,TL_clientes,TL_fornecedores,TL_produtos,TL_vendas);
+                    
+                    break;
+                case 'B':
+                    //
+                    break;
+                case 'C':
+                    //
+                    break;
+                case 'D':
+                    //
+                    break;
+
                 default:
                     if (opc != 27)
                     {
