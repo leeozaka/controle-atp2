@@ -52,7 +52,10 @@ struct Vendas_Produtos
     int Qtde;
     float ValorUnitario;
 };
-
+bool Compara(int vet, int size)
+{
+    return vet <= size ? true : false;
+}
 int validarCPF(char cpf[11]) // corrigido 25-09
 {
     int i, digito1 = 0, digito2 = 0, helper;
@@ -540,8 +543,8 @@ void ExcluirFornecedor(Fornecedores fornecedores[], int &TL)
     }
 }
 
-int novaVenda (Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos rootProdutos[],Vendas rootVendas[], int &TLclientes, int &TLfornecedores, int &TLprodutos, int &TLvendas) {
-
+int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos rootProdutos[], Vendas rootVendas[], int &TLclientes, int &TLfornecedores, int &TLprodutos, int &TLvendas)
+{
 }
 
 void InsereElementos();
@@ -582,7 +585,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
         printf("[C] - PRODUTOS\n");
         gotoxy(4, 12);
         printf("[D] - VENDAS");
-        gotoxy(4,13);
+        gotoxy(4, 13);
         opc = toupper(getche());
 
         switch (opc)
@@ -612,6 +615,11 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 {
                 case 'A':
                     CadastraCliente(index_clientes, TL_clientes);
+                    if (Compara(TL_clientes, TF) == true)
+                        CadastraCliente(index_clientes, TL_clientes);
+                    else
+                        printf("Erro: dbCheio\n");
+                    getch();
                     break;
                 case 'B':
                     ConsultaClientes(index_clientes, TL_clientes);
@@ -661,7 +669,11 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 switch (opc)
                 {
                 case 'A':
-                    CadastraFornecedor(index_fornecedores, TL_fornecedores, NULL);
+                    if (Compara(TL_fornecedores, TF) == true)
+                        CadastraFornecedor(index_fornecedores, TL_fornecedores, NULL);
+                    else
+                        printf("Erro: dbCheio\n");
+                    getch();
                     break;
                 case 'B':
                     ConsultaFornecedor(index_fornecedores, TL_fornecedores);
@@ -710,7 +722,11 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 switch (opc)
                 {
                 case 'A':
-                    CadastraProd(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
+                    if (Compara(TL_produtos, TF) == true)
+                        CadastraProd(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
+                    else
+                        printf("Erro: dbCheio\n");
+                    getch();
                     break;
                 case 'B':
                     ConsultaProd(index_produtos, TL_produtos);
@@ -760,8 +776,8 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 switch (opc)
                 {
                 case 'A':
-                    novaVenda(index_clientes,index_fornecedores,index_produtos,index_vendas,TL_clientes,TL_fornecedores,TL_produtos,TL_vendas);
-                    
+                    novaVenda(index_clientes, index_fornecedores, index_produtos, index_vendas, TL_clientes, TL_fornecedores, TL_produtos, TL_vendas);
+
                     break;
                 case 'B':
                     //
