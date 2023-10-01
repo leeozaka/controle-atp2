@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <conio2.h>
+#include <time.h>
 
 #define TF 10
 #define QUANT 20
@@ -482,11 +483,13 @@ void EditaClientes(Clientes clientes[], int TL)
         else
         {
             printf("CPF n encontrado! \n");
+            getch();
         }
     }
     else
     {
         printf("Lista vazia!\n");
+        getch();
     }
 }
 
@@ -506,11 +509,13 @@ void ConsultaFornecedor(Fornecedores fornecedores[], int TL)
         else
         {
             printf("FORNECEDOR NAO ENCONTRADO!\n");
+            getch();
         }
     }
     else
     {
         printf("Apenas cod's positivos\n");
+        getch();
     }
 }
 
@@ -535,16 +540,154 @@ void ExcluirFornecedor(Fornecedores fornecedores[], int &TL)
             }
             TL--;
             printf("Deletado com sucesso!\n");
+            getch();
         }
     }
     else
     {
         printf("Fornecedor nao encontrado \n");
+        getch();
     }
 }
 
-int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos rootProdutos[], Vendas rootVendas[], int &TLclientes, int &TLfornecedores, int &TLprodutos, int &TLvendas)
+int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos rootProdutos[], Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], int TLclientes, int TLfornecedores, int TLprodutos, int &TLvendas, int &TLvendasprod)
 {
+    int i, pos_cliente, cod_aux, var, valor_variavel = 0;
+    char cpf[11], datahelper;
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    TpData construtor_data;
+    bool pass;
+    printf("\nNova venda\n");
+    printf("CPF do Cliente: ");
+    fflush(stdin);
+    gets(cpf);
+    while (strcmp(cpf, "0") != 0)
+    {
+        validarCPF(cpf) == 1 ? pass = true : pass = false;
+        if (pass == true)
+        {
+            pos_cliente = getPosClientes(rootClientes, TLclientes, cpf);
+            if (pos_cliente >= 0)
+            {
+                printf("Cliente: %s\n", rootClientes[pos_cliente].NomeCli);
+                printf("[A] - Usar a data atual para a venda\n");
+                printf("[B] - Data Personalizada para a venda\n");
+                fflush(stdin);
+                scanf("%c", &datahelper);
+                datahelper = toupper(datahelper);
+                pass = false;
+                do
+                {
+                    switch (datahelper)
+                    { // bool pass = true quando setar a data
+                    case 'A':
+                        // conseguir data atual com a biblioteca time.h - -check
+                        // inserir em rootVendas[TLvendas].DtVenda;; --check
+                        construtor_data.Dia = tm.tm_mday;
+                        construtor_data.Mes = tm.tm_mon + 1;
+                        construtor_data.Ano = tm.tm_year + 1900;
+                        rootVendas[TLvendas].DtVenda = construtor_data;
+                        pass = true;
+                        break;
+                    case 'B':
+                        // input de data valida
+                        // inserir em rootVendas[TLvendas].DtVenda;;
+                        pass = true;
+                        break;
+                    default:
+                        printf("Obrigatorio inserir data valida!\n");
+                    }
+                } while (pass == false);
+                do
+                {
+                    int prod_pos;
+                    printf("Cod do %d prod. a ser adicionado: ");
+                    fflush(stdin);
+                    scanf("%d", &cod_aux);
+                    if (cod_aux > 0)
+                    {
+                        prod_pos = BusProdCod(rootProdutos, TLprodutos, cod_aux);
+                        // verificar prod.
+                        if (prod_pos >= 0)
+                        {
+                            pass = false;
+                            // confere validade para venda;;
+                            // if validade true {}
+                            printf("Produto: %s\nQtde em estoque:%d\n", rootProdutos[prod_pos].Desc, rootProdutos[prod_pos].Estoque);
+                            do
+                            {
+                                printf("Quantidade vendida: ");
+                                fflush(stdin);
+                                scanf("%d", &var);
+                            } while (var <= 0);
+                            if (var <= rootProdutos[prod_pos].Estoque)
+                            {
+                                /*
+                                    Tickets a atualizar aqui:
+                                    Estoque--; ->
+                                    Vendas_Produtos = Cod_Venda (TL+1) ->
+                                    Vendas_Produtos = CodProd ->
+                                    Vendas_Produtos = Qtde ->
+                                    Vendas_Produts = ValorUnitario ->
+                                    valor_variavel+=ValorUnitario*Qtde  ->
+                                    Clientes = QtdeCompras ++;
+                                    Vendas_Produtos_TL ++ ;;
+                                */
+                                rootProdutos[prod_pos].Estoque -= var;
+                                rootVendasProdutos[TLvendasprod].CodVenda = TLvendasprod + 1;
+                                rootVendasProdutos[TLvendasprod].CodProd = rootProdutos[prod_pos].CodProd;
+                                rootVendasProdutos[TLvendasprod].Qtde = var;
+                                rootVendasProdutos[TLvendasprod].ValorUnitario = rootProdutos[prod_pos].Preco;
+                                valor_variavel += rootProdutos[prod_pos].Preco*var;
+                                rootClientes[pos_cliente].QtdeCompras++;
+                                printf("Item %s adicionado a venda de cod. %d", );
+                                TLvendasprod; //mexer com o CODVENDA ainda nao funciona tao bem ;;
+                            }
+                            else
+                            {
+                                printf("Quantidade maior que estoque total\n");
+                                getch();
+                            }
+                        }
+                        else
+                        {
+                            printf("Produto nao encontrado.\nTente novamente.\n");
+                            getch();
+                        }
+                    }
+                    printf("Cod do %d prod. a ser adicionado: ");
+                    fflush(stdin);
+                    scanf("%d", &cod_aux);
+                } while (cod_aux > 0);
+                /*
+                    Tickets a atualizar aqui:
+                    Vendas = CodVenda (TL+1)
+                    Vendas = CPFcli
+                    Vendas = Data verif
+                    Vendas = valor_variavel
+                    Vendas TL ++;
+                    Clientes ValorTotComprado += valor_variavel
+                    valor_variavel = 0;
+
+                */
+            }
+            else
+            {
+                printf("Cliente nao encontrado\n");
+                getch();
+            }
+        }
+        else
+        {
+            printf("Digite um CPF válido!");
+            getch();
+        }
+
+        printf("(0 cancela) CPF do Cliente:");
+        fflush(stdin);
+        gets(cpf);
+    }
 }
 
 void InsereElementos();
@@ -776,7 +919,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 switch (opc)
                 {
                 case 'A':
-                    novaVenda(index_clientes, index_fornecedores, index_produtos, index_vendas, TL_clientes, TL_fornecedores, TL_produtos, TL_vendas);
+                    novaVenda(index_clientes, index_fornecedores, index_produtos, index_vendas, index_vendasprod, TL_clientes, TL_fornecedores, TL_produtos, TL_vendas, TL_cupons);
 
                     break;
                 case 'B':
