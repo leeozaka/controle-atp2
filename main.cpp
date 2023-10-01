@@ -121,7 +121,7 @@ void CadastraCliente(Clientes clientes[TF], int &TL)
             fflush(stdin);
             printf("Digite o nome: ");
             gets(clientes[TL].NomeCli);
-            // clientes[TL].QtdeCompras=0;
+            clientes[TL].QtdeCompras = 0;
             clientes[TL].ValorTotComprado = 0;
             TL++;
             printf("Cliente cadastrado com sucesso!");
@@ -177,6 +177,7 @@ int BusFornCod(Fornecedores Tab[TF], int TL, int cod)
     else
         return -1;
 }
+
 int ConsultaFornecedor(Fornecedores lista_fornecedores[TF], int TL, int find)
 {
     // retorna código do Fornecedor! ñ pos;
@@ -184,6 +185,47 @@ int ConsultaFornecedor(Fornecedores lista_fornecedores[TF], int TL, int find)
     for (i = 0; i < TL && find != lista_fornecedores[i].CodForn; i++)
         ;
     return i == TL ? -1 : lista_fornecedores[i].CodForn;
+}
+
+void AlterarDadosFornecedor(Fornecedores fornecedores[], int TL)
+{
+    int opcao, pos, cod;
+    char opc;
+    if (TL > 0)
+    {
+        printf("Cod. fornecedor a ser editado: ");
+        fflush(stdin);
+        scanf("%d", &cod);
+        if (ConsultaFornecedor(fornecedores, TL, cod) >= 0)
+        {
+            pos = BusFornCod(fornecedores, TL, cod);
+            printf("%s %s\n", fornecedores[pos].NomeForn, fornecedores[pos].NomeForn);
+            printf("Mudar: \n");
+            printf("A-Nome\n");
+            printf("B-Cidade\n");
+            opc = toupper(getch());
+            switch (opc)
+            {
+            case 'A':
+                gets(fornecedores[pos].NomeForn);
+                break;
+            case 'B':
+                gets(fornecedores[pos].Cidade);
+                // buscar compras no cpf e deletar do index_vendas?;
+                break;
+            }
+        }
+        else
+        {
+            printf("COD n encontrado! \n");
+            getch();
+        }
+    }
+    else
+    {
+        printf("Lista vazia!\n");
+        getch();
+    }
 }
 
 void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
@@ -451,6 +493,10 @@ void ConsultaProd(Produtos produtos[], int TL)
         printf("Erro! Produto nao encontrado!\n");
     }
 }
+void produtosPercent(Produtos index_produtos[],Fornecedores index_fornecedores[],int TL_produtos, int TL_fornecedores)
+{
+    //------------------------ parei aqui
+}
 
 void EditaClientes(Clientes clientes[], int TL)
 {
@@ -550,13 +596,29 @@ void ExcluirFornecedor(Fornecedores fornecedores[], int &TL)
     }
 }
 
+int comparaData(int ano1, int mes1, int dia1, int ano2, int mes2, int dia2)
+{
+    // nao testado
+    // output esperado: como strcmp(str1,str2);
+    struct tm data1 = {0};
+    data1.tm_year = ano1 - 1900;
+    data1.tm_mon = mes1 - 1;
+    data1.tm_mday = dia1;
+
+    struct tm data2 = {0};
+    data2.tm_year = ano2 - 1900;
+    data2.tm_mon = mes2 - 1;
+    data2.tm_mday = dia2;
+    return difftime((mktime(&data2)), mktime(&data1));
+}
+
 int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos rootProdutos[], Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], int TLclientes, int TLfornecedores, int TLprodutos, int &TLvendas, int &TLvendasprod)
 {
     int i, pos_cliente, cod_aux, var, valor_variavel = 0;
     char cpf[11], datahelper;
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
-    TpData construtor_data;
+    TpData construtor_data, input;
     bool pass;
     printf("\nNova venda\n");
     printf("CPF do Cliente: ");
@@ -579,25 +641,27 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                 pass = false;
                 do
                 {
+                    construtor_data.Dia = tm.tm_mday;
+                    construtor_data.Mes = tm.tm_mon + 1;
+                    construtor_data.Ano = tm.tm_year + 1900;
                     switch (datahelper)
                     { // bool pass = true quando setar a data
                     case 'A':
-                        // conseguir data atual com a biblioteca time.h - -check
-                        // inserir em rootVendas[TLvendas].DtVenda;; --check
-                        construtor_data.Dia = tm.tm_mday;
-                        construtor_data.Mes = tm.tm_mon + 1;
-                        construtor_data.Ano = tm.tm_year + 1900;
                         rootVendas[TLvendas].DtVenda = construtor_data;
                         pass = true;
                         break;
                     case 'B':
-                        // input de data valida
-                        // inserir em rootVendas[TLvendas].DtVenda;;
-                        
-                        pass = true;
+                        fflush(stdin);
+                        scanf("%d %d %d", &input.Dia, &input.Mes, &input.Ano);
+                        if (comparaData(input.Ano, input.Mes, input.Dia, construtor_data.Ano, construtor_data.Mes, construtor_data.Dia) <= 0)
+                        {
+                            rootVendas[TLvendas].DtVenda = input;
+                            pass = true;
+                        }
                         break;
                     default:
                         printf("Obrigatorio inserir data valida!\n");
+                        getch();
                     }
                 } while (pass == false);
                 do
@@ -609,35 +673,40 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                     if (cod_aux > 0)
                     {
                         prod_pos = BusProdCod(rootProdutos, TLprodutos, cod_aux);
-                        // verificar prod.
                         if (prod_pos >= 0)
                         {
                             pass = false;
-                            // confere validade para venda;;
-                            // if validade true {}
-                            printf("Produto: %s\nQtde em estoque:%d\n", rootProdutos[prod_pos].Desc, rootProdutos[prod_pos].Estoque);
-                            do
+                            if (comparaData(rootProdutos[prod_pos].DtValidade.Ano, rootProdutos[prod_pos].DtValidade.Mes, rootProdutos[prod_pos].DtValidade.Dia, construtor_data.Ano, construtor_data.Mes, construtor_data.Dia) <= 0)
                             {
-                                printf("Quantidade vendida: ");
-                                fflush(stdin);
-                                scanf("%d", &var);
-                            } while (var <= 0);
-                            if (var <= rootProdutos[prod_pos].Estoque)
-                            {
-                                rootProdutos[prod_pos].Estoque -= var;
-                                rootVendasProdutos[TLvendasprod].CodVenda = TLvendas + 1;
-                                rootVendasProdutos[TLvendasprod].CodProd = rootProdutos[prod_pos].CodProd;
-                                rootVendasProdutos[TLvendasprod].Qtde = var;
-                                rootVendasProdutos[TLvendasprod].ValorUnitario = rootProdutos[prod_pos].Preco;
-                                valor_variavel += rootProdutos[prod_pos].Preco*var;
-                                rootClientes[pos_cliente].QtdeCompras++;
-                                TLvendasprod++;
-                                printf("Item %s adicionado a venda de cod. %d\n", rootProdutos[prod_pos].Desc, TLvendas+1);
-                                getch();
+                                printf("Produto: %s\nQtde em estoque:%d\n", rootProdutos[prod_pos].Desc, rootProdutos[prod_pos].Estoque);
+                                do
+                                {
+                                    printf("Quantidade vendida: ");
+                                    fflush(stdin);
+                                    scanf("%d", &var);
+                                } while (var <= 0);
+                                if (var <= rootProdutos[prod_pos].Estoque)
+                                {
+                                    rootProdutos[prod_pos].Estoque -= var;
+                                    rootVendasProdutos[TLvendasprod].CodVenda = TLvendas + 1;
+                                    rootVendasProdutos[TLvendasprod].CodProd = rootProdutos[prod_pos].CodProd;
+                                    rootVendasProdutos[TLvendasprod].Qtde = var;
+                                    rootVendasProdutos[TLvendasprod].ValorUnitario = rootProdutos[prod_pos].Preco;
+                                    valor_variavel += rootProdutos[prod_pos].Preco * var;
+                                    rootClientes[pos_cliente].QtdeCompras++;
+                                    TLvendasprod++;
+                                    printf("Item %s adicionado a venda de cod. %d\n", rootProdutos[prod_pos].Desc, TLvendas + 1);
+                                    getch();
+                                }
+                                else
+                                {
+                                    printf("Quantidade maior que estoque total\n");
+                                    getch();
+                                }
                             }
                             else
                             {
-                                printf("Quantidade maior que estoque total\n");
+                                printf("Validade do produto nao bate com a venda \n");
                                 getch();
                             }
                         }
@@ -651,16 +720,16 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                     fflush(stdin);
                     scanf("%d", &cod_aux);
                 } while (cod_aux > 0);
-                
-               rootVendas[TLvendas].CodVenda = TLvendas+1;
-               strcmp(rootVendas[TLvendas].CPF,rootClientes[pos_cliente].CPF);
-               rootVendas[TLvendas].DtVenda =  construtor_data;
-               rootVendas[TLvendas].TotVenda = valor_variavel;
-               TLvendas++;
-               rootClientes[pos_cliente].ValorTotComprado+=valor_variavel;
-               valor_variavel = 0;
-               printf("Venda do cliente %s registrada com sucesso\n",rootClientes[pos_cliente].NomeCli);
-               getch();
+
+                rootVendas[TLvendas].CodVenda = TLvendas + 1;
+                strcmp(rootVendas[TLvendas].CPF, rootClientes[pos_cliente].CPF);
+                rootVendas[TLvendas].DtVenda = construtor_data;
+                rootVendas[TLvendas].TotVenda = valor_variavel;
+                TLvendas++;
+                rootClientes[pos_cliente].ValorTotComprado += valor_variavel;
+                valor_variavel = 0;
+                printf("Venda do cliente %s registrada com sucesso\n", rootClientes[pos_cliente].NomeCli);
+                getch();
             }
             else
             {
@@ -740,8 +809,6 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 gotoxy(4, 12);
                 printf("[D] - ALTERACAO\n");
                 gotoxy(4, 13);
-                printf("[E] - RELATORIO\n");
-                gotoxy(4, 14);
                 opc = toupper(getche());
 
                 switch (opc)
@@ -758,7 +825,13 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     ConsultaClientes(index_clientes, TL_clientes);
                     break;
                 case 'C':
-                    DeletaClientes(index_clientes, TL_clientes);
+                    if (TL_clientes > 0)
+                        DeletaClientes(index_clientes, TL_clientes);
+                    else
+                    {
+                        printf("Vetor vazio\n");
+                        getch();
+                    }
                     break;
                 case 'D':
                     EditaClientes(index_clientes, TL_clientes);
@@ -812,10 +885,16 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     ConsultaFornecedor(index_fornecedores, TL_fornecedores);
                     break;
                 case 'C':
-                    ExcluirFornecedor(index_fornecedores, TL_fornecedores);
+                    if (TL_fornecedores > 0)
+                        ExcluirFornecedor(index_fornecedores, TL_fornecedores);
+                    else
+                    {
+                        printf("Vetor vazio! \n");
+                        getch();
+                    }
                     break;
                 case 'D':
-                    // AlterarDadosFornecedor(index_fornecedores, TL_fornecedores);
+                    AlterarDadosFornecedor(index_fornecedores, TL_fornecedores);
                     break;
 
                 default:
@@ -870,6 +949,10 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 case 'D':
                     AlterarProdCadastrado(index_produtos, TL_produtos);
                     break;
+                case 'E':
+                    if (TL_produtos > 0)
+                        produtosPercent(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
+                    break;
 
                 default:
                     if (opc != 27)
@@ -897,20 +980,25 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 gotoxy(4, 9);
                 printf("[A] - NOVA VENDA\n");
                 gotoxy(4, 10);
-                printf("[B] - CONSULTA VENDAS\n");
+                printf("[B] - EXCLUSAO DE VENDA\n");
                 gotoxy(4, 11);
-                printf("[C] - EXCLUSAO DE VENDA\n");
+                printf("[C] - ALTERACAO EM VENDA\n");
                 gotoxy(4, 12);
-                printf("[D] - ALTERACAO EM VENDA\n");
-                gotoxy(4, 13);
-                printf("[E] - RELATORIO DE VENDAS TOTAL");
+                printf("[D] - RELATORIO DE VENDAS TOTAL");
                 opc = toupper(getche());
 
                 switch (opc)
                 {
                 case 'A':
-                    novaVenda(index_clientes, index_fornecedores, index_produtos, index_vendas, index_vendasprod, TL_clientes, TL_fornecedores, TL_produtos, TL_vendas, TL_cupons);
-
+                    if (TL_vendas <= TF && TL_cupons <= TF)
+                    {
+                        novaVenda(index_clientes, index_fornecedores, index_produtos, index_vendas, index_vendasprod, TL_clientes, TL_fornecedores, TL_produtos, TL_vendas, TL_cupons);
+                    }
+                    else
+                    {
+                        printf("mem. cheia! \n");
+                        getch();
+                    }
                     break;
                 case 'B':
                     //
@@ -984,7 +1072,6 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
 
 int main(void)
 {
-
     Fornecedores index_fornecedores[TF];
     Produtos index_produtos[TF];
     Clientes index_clientes[TF];
