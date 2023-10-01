@@ -102,6 +102,7 @@ void CadastraCliente(Clientes clientes[TF], int &TL)
     char CPF[11];
     int i, validar = 0;
     printf("Digite seu CPF: ");
+    fflush(stdin);
     gets(CPF);
     if (validarCPF(CPF) == 1)
     {
@@ -120,6 +121,7 @@ void CadastraCliente(Clientes clientes[TF], int &TL)
             strcpy(clientes[TL].CPF, CPF);
             fflush(stdin);
             printf("Digite o nome: ");
+            fflush(stdin);
             gets(clientes[TL].NomeCli);
             clientes[TL].QtdeCompras = 0;
             clientes[TL].ValorTotComprado = 0;
@@ -207,9 +209,11 @@ void AlterarDadosFornecedor(Fornecedores fornecedores[], int TL)
             switch (opc)
             {
             case 'A':
+                fflush(stdin);
                 gets(fornecedores[pos].NomeForn);
                 break;
             case 'B':
+                fflush(stdin);
                 gets(fornecedores[pos].Cidade);
                 // buscar compras no cpf e deletar do index_vendas?;
                 break;
@@ -493,7 +497,7 @@ void ConsultaProd(Produtos produtos[], int TL)
         printf("Erro! Produto nao encontrado!\n");
     }
 }
-void produtosPercent(Produtos index_produtos[],Fornecedores index_fornecedores[],int TL_produtos, int TL_fornecedores)
+void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[], int TL_produtos, int TL_fornecedores)
 {
     //------------------------ parei aqui
 }
@@ -505,6 +509,7 @@ void EditaClientes(Clientes clientes[], int TL)
     if (TL > 0)
     {
         printf("CPF a ser editado: ");
+        fflush(stdin);
         gets(cpf);
         if (validarCPF(cpf) == 1)
         {
@@ -517,6 +522,7 @@ void EditaClientes(Clientes clientes[], int TL)
             switch (opc)
             {
             case 'A':
+                fflush(stdin);
                 gets(clientes[pos].NomeCli);
                 break;
             case 'B':
@@ -814,7 +820,6 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 switch (opc)
                 {
                 case 'A':
-                    CadastraCliente(index_clientes, TL_clientes);
                     if (Compara(TL_clientes, TF) == true)
                         CadastraCliente(index_clientes, TL_clientes);
                     else
