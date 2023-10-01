@@ -593,6 +593,7 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                     case 'B':
                         // input de data valida
                         // inserir em rootVendas[TLvendas].DtVenda;;
+                        
                         pass = true;
                         break;
                     default:
@@ -623,26 +624,16 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                             } while (var <= 0);
                             if (var <= rootProdutos[prod_pos].Estoque)
                             {
-                                /*
-                                    Tickets a atualizar aqui:
-                                    Estoque--; ->
-                                    Vendas_Produtos = Cod_Venda (TL+1) ->
-                                    Vendas_Produtos = CodProd ->
-                                    Vendas_Produtos = Qtde ->
-                                    Vendas_Produts = ValorUnitario ->
-                                    valor_variavel+=ValorUnitario*Qtde  ->
-                                    Clientes = QtdeCompras ++;
-                                    Vendas_Produtos_TL ++ ;;
-                                */
                                 rootProdutos[prod_pos].Estoque -= var;
-                                rootVendasProdutos[TLvendasprod].CodVenda = TLvendasprod + 1;
+                                rootVendasProdutos[TLvendasprod].CodVenda = TLvendas + 1;
                                 rootVendasProdutos[TLvendasprod].CodProd = rootProdutos[prod_pos].CodProd;
                                 rootVendasProdutos[TLvendasprod].Qtde = var;
                                 rootVendasProdutos[TLvendasprod].ValorUnitario = rootProdutos[prod_pos].Preco;
                                 valor_variavel += rootProdutos[prod_pos].Preco*var;
                                 rootClientes[pos_cliente].QtdeCompras++;
-                                printf("Item %s adicionado a venda de cod. %d", );
-                                TLvendasprod; //mexer com o CODVENDA ainda nao funciona tao bem ;;
+                                TLvendasprod++;
+                                printf("Item %s adicionado a venda de cod. %d\n", rootProdutos[prod_pos].Desc, TLvendas+1);
+                                getch();
                             }
                             else
                             {
@@ -660,17 +651,16 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                     fflush(stdin);
                     scanf("%d", &cod_aux);
                 } while (cod_aux > 0);
-                /*
-                    Tickets a atualizar aqui:
-                    Vendas = CodVenda (TL+1)
-                    Vendas = CPFcli
-                    Vendas = Data verif
-                    Vendas = valor_variavel
-                    Vendas TL ++;
-                    Clientes ValorTotComprado += valor_variavel
-                    valor_variavel = 0;
-
-                */
+                
+               rootVendas[TLvendas].CodVenda = TLvendas+1;
+               strcmp(rootVendas[TLvendas].CPF,rootClientes[pos_cliente].CPF);
+               rootVendas[TLvendas].DtVenda =  construtor_data;
+               rootVendas[TLvendas].TotVenda = valor_variavel;
+               TLvendas++;
+               rootClientes[pos_cliente].ValorTotComprado+=valor_variavel;
+               valor_variavel = 0;
+               printf("Venda do cliente %s registrada com sucesso\n",rootClientes[pos_cliente].NomeCli);
+               getch();
             }
             else
             {
