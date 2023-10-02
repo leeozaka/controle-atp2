@@ -389,10 +389,12 @@ void DeletaClientes(Clientes clientes[], int &TL)
             }
             TL--;
             printf("Cliente removido com sucesso!");
+            getch();
         }
         else
         {
             printf("Erro ao remover cliente.");
+            getch();
         }
     }
 }
@@ -499,7 +501,45 @@ void ConsultaProd(Produtos produtos[], int TL)
 }
 void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[], int TL_produtos, int TL_fornecedores)
 {
-    //------------------------ parei aqui
+    int valor, cod, pos;
+    char resp;
+    do
+    {
+        printf("[A] Add - [B] Subtrair\n");
+        fflush(stdin);
+        resp = toupper(getch());
+    } while (resp != 'A' || resp != 'B');
+    printf("Valor em porc: ");
+    fflush(stdin);
+    scanf("%d", &valor);
+    printf("Cod do fornecedor para %s: ", resp == 'A' ? "adicionar" : "subtrair");
+    fflush(stdin);
+    scanf("%d", &cod);
+    pos = BusFornCod(index_fornecedores, TL_fornecedores, cod);
+    if (pos >= 0)
+    {
+        switch (resp)
+        {
+        case 'A':
+            for (int i = 0; i < TL_produtos; i++)
+                if (index_produtos[i].CodForn == index_fornecedores[pos].CodForn)
+                    index_produtos[i].Preco += (index_produtos[i].Preco * (valor / 100));
+            printf("Produtos atualizados\n");
+            getch();
+            break;
+        case 'B':
+            for (int i = 0; i < TL_produtos; i++)
+                if (index_produtos[i].CodForn == index_fornecedores[pos].CodForn)
+                    index_produtos[i].Preco -= (index_produtos[i].Preco * (valor / 100));
+            printf("Produtos atualizados\n");
+            getch();
+            break;
+        }
+    }
+    else
+    {
+        printf("\nERRO! Fornecedor não cadastrado.\n");
+    }
 }
 
 void EditaClientes(Clientes clientes[], int TL)
@@ -934,6 +974,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 gotoxy(4, 12);
                 printf("[D] - ALTERACAO\n");
                 gotoxy(4, 13);
+                printf("[E] - Desc Percentual ");
                 opc = toupper(getche());
 
                 switch (opc)
