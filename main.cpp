@@ -57,6 +57,53 @@ bool Compara(int vet, int size)
 {
     return vet <= size ? true : false;
 }
+void Moldura(int CI, int LI, int CF, int LF, int CorT, int CorF)
+{
+	int i;
+	textcolor(CorT);
+	textbackground(CorF);
+	gotoxy(CI,LI);
+	printf("%c",201);
+	gotoxy(CI,LF);
+	printf("%c",200);
+	gotoxy(CF,LI);
+	printf("%c",187);
+	gotoxy(CF,LF);
+	printf("%c",188);
+	for(i=CI+1; i<CF; i++)
+	{
+		gotoxy(i,LI); printf("%c",205);
+		gotoxy(i,LF); printf("%c",205);
+	}
+	for(i=LI+1; i<LF; i++)
+	{
+		gotoxy(CI,i); printf("%c",186);
+		gotoxy(CF,i); printf("%c",186);
+	}
+	
+	textcolor(7);
+	textbackground(0);
+}
+
+void Formulario(void)
+{
+	system("cls");
+	Moldura(1,1,80,25,10,5);
+	gotoxy(27,3);
+	textcolor(15);
+	printf(" # # #  T I T U L O  # # #");
+	
+	Moldura(2,2,79,4,14,1);
+	Moldura(2,5,27,21,12,7);
+//	Menu();
+	Moldura(2,22,79,24,11,4);
+	gotoxy(4,23);
+	textcolor(10);
+	printf("Mensagem: ");
+
+	Moldura(28,5,79,21,9,6);
+}
+
 int validarCPF(char cpf[11]) // corrigido 25-09
 {
     int i, digito1 = 0, digito2 = 0, helper;
@@ -132,7 +179,7 @@ void CadastraCliente(Clientes clientes[TF], int &TL)
     }
     else
     {
-        printf("\nO número de identificação informado não está correto.\n");
+        printf("\nO numero de identificacao informado n�o esta correto.\n");
         getch();
     }
 }
@@ -233,7 +280,7 @@ void AlterarDadosFornecedor(Fornecedores fornecedores[], int TL)
 }
 
 void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
-// int *cod passa NULL se o código do fornecedor já nao foi inserido em outra funçao, exmeplo no cast do Menu();
+// int *cod passa NULL se o codigo do fornecedor ja nao foi inserido em outra funcao, exmeplo no cast do Menu();
 {
     int codforn, busca;
 
@@ -347,7 +394,7 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
         scanf("%d", &AuxCod);
     }
 }
-
+//arrumar a funcao de relatorio, e incrementar uma funcao de nota fiscal apos as vendas 
 /*void Relatorio(Produtos Produtos[TF], Vendas Vendas[TF], int TL)
 {
     int i;
@@ -457,7 +504,7 @@ void AlterarProdCadastrado(Produtos produtos[], int TL)
                 produtos[ponto].Estoque = Aux;
                 break;
             case 'B':
-                printf("Qual o novo preço do %s? R$ ", produtos[ponto].Desc);
+                printf("Qual o novo preco do %s? R$ ", produtos[ponto].Desc);
                 while (scanf(" %f", &Aux_Preco) < 0)
                     printf("Preco invalido\n");
                 produtos[ponto].Preco = Aux_Preco;
@@ -538,7 +585,7 @@ void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[
     }
     else
     {
-        printf("\nERRO! Fornecedor não cadastrado.\n");
+        printf("\nERRO! Fornecedor nao cadastrado.\n");
     }
 }
 
@@ -785,7 +832,7 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
         }
         else
         {
-            printf("Digite um CPF válido!");
+            printf("Digite um CPF valido!");
             getch();
         }
 
@@ -797,9 +844,9 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
 
 void InsereElementos();
 
-void Moldura(int CI, int LI, int CF, int LF, int TC, int BG)
-{
-}
+//void Moldura(int CI, int LI, int CF, int LF, int TC, int BG)
+//{
+//}
 
 void ClrScrenzona(int LI, int CI, int LF, int CF)
 {
@@ -1118,6 +1165,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
 
 int main(void)
 {
+	Formulario();
     Fornecedores index_fornecedores[TF];
     Produtos index_produtos[TF];
     Clientes index_clientes[TF];
