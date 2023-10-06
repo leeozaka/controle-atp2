@@ -53,6 +53,65 @@ struct Vendas_Produtos
     int Qtde;
     float ValorUnitario;
 };
+
+/*conioPrintf("string", "posicao", "Cor", somar linha);*/
+void conioPrintf(char *str, char *posicao, char *cor, int linha)
+{
+    int posx, posy;
+    // setColor
+    if (strcmp(cor, "preto") == 0)
+        textcolor(0);
+    else if (strcmp(cor, "azul") == 0)
+        textcolor(1);
+    else if (strcmp(cor, "verde") == 0)
+        textcolor(2);
+    else if (strcmp(cor, "ciano") == 0)
+        textcolor(3);
+    else if (strcmp(cor, "vermelho") == 0)
+        textcolor(4);
+    else if (strcmp(cor, "rosa") == 0)
+        textcolor(5);
+    else if (strcmp(cor, "marrom") == 0)
+        textcolor(6);
+    else if (strcmp(cor, "branco") == 0)
+        textcolor(7);
+    else if (strcmp(cor, "cinza_claro") == 0)
+        textcolor(8);
+    else if (strcmp(cor, "azul_claro") == 0)
+        textcolor(9);
+    else if (strcmp(cor, "verde_claro") == 0)
+        textcolor(10);
+    else if (strcmp(cor, "ciano_claro") == 0)
+        textcolor(11);
+    else if (strcmp(cor, "vermelho_claro") == 0)
+        textcolor(12);
+    else if (strcmp(cor, "rosa_claro") == 0)
+        textcolor(13);
+    else if (strcmp(cor, "amarelo") == 0)
+        textcolor(14);
+    else if (strcmp(cor, "branco") == 0)
+        textcolor(15);
+    else
+        textcolor(15);
+
+    // setPos (definir pos antes)
+    if (strcmp(posicao, "topo") == 0)
+        gotoxy(27, 3); // definir posicoes de xy depois
+    else if (strcmp(posicao, "alerta") == 0)
+        gotoxy(2, 2);
+    else if (strcmp(posicao, "menu_left") == 0)
+        gotoxy(4, 4);
+    else if (strcmp(posicao, "menu_rigth") == 0)
+        gotoxy(2, 2);
+
+    // setLinha
+    gotoxy(wherex(), wherey() + linha);
+
+    // putStringto
+    puts(str);
+    gotoxy(0, 0);
+}
+
 bool Compara(int vet, int size)
 {
     return vet < size ? true : false;
@@ -139,7 +198,7 @@ int validarCPF(char cpf[11]) // corrigido 25-09
             for (i = 0; i < strlen(cpf) - 2; i++)
                 digito2 += (cpf[i] - '0') * i;
             digito2 %= 11;
-            if (digito2 == 10)
+            if (digito2 == 10 || digito2 == 11)
                 digito2 = 0;
             if ((cpf[10] - '0') != digito2)
                 return 0;
@@ -912,6 +971,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
         switch (opc)
         {
         case 'A':
+            conioPrintf("CLIENTES", "topo", "branco", 0);
             do
             {
                 ClrScrenzona(23, 3, 23, 78);
@@ -1168,7 +1228,6 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 }
             } while (opc != 27);
             break;
-
         }
         ClrScrenzona(23, 3, 23, 78);
         gotoxy(3, 23);
