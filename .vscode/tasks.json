@@ -3,11 +3,12 @@
         {
             "type": "cppbuild",
             "label": "C/C++: gcc.exe build active file",
-            "command": "C:/Dev-Cpp/MinGW64/bin/gcc.exe",
+            "command": "C:/Dev-Cpp/MinGW64/bin/g++.exe",
             "args": [
                 "-static-libgcc",
                 "-lconio",
-                "-m32"
+                "-m32",
+                "-g3"
             ],
             "options": {
                 "cwd": "C:/Dev-Cpp/MinGW64/bin/"
