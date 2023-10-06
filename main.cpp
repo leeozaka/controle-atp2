@@ -148,6 +148,8 @@ void CadastraCliente(Clientes clientes[TF], int &TL)
 {
     char CPF[11];
     int i, validar = 0;
+//    gotoxy(4, 9);
+    gotoxy(30, 7);
     printf("Digite seu CPF: ");
     fflush(stdin);
     gets(CPF);
@@ -160,11 +162,13 @@ void CadastraCliente(Clientes clientes[TF], int &TL)
         }
         if (validar == 1)
         {
+        	gotoxy(30, 8);
             printf("\nCPF ja cadastrado\n!");
             getch();
         }
         else
         {
+        	gotoxy(30, 8);
             strcpy(clientes[TL].CPF, CPF);
             fflush(stdin);
             printf("Digite o nome: ");
@@ -179,7 +183,8 @@ void CadastraCliente(Clientes clientes[TF], int &TL)
     }
     else
     {
-        printf("\nO numero de identificacao informado não esta correto.\n");
+//    	ClrScrenzona(8, 3, 20, 24);
+        printf("\nO numero de identificacao informado nao esta correto.\n");
         getch();
     }
 }
@@ -416,6 +421,7 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
     getch();
 }
 */
+
 void DeletaClientes(Clientes clientes[], int &TL)
 {
     int pos;
@@ -571,6 +577,7 @@ void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[
             for (int i = 0; i < TL_produtos; i++)
                 if (index_produtos[i].CodForn == index_fornecedores[pos].CodForn)
                     index_produtos[i].Preco += (index_produtos[i].Preco * (valor / 100));
+                    gotoxy(30, 7);
             printf("Produtos atualizados\n");
             getch();
             break;
@@ -578,6 +585,7 @@ void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[
             for (int i = 0; i < TL_produtos; i++)
                 if (index_produtos[i].CodForn == index_fornecedores[pos].CodForn)
                     index_produtos[i].Preco -= (index_produtos[i].Preco * (valor / 100));
+                    gotoxy(30, 7);
             printf("Produtos atualizados\n");
             getch();
             break;
@@ -793,6 +801,7 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                                 }
                                 else
                                 {
+                                	
                                     printf("Quantidade maior que estoque total\n");
                                     getch();
                                 }
@@ -804,8 +813,12 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                             }
                         }
                         else
-                        {
-                            printf("Produto nao encontrado.\nTente novamente.\n");
+                        {	
+                        	//ClrScrenzona(23, 3, 23, 78);
+	                		gotoxy(3, 23);
+	                		printf("Produto nao encontrado.\nTente novamente.\n");
+	                		gotoxy(41, 23);
+	                                                    
                             getch();
                         }
                     }
@@ -814,18 +827,25 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                     scanf("%d", &cod_aux);
                 } while (cod_aux > 0);
 
-                rootVendas[TLvendas].CodVenda = TLvendas + 1;
+                rootVendas[TLvendas].CodVenda = TLvendas+ 1;
                 strcmp(rootVendas[TLvendas].CPF, rootClientes[pos_cliente].CPF);
                 rootVendas[TLvendas].DtVenda = construtor_data;
                 rootVendas[TLvendas].TotVenda = valor_variavel;
                 TLvendas++;
                 rootClientes[pos_cliente].ValorTotComprado += valor_variavel;
                 valor_variavel = 0;
+                
+//                ClrScrenzona(23, 3, 23, 78); //dando erro n sei pq
+                gotoxy(3, 23);
                 printf("Venda do cliente %s registrada com sucesso\n", rootClientes[pos_cliente].NomeCli);
+                gotoxy(41, 23);	
+                               
+                
                 getch();
             }
             else
             {
+            	
                 printf("Cliente nao encontrado\n");
                 getch();
             }
@@ -836,7 +856,7 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
             getch();
         }
 
-        printf("(0 cancela) CPF do Cliente:");
+        printf("(0 cancela) CPF do Cliente:"); //nao esta cancelando
         fflush(stdin);
         gets(cpf);
     }
@@ -889,10 +909,10 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
             do
             {
                 ClrScrenzona(23, 3, 23, 78);
-                gotoxy(3, 23);
+                gotoxy(3, 23);//parte de baixo
                 printf("*Selecione uma operacao em clientes*\n");
                 // a mostrar:
-                ClrScrenzona(8, 3, 20, 24);
+                ClrScrenzona(8, 3, 20, 24); //parte de baixo
                 gotoxy(4, 9);
                 printf("[A] - CADASTRO\n");
                 gotoxy(4, 10);
@@ -910,7 +930,11 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     if (Compara(TL_clientes, TF) == true)
                         CadastraCliente(index_clientes, TL_clientes);
                     else
-                        printf("Erro: dbCheio\n");
+                    	ClrScrenzona(23, 3, 23, 78);
+                		gotoxy(3, 23);
+                		printf("Erro: dbCheio\n");
+                		gotoxy(41, 23);
+                        
                     getch();
                     break;
                 case 'B':
@@ -921,21 +945,25 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                         DeletaClientes(index_clientes, TL_clientes);
                     else
                     {
-                        printf("Vetor vazio\n");
+                    	ClrScrenzona(23, 3, 23, 78);
+                		gotoxy(3, 23);
+                		printf("Vetor vazio\n");
+                		gotoxy(41, 23);
                         getch();
                     }
                     break;
                 case 'D':
                     EditaClientes(index_clientes, TL_clientes);
                     break;
-                case 'E':
-                    break;
+                //case 'E': q tem
+//                    break;
                 default:
                     if (opc != 27)
                     {
                         ClrScrenzona(23, 3, 23, 78);
-                        gotoxy(3, 23);
-                        printf("\n##INEXISTENTE!##\nSelecione novamente\n");
+						gotoxy(3, 23);
+                        printf("##INEXISTENTE!## Selecione novamente\n");
+                        ClrScrenzona(8, 3, 20, 24);
                         gotoxy(51, 23);
                         getche();
                     }
@@ -970,7 +998,11 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     if (Compara(TL_fornecedores, TF) == true)
                         CadastraFornecedor(index_fornecedores, TL_fornecedores, NULL);
                     else
-                        printf("Erro: dbCheio\n");
+                    	ClrScrenzona(23, 3, 23, 78);
+                		gotoxy(3, 23);
+                		printf("Erro: dbCheio\n");
+                		gotoxy(41, 23);
+                        
                     getch();
                     break;
                 case 'B':
@@ -981,7 +1013,10 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                         ExcluirFornecedor(index_fornecedores, TL_fornecedores);
                     else
                     {
+                    	ClrScrenzona(23, 3, 23, 78);
+                        gotoxy(3, 23);
                         printf("Vetor vazio! \n");
+                        gotoxy(52, 23);
                         getch();
                     }
                     break;
@@ -993,8 +1028,9 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     if (opc != 27)
                     {
                         ClrScrenzona(23, 3, 23, 78);
-                        gotoxy(3, 23);
-                        printf("\n##INEXISTENTE!##\nSelecione novamente\n");
+						gotoxy(3, 23);
+                        printf("##INEXISTENTE!## Selecione novamente\n");
+                        ClrScrenzona(8, 3, 20, 24);
                         gotoxy(51, 23);
                         getche();
                     }
@@ -1030,7 +1066,12 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     if (Compara(TL_produtos, TF) == true)
                         CadastraProd(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
                     else
-                        printf("Erro: dbCheio\n");
+                    	ClrScrenzona(23, 3, 23, 78);
+                		gotoxy(3, 23);
+                		printf("Erro: dbCheio\n");
+                		gotoxy(41, 23);
+                        
+                        
                     getch();
                     break;
                 case 'B':
@@ -1051,8 +1092,9 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     if (opc != 27)
                     {
                         ClrScrenzona(23, 3, 23, 78);
-                        gotoxy(3, 23);
-                        printf("\n##INEXISTENTE!##\nSelecione novamente\n");
+						gotoxy(3, 23);
+                        printf("##INEXISTENTE!## Selecione novamente\n");
+                        ClrScrenzona(8, 3, 20, 24);
                         gotoxy(51, 23);
                         getche();
                     }
@@ -1089,7 +1131,10 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     }
                     else
                     {
-                        printf("mem. cheia! \n");
+                    	ClrScrenzona(23, 3, 23, 78);
+                		gotoxy(3, 23);
+                		printf("memoria cheia! \n");
+                		gotoxy(41, 23);
                         getch();
                     }
                     break;
@@ -1107,8 +1152,9 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     if (opc != 27)
                     {
                         ClrScrenzona(23, 3, 23, 78);
-                        gotoxy(3, 23);
-                        printf("\n##INEXISTENTE!##\nSelecione novamente\n");
+						gotoxy(3, 23);
+                        printf("##INEXISTENTE!## Selecione novamente\n");
+                        ClrScrenzona(8, 3, 20, 24);
                         gotoxy(51, 23);
                         getche();
                     }
@@ -1121,8 +1167,9 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
             if (opc != 27)
             {
                 ClrScrenzona(23, 3, 23, 78);
-                gotoxy(3, 23);
-                printf("\n##INEXISTENTE!##\nSelecione novamente\n");
+				gotoxy(3, 23);
+                printf("##INEXISTENTE!## Selecione novamente\n");
+                ClrScrenzona(8, 3, 20, 24);
                 gotoxy(51, 23);
                 getche();
             }
@@ -1136,6 +1183,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 gotoxy(3, 23);
                 printf("CONFIRMACAO: 'Gostaria de sair?'<S/N>");
                 gotoxy(41, 23);
+            
 
                 opc = toupper(getche());
 
