@@ -122,7 +122,63 @@ void ClrScrenzona(int LI, int CI, int LF, int CF)
     }
 }
 
+/*conioPrintf("string", "posicao", "Cor", somar linha);*/
+void conioPrintf(char *str, char *posicao, char *cor, int linha)
+{
+    int posx, posy;
+    // setColor
+    if (strcmp(cor, "preto") == 0)
+        textcolor(0);
+    else if (strcmp(cor, "azul") == 0)
+        textcolor(1);
+    else if (strcmp(cor, "verde") == 0)
+        textcolor(2);
+    else if (strcmp(cor, "ciano") == 0)
+        textcolor(3);
+    else if (strcmp(cor, "vermelho") == 0)
+        textcolor(4);
+    else if (strcmp(cor, "rosa") == 0)
+        textcolor(5);
+    else if (strcmp(cor, "marrom") == 0)
+        textcolor(6);
+    else if (strcmp(cor, "branco") == 0)
+        textcolor(7);
+    else if (strcmp(cor, "cinza_claro") == 0)
+        textcolor(8);
+    else if (strcmp(cor, "azul_claro") == 0)
+        textcolor(9);
+    else if (strcmp(cor, "verde_claro") == 0)
+        textcolor(10);
+    else if (strcmp(cor, "ciano_claro") == 0)
+        textcolor(11);
+    else if (strcmp(cor, "vermelho_claro") == 0)
+        textcolor(12);
+    else if (strcmp(cor, "rosa_claro") == 0)
+        textcolor(13);
+    else if (strcmp(cor, "amarelo") == 0)
+        textcolor(14);
+    else if (strcmp(cor, "branco") == 0)
+        textcolor(15);
+    else
+        textcolor(15);
 
+    // setPos (definir pos antes)
+    if (strcmp(posicao, "topo") == 0)
+        gotoxy(27, 3); // definir posicoes de xy depois
+    else if (strcmp(posicao, "alerta") == 0)
+        gotoxy(2, 2);
+    else if (strcmp(posicao, "menu_left") == 0)
+        gotoxy(4, 4);
+    else if (strcmp(posicao, "menu_rigth") == 0)
+        gotoxy(2, 2);
+
+    // setLinha
+    gotoxy(wherex(), wherey() + linha);
+
+    // putStringto
+    puts(str);
+    gotoxy(0, 0);
+}
 int validarCPF(char cpf[11]) // corrigido 25-09
 {
     int i, digito1 = 0, digito2 = 0, helper;
@@ -154,7 +210,7 @@ int validarCPF(char cpf[11]) // corrigido 25-09
             for (i = 0; i < strlen(cpf) - 2; i++)
                 digito2 += (cpf[i] - '0') * i;
             digito2 %= 11;
-            if (digito2 == 10)
+            if (digito2 == 10 || digito2 == 11)
                 digito2 = 0;
             if ((cpf[10] - '0') != digito2)
                 return 0;
@@ -181,13 +237,12 @@ void CadastraCliente(Clientes clientes[], int &TL)
         }
         if (validar == 1)
         {
-//            gotoxy(30, 8);
-            
- 
-		    gotoxy(3, 23);
-		    printf("\nCPF ja cadastrado\n!");
-		    gotoxy(41, 23);
-            
+            //            gotoxy(30, 8);
+
+            gotoxy(3, 23);
+            printf("\nCPF ja cadastrado\n!");
+            gotoxy(41, 23);
+
             getch();
         }
         else
@@ -201,33 +256,31 @@ void CadastraCliente(Clientes clientes[], int &TL)
             clientes[TL].QtdeCompras = 0;
             clientes[TL].ValorTotComprado = 0;
             TL++;
-            
+
             gotoxy(3, 23);
             printf("Cliente cadastrado com sucesso!");
-            gotoxy(51, 23);  
+            gotoxy(51, 23);
             getch();
         }
     }
     else
     {
-    
-    	ClrScrenzona(23, 3, 23, 78);
+
+        ClrScrenzona(23, 3, 23, 78);
         gotoxy(3, 23);
-        printf("O numero de identificacao informado nao esta correto.\n");  
+        printf("O numero de identificacao informado nao esta correto.\n");
         ClrScrenzona(8, 3, 20, 24);
         gotoxy(51, 23);
         fflush(stdin);
         getch();
-    
-	    
     }
 }
 
 void ConsultaClientes(Clientes clientes[], int TL) // n sei se é pra mostrar todos nessa consulta
 {
-	gotoxy(30, 7);
+    gotoxy(30, 7);
     printf("Clientes cadastrados:\n");
-    //ClrScrenzona(7,7, 30, 30); //nao sei que valor colocarrrrrr
+    // ClrScrenzona(7,7, 30, 30); //nao sei que valor colocarrrrrr
     for (int i = 0; i < TL; i++)
     {
         printf("cadastro %d\n", i + 1);
@@ -284,7 +337,7 @@ void AlterarDadosFornecedor(Fornecedores fornecedores[], int TL)
     char opc;
     if (TL > 0)
     {
-    	gotoxy(30, 7);
+        gotoxy(30, 7);
         printf("Cod. fornecedor a ser editado: ");
         fflush(stdin);
         scanf("%d", &cod);
@@ -311,25 +364,24 @@ void AlterarDadosFornecedor(Fornecedores fornecedores[], int TL)
         }
         else
         {
-        	ClrScrenzona(23, 3, 23, 78);
-	        gotoxy(3, 23);
-	        printf("COD n encontrado! \n");
-	        ClrScrenzona(8, 3, 20, 24);
-	        gotoxy(51, 23);
-	        fflush(stdin);
-	        getch();
+            ClrScrenzona(23, 3, 23, 78);
+            gotoxy(3, 23);
+            printf("COD n encontrado! \n");
+            ClrScrenzona(8, 3, 20, 24);
+            gotoxy(51, 23);
+            fflush(stdin);
+            getch();
         }
     }
     else
     {
-    	ClrScrenzona(23, 3, 23, 78);
+        ClrScrenzona(23, 3, 23, 78);
         gotoxy(3, 23);
         printf("Lista vazia!\n");
         ClrScrenzona(8, 3, 20, 24);
         gotoxy(51, 23);
         fflush(stdin);
         getch();
-    	
     }
 }
 
@@ -340,7 +392,7 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
 
     if (cod == NULL)
     {
-    	gotoxy(30, 7);
+        gotoxy(30, 7);
         printf("Digite o cod. do %do Fornecedor: ", TL + 1);
         scanf("%d", &codforn);
     }
@@ -355,11 +407,9 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
         busca = ConsultaFornecedor(fornecedores, TL, codforn);
         if (busca != -1)
         {
-        	
-        	
-        	
+
             printf("Cod ja existente\n");
-            
+
             gotoxy(30, 7);
             printf("Digite o cod. do %do Fornecedor: ", TL + 1);
             scanf("%d", &codforn);
@@ -376,7 +426,7 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
     fflush(stdin);
     gets(fornecedores[TL].Cidade);
     TL++;
-    
+
     ClrScrenzona(23, 3, 23, 78);
     gotoxy(3, 23);
     printf("Fornecedor cod.%d, %s cadastrado!\n", fornecedores[TL - 1].CodForn, fornecedores[TL - 1].NomeForn);
@@ -384,8 +434,6 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
     gotoxy(51, 23);
     fflush(stdin);
     getch();
-    
-    
 }
 
 void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_Produtos, int &TL_Fornecedores)
@@ -400,7 +448,7 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
     scanf("%d", &AuxCod);
     while (TL_Produtos < TF && AuxCod > 0)
     {
-        pos = BusProdCod(produtos, TL_Produtos, AuxCod);	
+        pos = BusProdCod(produtos, TL_Produtos, AuxCod);
         if (pos == -1)
         {
             produtos[TL_Produtos].CodProd = AuxCod;
@@ -428,7 +476,7 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
             codigo = ConsultaFornecedor(fornecedores, TL_Fornecedores, helper);
 
             if (codigo == -1)
-            {	
+            {
                 printf("Fornecedor n encontrado. Cadastrar fornecedor? S/N");
                 arg = toupper(getch());
 
@@ -511,7 +559,7 @@ void DeletaClientes(Clientes clientes[], int &TL)
             getch();
         }
         else
-        {        	
+        {
             printf("Erro ao remover cliente.");
             getch();
         }
@@ -695,25 +743,25 @@ void EditaClientes(Clientes clientes[], int TL)
         }
         else
         {
-        	
-        	ClrScrenzona(23, 3, 23, 78);
-			gotoxy(3, 23);
-			printf("CPF n encontrado! \n");
-			ClrScrenzona(8, 3, 20, 24);
-			gotoxy(52, 23);
-			fflush(stdin);
-            
+
+            ClrScrenzona(23, 3, 23, 78);
+            gotoxy(3, 23);
+            printf("CPF n encontrado! \n");
+            ClrScrenzona(8, 3, 20, 24);
+            gotoxy(52, 23);
+            fflush(stdin);
+
             getch();
         }
     }
     else
     {
-    	ClrScrenzona(23, 3, 23, 78);
-		gotoxy(3, 23);
-		printf("Lista vazia!\n");
-		ClrScrenzona(8, 3, 20, 24);
-		gotoxy(52, 23);
-		fflush(stdin);        
+        ClrScrenzona(23, 3, 23, 78);
+        gotoxy(3, 23);
+        printf("Lista vazia!\n");
+        ClrScrenzona(8, 3, 20, 24);
+        gotoxy(52, 23);
+        fflush(stdin);
         getch();
     }
 }
@@ -733,25 +781,25 @@ void ConsultaFornecedor(Fornecedores fornecedores[], int TL)
         }
         else
         {
-        	ClrScrenzona(23, 3, 23, 78);
-			gotoxy(3, 23);
-			printf("FORNECEDOR NAO ENCONTRADO!\n");
-			ClrScrenzona(8, 3, 20, 24);
-			gotoxy(52, 23);
-			fflush(stdin);
-            
+            ClrScrenzona(23, 3, 23, 78);
+            gotoxy(3, 23);
+            printf("FORNECEDOR NAO ENCONTRADO!\n");
+            ClrScrenzona(8, 3, 20, 24);
+            gotoxy(52, 23);
+            fflush(stdin);
+
             getch();
         }
     }
     else
     {
-    	ClrScrenzona(23, 3, 23, 78);
-		gotoxy(3, 23);
-		printf("Apenas cod's positivos\n");
-		ClrScrenzona(8, 3, 20, 24);
-		gotoxy(52, 23);
-		fflush(stdin);            
-                
+        ClrScrenzona(23, 3, 23, 78);
+        gotoxy(3, 23);
+        printf("Apenas cod's positivos\n");
+        ClrScrenzona(8, 3, 20, 24);
+        gotoxy(52, 23);
+        fflush(stdin);
+
         getch();
     }
 }
@@ -776,25 +824,25 @@ void ExcluirFornecedor(Fornecedores fornecedores[], int &TL)
                 fornecedores[i] = fornecedores[i + 1];
             }
             TL--;
-            
+
             ClrScrenzona(23, 3, 23, 78);
-			gotoxy(3, 23);
-			printf("Deletado com sucesso!\n");
-			ClrScrenzona(8, 3, 20, 24);
-			gotoxy(52, 23);
-			fflush(stdin);            
+            gotoxy(3, 23);
+            printf("Deletado com sucesso!\n");
+            ClrScrenzona(8, 3, 20, 24);
+            gotoxy(52, 23);
+            fflush(stdin);
             getch();
         }
     }
     else
     {
-    	ClrScrenzona(23, 3, 23, 78);
-		gotoxy(3, 23);
-		printf("Fornecedor nao encontrado \n");
-		ClrScrenzona(8, 3, 20, 24);
-		gotoxy(52, 23);
-		fflush(stdin);
-        
+        ClrScrenzona(23, 3, 23, 78);
+        gotoxy(3, 23);
+        printf("Fornecedor nao encontrado \n");
+        ClrScrenzona(8, 3, 20, 24);
+        gotoxy(52, 23);
+        fflush(stdin);
+
         getch();
     }
 }
@@ -863,14 +911,13 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                         }
                         break;
                     default:
-                    	ClrScrenzona(23, 3, 23, 78);
-	                    gotoxy(3, 23);
-	                    printf("Obrigatorio inserir data valida!\n");
-	                    ClrScrenzona(8, 3, 20, 24);
-	                    gotoxy(51, 23);
-	                    fflush(stdin);
-	                                      	
-                        
+                        ClrScrenzona(23, 3, 23, 78);
+                        gotoxy(3, 23);
+                        printf("Obrigatorio inserir data valida!\n");
+                        ClrScrenzona(8, 3, 20, 24);
+                        gotoxy(51, 23);
+                        fflush(stdin);
+
                         getch();
                     }
                 } while (pass == false);
@@ -910,24 +957,24 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                                 }
                                 else
                                 {
-									ClrScrenzona(23, 3, 23, 78);
-						            gotoxy(3, 23);
-						            printf("Quantidade maior que estoque total\n");
-						            ClrScrenzona(8, 3, 20, 24);
-						            gotoxy(52, 23);
-						            fflush(stdin);
+                                    ClrScrenzona(23, 3, 23, 78);
+                                    gotoxy(3, 23);
+                                    printf("Quantidade maior que estoque total\n");
+                                    ClrScrenzona(8, 3, 20, 24);
+                                    gotoxy(52, 23);
+                                    fflush(stdin);
                                     getch();
                                 }
                             }
                             else
                             {
-                            	ClrScrenzona(23, 3, 23, 78);
-					            gotoxy(3, 23);
-					            printf("Validade do produto nao bate com a venda \n");
-					            ClrScrenzona(8, 3, 20, 24);
-					            gotoxy(52, 23);
-					            fflush(stdin);
-                                                            
+                                ClrScrenzona(23, 3, 23, 78);
+                                gotoxy(3, 23);
+                                printf("Validade do produto nao bate com a venda \n");
+                                ClrScrenzona(8, 3, 20, 24);
+                                gotoxy(52, 23);
+                                fflush(stdin);
+
                                 getch();
                             }
                         }
@@ -963,26 +1010,26 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
             }
             else
             {
-            	ClrScrenzona(23, 3, 23, 78);
-	            gotoxy(3, 23);
-	            printf("Cliente nao encontrado\n");
-	            ClrScrenzona(8, 3, 20, 24);
-	            gotoxy(52, 23);
-	            fflush(stdin);
+                ClrScrenzona(23, 3, 23, 78);
+                gotoxy(3, 23);
+                printf("Cliente nao encontrado\n");
+                ClrScrenzona(8, 3, 20, 24);
+                gotoxy(52, 23);
+                fflush(stdin);
 
                 getch();
             }
         }
         else
         {
-        	
-        	ClrScrenzona(23, 3, 23, 78);
+
+            ClrScrenzona(23, 3, 23, 78);
             gotoxy(3, 23);
             printf("Digite um CPF valido!");
             ClrScrenzona(8, 3, 20, 24);
             gotoxy(52, 23);
             fflush(stdin);
-            
+
             getch();
         }
 
@@ -997,7 +1044,6 @@ void InsereElementos();
 // void Moldura(int CI, int LI, int CF, int LF, int TC, int BG)
 //{
 // }
-
 
 void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clientes index_clientes[TF], Vendas index_vendas[TF], Vendas_Produtos index_vendasprod[TF])
 {
@@ -1281,7 +1327,6 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 }
             } while (opc != 27);
             break;
-
         }
         ClrScrenzona(23, 3, 23, 78);
         gotoxy(3, 23);
