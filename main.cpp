@@ -199,7 +199,7 @@ int validarCPF(char cpf[11]) // corrigido 25-09
             digito1 += (cpf[i] - '0') * (i + 1);
 
         digito1 %= 11;
-        if (digito1 == 10)
+        if (digito1 == 10 || digito1 == 11)
             digito1 = 0;
         if ((cpf[8] - '0') == digito1)
             return 0;
@@ -207,7 +207,7 @@ int validarCPF(char cpf[11]) // corrigido 25-09
         else
         // digito 2
         {
-            for (i = 0; i < strlen(cpf) - 2; i++)
+            for (i = 0; i < strlen(cpf) - 1; i++)
                 digito2 += (cpf[i] - '0') * i;
             digito2 %= 11;
             if (digito2 == 10 || digito2 == 11)
