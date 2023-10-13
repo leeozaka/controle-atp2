@@ -30,14 +30,11 @@ void clearElement(char regiao[])
         clrfunc(8, 3, 20, 26);
         clrfunc(6,29,20,78);
     }
-    else if (strcmp(regiao, "rightside"))
+    else if (strcmp(regiao, "rightside") == 0)
         clrfunc(6,29,20,78);
 
     // switcher gatilho para limpar com printf
     // o menu esquerdo
-
-    // -- linha 6 coluna 29
-    // -- linha 20 coluna 78
 }
 
 // arg p conversao em int
@@ -148,7 +145,7 @@ void conioPrintf(char *posicao, char *cor, int linha, char *str, ...)
                 i = -1;
                 putchar('-');
             }
-            puts(conv(i, 10));
+            fputs(conv(i, 10), stdout);
             transc++;
             break;
         case 's':
@@ -157,6 +154,7 @@ void conioPrintf(char *posicao, char *cor, int linha, char *str, ...)
             transc++;
             break;
         }
+        //eu nao consegui fazer um case FLOAT ainda (13-10);
     }
     textcolor(15);
     va_end(arg);

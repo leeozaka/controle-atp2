@@ -22,3 +22,6 @@ to-do: ;
     > os 300 mil gotoxy estao ficando confusos
 
     - para começar os testes nós precisamos ter uma funçao para adicionar elementos e definir a moldura melhor
+
+- 13/10
+    > criar uma float function no conioprintf.h

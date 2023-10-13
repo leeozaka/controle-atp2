@@ -184,10 +184,10 @@ void ConsultaClientes(Clientes clientes[], int TL)
     conioPrintf("topo", "azul_claro", 0, "Clientes cadastrados: %d", TL);
     for (int i = 0; i < TL; i++)
     {
-        conioPrintf("menu_right", "branco", i + 1, "cadastro: %d", i + 1);
-        conioPrintf("menu_right", "branco", i + 2, clientes[i].CPF);
-        conioPrintf("menu_right", "branco", i + 3, "%d compras %f total", clientes[i].QtdeCompras, clientes[i].ValorTotComprado);
-        conioPrintf("menu_right", "branco", i + 4, "--------------------------------\n");
+        conioPrintf("menu_right", "branco", i*4 + 1, "cadastro: %d", i + 1);
+        conioPrintf("menu_right", "branco", i*4 + 2, clientes[i].CPF);
+        conioPrintf("menu_right", "branco", i*4 + 3, "%d compras %f total", clientes[i].QtdeCompras, clientes[i].ValorTotComprado);
+        conioPrintf("menu_right", "branco", i*4 + 4, "--------------------------------");
     }
     getch();
 }
@@ -315,7 +315,7 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
     fflush(stdin);
     gets(fornecedores[TL].Cidade);
     TL++;
-    conioPrintf("switcher", "verde", 0, "Fornecedor cod.%d, %s cadastrado!", fornecedores[TL - 1].CodForn, fornecedores[TL - 1].NomeForn);
+    conioPrintf("menu_rigth", "verde", 0, "Fornecedor cod.%d, %s cadastrado!", fornecedores[TL - 1].CodForn, fornecedores[TL - 1].NomeForn);
     getch();
 }
 
@@ -715,10 +715,9 @@ void ExcluirFornecedor(Fornecedores fornecedores[], int &TL)
     getch();
 }
 
+//funciona como <string.h> strcmp()
 int comparaData(int ano1, int mes1, int dia1, int ano2, int mes2, int dia2)
 {
-    // nao testado
-    // output esperado: como strcmp(str1,str2);
     struct tm data1 = {0};
     data1.tm_year = ano1 - 1900;
     data1.tm_mon = mes1 - 1;
@@ -740,7 +739,7 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
     TpData construtor_data, input;
     bool pass;
     conioPrintf("topo", "rosa", 0, "Nova Venda!!");
-    conioPrintf("menu_right: ", "branco", 0, "CPF do Cliente: ");
+    conioPrintf("menu_right", "branco", 0, "CPF do Cliente: ");
     fflush(stdin);
     gets(cpf);
 
@@ -1111,6 +1110,8 @@ int main(void)
     Clientes index_clientes[TF];
     Vendas index_vendas[TF];
     Vendas_Produtos vendas[TF];
+
+    _setcursortype(0);
 
     Menu(index_fornecedores, index_produtos, index_clientes, index_vendas, vendas);
 
