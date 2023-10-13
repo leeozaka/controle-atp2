@@ -1,11 +1,7 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
 #include <math.h>
-#include <conio2.h>
 #include <time.h>
-#include <stdarg.h>
+#include "conioprintf.h"
 
 #define TF 300
 #define QUANT 40
@@ -99,157 +95,6 @@ void Formulario(void)
     Moldura(28, 5, 79, 21, 9, 6);
 }
 
-void clrfunc(int LI, int CI, int LF, int CF)
-{
-    int i;
-    int j;
-    for (i = LI; i <= LF; i++)
-    {
-        for (j = CI; j <= CF; j++)
-        {
-            gotoxy(j, i);
-            printf("%c", 32);
-        }
-    }
-}
-
-void clearElement(char regiao[])
-{
-    if (strcmp(regiao, "topo") == 0)
-        clrfunc(3, 3, 3, 70);
-    else if (strcmp(regiao, "alerta") == 0)
-        clrfunc(23, 3, 23, 78);
-    else if (strcmp(regiao, "switcher") == 0)
-    {
-        clrfunc(23, 3, 23, 78);
-        clrfunc(8, 3, 20, 26);
-    }
-    // switcher gatilho para limpar com printf
-    // o menu esquerdo
-
-    // else if (strcmp(regiao, "rightside") == 0)
-    //     clrfunc();
-}
-
-// arg p conversao em int
-char *conv(unsigned int numero, int base)
-{
-    static char Rep[] = "0123456789ABCDEF";
-    static char buffer[50];
-    char *ptr;
-
-    ptr = &buffer[49];
-    *ptr = '\0';
-
-    do
-    {
-        *--ptr = Rep[numero % base];
-        numero /= base;
-    } while (numero != 0);
-    return ptr;
-}
-
-/*>>conioPrintf("posicao", "Cor", somar linha,"string" ...formatacao...);*/
-void conioPrintf(char *posicao, char *cor, int linha, char *str, ...)
-{
-    unsigned int i;
-    char *transc;
-    char *s;
-
-    va_list arg;
-    va_start(arg, str);
-    // setColor
-    if (strcmp(cor, "preto") == 0)
-        textcolor(0);
-    else if (strcmp(cor, "azul") == 0)
-        textcolor(1);
-    else if (strcmp(cor, "verde") == 0)
-        textcolor(2);
-    else if (strcmp(cor, "ciano") == 0)
-        textcolor(3);
-    else if (strcmp(cor, "vermelho") == 0)
-        textcolor(4);
-    else if (strcmp(cor, "rosa") == 0)
-        textcolor(5);
-    else if (strcmp(cor, "marrom") == 0)
-        textcolor(6);
-    else if (strcmp(cor, "branco") == 0)
-        textcolor(7);
-    else if (strcmp(cor, "cinza_claro") == 0)
-        textcolor(8);
-    else if (strcmp(cor, "azul_claro") == 0)
-        textcolor(9);
-    else if (strcmp(cor, "verde_claro") == 0)
-        textcolor(10);
-    else if (strcmp(cor, "ciano_claro") == 0)
-        textcolor(11);
-    else if (strcmp(cor, "vermelho_claro") == 0)
-        textcolor(12);
-    else if (strcmp(cor, "rosa_claro") == 0)
-        textcolor(13);
-    else if (strcmp(cor, "amarelo") == 0)
-        textcolor(14);
-    else if (strcmp(cor, "branco") == 0)
-        textcolor(15);
-    else
-        textcolor(15);
-
-    clearElement(posicao);
-
-    // setPos (definir pos antes)
-    if (strcmp(posicao, "topo") == 0)
-    {
-        int mid = (strlen(str) / 2);
-        gotoxy(40 - mid, 3);
-    }
-    else if (strcmp(posicao, "alerta") == 0)
-        gotoxy(3, 23);
-    else if (strcmp(posicao, "menu_left") == 0)
-        gotoxy(4, 9);
-    else if (strcmp(posicao, "menu_right") == 0)
-        gotoxy(30, 7);
-    else if (strcmp(posicao, "switcher") == 0)
-        gotoxy(3, 23);
-
-    // setLinha
-    gotoxy(wherex(), wherey() + linha);
-
-    // putStringto - old, --sem opcao de formatacao--
-    // if (*str != NULL)
-    //    printf("%s ", str);
-    
-    //print function (ref: stdio, mingw, gnu)
-    for (transc = str; *transc != '\0';)
-    {
-        while (*transc != '%' && *transc != '\0')
-        {
-            putchar(*transc);
-            transc++;
-        }
-        if (*transc == '%')
-        	transc++;
-        switch (*transc)
-        {
-        case 'd':
-            i = va_arg(arg, int);
-            if (i < 0)
-            {
-                i = -1;
-                putchar('-');
-            }
-            puts(conv(i, 10));
-            transc++;
-            break;
-        case 's':
-            s = va_arg(arg, char *);
-            fputs(s, stdout);
-            transc++;
-            break;
-        }
-    }
-    textcolor(15);
-    va_end(arg);
-}
 int validarCPF(char cpf[11]) // corrigido 25-09
 {
     int i, digito1 = 0, digito2 = 0, helper;
@@ -294,9 +139,11 @@ void CadastraCliente(Clientes clientes[], int &TL)
 {
     char CPF[11];
     int i, validar = 0;
+    conioPrintf("topo", "rosa_claro", 0, "Cadastro de Clientes!");
     conioPrintf("menu_right", "branco", 0, "Digite o CPF: ");
     fflush(stdin);
     gets(CPF);
+
     if (validarCPF(CPF) == 1)
     {
         for (i = 0; i < TL && validar != 1; i++)
@@ -315,8 +162,10 @@ void CadastraCliente(Clientes clientes[], int &TL)
             conioPrintf("menu_right", "branco", 1, "Digite o nome: ");
             fflush(stdin);
             scanf("%s", &clientes[TL].NomeCli);
+
             clientes[TL].QtdeCompras = 0;
             clientes[TL].ValorTotComprado = 0;
+
             TL++;
 
             conioPrintf("alerta", "verde", 0, "Cliente cadastrado com sucesso! ");
@@ -326,15 +175,13 @@ void CadastraCliente(Clientes clientes[], int &TL)
     else
     {
         conioPrintf("alerta", "vermelho", 0, "O numero de identificacao informado nao esta correto.");
-        gotoxy(51, 23);
         getch();
     }
 }
 
-void ConsultaClientes(Clientes clientes[], int TL) // n sei se é pra mostrar todos nessa consulta
+void ConsultaClientes(Clientes clientes[], int TL)
 {
-    conioPrintf("menu_right", "branco", 0, "Clientes cadastrados: %d", TL);
-    // clrfunc(7,7, 30, 30); //nao sei que valor colocarrrrrr
+    conioPrintf("topo", "azul_claro", 0, "Clientes cadastrados: %d", TL);
     for (int i = 0; i < TL; i++)
     {
         conioPrintf("menu_right", "branco", i + 1, "cadastro: %d", i + 1);
@@ -388,19 +235,20 @@ void AlterarDadosFornecedor(Fornecedores fornecedores[], int TL)
 {
     int opcao, pos, cod;
     char opc;
+    conioPrintf("topo", "azul", 0, "Alterar dados do Fornecedor!");
     if (TL > 0)
     {
-        gotoxy(30, 7);
-        printf("Cod. fornecedor a ser editado: ");
+        conioPrintf("menu_right", "branco", 0, "Cod. do fornecedor a ser editado: ");
         fflush(stdin);
         scanf("%d", &cod);
         if (ConsultaFornecedor(fornecedores, TL, cod) >= 0)
         {
             pos = BusFornCod(fornecedores, TL, cod);
-            printf("%s %s\n", fornecedores[pos].NomeForn, fornecedores[pos].NomeForn);
-            printf("Mudar: \n");
-            printf("A-Nome\n");
-            printf("B-Cidade\n");
+            conioPrintf("menu_right", "branco", 1, "Fornecedor %s", fornecedores[pos].NomeForn);
+            conioPrintf("menu_right", "branco", 2, "Mudar:");
+            conioPrintf("menu_right", "branco", 3, "A - Nome");
+            conioPrintf("menu_right", "branco", 4, "B - Cidade");
+
             opc = toupper(getch());
             switch (opc)
             {
@@ -417,18 +265,13 @@ void AlterarDadosFornecedor(Fornecedores fornecedores[], int TL)
         }
         else
         {
-            clrfunc(23, 3, 23, 78);
             conioPrintf("alerta", "vermelho", 0, "Cod. n encontrado!");
-            clrfunc(8, 3, 20, 24);
-            gotoxy(51, 23);
             getch();
         }
     }
     else
     {
-        clrfunc(23, 3, 23, 78);
         conioPrintf("alerta", "branco", 0, "Lista vazia!");
-        clrfunc(8, 3, 20, 24);
         getch();
     }
 }
@@ -438,11 +281,12 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
 {
     int codforn, busca;
 
+    conioPrintf("topo", "rosa", 0, "Cadastro de Fornecedores!");
     if (cod == NULL)
     {
-        gotoxy(30, 7);
-        printf("Digite o cod. do %do Fornecedor: ", TL + 1);
+        conioPrintf("menu_right", "branco", 0, "Digite o cod. do %do fornecedor: ", TL + 1);
         scanf("%d", &codforn);
+        clearElement("rightside");
     }
     else
     {
@@ -455,32 +299,23 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
         busca = ConsultaFornecedor(fornecedores, TL, codforn);
         if (busca != -1)
         {
+            conioPrintf("switcher", "vermelho", 0, "Cod. Ja existente!");
 
-            printf("Cod ja existente\n");
-
-            gotoxy(30, 7);
-            printf("Digite o cod. do %do Fornecedor: ", TL + 1);
+            conioPrintf("menu_right", "branco", 1, "Digite o cod. do %do fornecedor: ", TL + 1);
             scanf("%d", &codforn);
             codforn = abs(codforn);
+            clearElement("rightside");
         }
     } while (busca != -1);
     fornecedores[TL].CodForn = codforn;
-    gotoxy(30, 8);
-    printf("\nNome: ");
+    conioPrintf("menu_right", "branco", 1, "Nome: ");
     fflush(stdin);
     gets(fornecedores[TL].NomeForn);
-    gotoxy(30, 9);
-    printf("Cidade:");
+    conioPrintf("menu_right", "branco", 2, "Cidade: ");
     fflush(stdin);
     gets(fornecedores[TL].Cidade);
     TL++;
-
-    clrfunc(23, 3, 23, 78);
-    gotoxy(3, 23);
-    printf("Fornecedor cod.%d, %s cadastrado!\n", fornecedores[TL - 1].CodForn, fornecedores[TL - 1].NomeForn);
-    clrfunc(8, 3, 20, 24);
-    gotoxy(51, 23);
-    fflush(stdin);
+    conioPrintf("switcher", "verde", 0, "Fornecedor cod.%d, %s cadastrado!", fornecedores[TL - 1].CodForn, fornecedores[TL - 1].NomeForn);
     getch();
 }
 
@@ -490,7 +325,7 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
     int AuxCod, pos, helper, codigo;
     char arg;
     conioPrintf("topo", "verde", 0, "Cadastro de Produtos!");
-    printf("Codigo: ");
+    conioPrintf("menu_right", "branco", 0, "Codigo: ");
     fflush(stdin);
     scanf("%d", &AuxCod);
     while (TL_Produtos < TF && AuxCod > 0)
@@ -499,64 +334,67 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
         if (pos == -1)
         {
             produtos[TL_Produtos].CodProd = AuxCod;
-
-            printf("Descricao: ");
+            conioPrintf("menu_right", "branco", 1, "Descricao: ");
             fflush(stdin);
             gets(produtos[TL_Produtos].Desc);
 
-            printf("Estoque: ");
+            conioPrintf("menu_right", "branco", 2, "Estoque: ");
             fflush(stdin);
             scanf("%d", &produtos[TL_Produtos].Estoque);
 
-            printf("Preco: R$ ");
+            conioPrintf("menu_right", "branco", 3, "Preço R$: ");
             fflush(stdin);
             scanf("%f", &produtos[TL_Produtos].Preco);
 
-            printf("Data de Validade [dd mm aaaa]: ");
+            conioPrintf("menu_right", "branco", 4, "Data de Validade[dd mm aaaa]: ");
             fflush(stdin);
             scanf("%d %d %d", &produtos[TL_Produtos].DtValidade.Dia, &produtos[TL_Produtos].DtValidade.Mes, &produtos[TL_Produtos].DtValidade.Ano);
 
-            printf("Busca fornecedor, codigo: ");
+            conioPrintf("menu_right", "branco", 5, "Busca fornecedor, cod: ");
             fflush(stdin);
             scanf("%d", &helper);
             ptr_codigo = &helper;
+
             codigo = ConsultaFornecedor(fornecedores, TL_Fornecedores, helper);
 
             if (codigo == -1)
             {
-                printf("Fornecedor n encontrado. Cadastrar fornecedor? S/N");
+                conioPrintf("menu_right", "branco", 6, "Fornecedor nao encontrado. Cadastrar fornecedor? S/N");
                 arg = toupper(getch());
 
                 if (arg == 'S')
                 {
+                    clearElement("rightside");
                     CadastraFornecedor(fornecedores, TL_Fornecedores, ptr_codigo);
                     produtos[TL_Produtos].CodForn = codigo;
                     TL_Produtos++;
-                    printf("\nProduto cadastrado\n");
+                    conioPrintf("alerta", "verde", 0, "Fornecedor Cadastrado!");
                     getch();
                 }
                 else
                 {
-                    printf("\nProduto n/ cadastrado: Fornecedor nao encontrado\n");
+                    conioPrintf("alerta", "vermelho", 0, "Produto n cadastrado: Fornecedor nao encontrado!");
                     getch();
                 }
             }
             else
             {
-                printf("Fornecedor: %d\n", codigo);
+                clearElement("rightside");
+                conioPrintf("menu_right", "branco", 0, "Fornecedor: %d", codigo);
                 produtos[TL_Produtos].CodForn = codigo;
                 TL_Produtos++;
-                printf("Produto cadastrado!\n");
+                conioPrintf("alerta", "verde", 0, "Produto %s cadastrado!", produtos[TL_Produtos - 1].Desc);
                 getch();
             }
         }
         else
         {
-            printf("\nCodigo do Produto ja Cadastrado!\n");
+            conioPrintf("alerta", "vermelho", 0, "Codigo do Produto ja cadastrado!");
             getch();
         }
 
-        printf("\nCodigo: ");
+        clearElement("rightside");
+        conioPrintf("menu_left", "branco", 0, "Codigo: ");
         scanf("%d", &AuxCod);
     }
 }
@@ -587,7 +425,7 @@ void DeletaClientes(Clientes clientes[], int &TL)
 {
     int pos;
     char cpf[11];
-    printf("Cpf do Cliente a ser deletado: ");
+    conioPrintf("topo", "vermelho_claro", 0, "CPF do Cliente a ser Deletado: ");
     fflush(stdin);
     gets(cpf);
     if (validarCPF(cpf) == 1)
@@ -602,12 +440,12 @@ void DeletaClientes(Clientes clientes[], int &TL)
                 clientes[i] = clientes[i + 1];
             }
             TL--;
-            printf("Cliente removido com sucesso!");
+            conioPrintf("swticher", "verde", 0, "Cliente removido com sucesso!");
             getch();
         }
         else
         {
-            printf("Erro ao remover cliente.");
+            conioPrintf("switcher", "vermelho", 0, "Erro ao remover cliente!");
             getch();
         }
     }
@@ -615,8 +453,8 @@ void DeletaClientes(Clientes clientes[], int &TL)
 void ExcluirProd(Produtos produtos[], int &TL)
 {
     int i, Aux, ponto;
-    printf("\n**Exclusao de produto**\n");
-    printf("Digite o codigo do produto a excluir: ");
+    conioPrintf("topo", "verde_claro", 0, "Exclusao de produtos!");
+    conioPrintf("menu_right", "branco", 0, "Digite o cod. do produto a excluir: ");
     scanf("%d", &Aux);
     while (Aux > 0)
     {
@@ -626,12 +464,13 @@ void ExcluirProd(Produtos produtos[], int &TL)
             for (i = ponto; i < TL - 1; i++)
                 produtos[i] = produtos[i + 1];
             TL--;
+            conioPrintf("alerta", "verde", 0, "Produto excluido com sucesso!");
         }
         else
         {
-            printf("\nProduto nao encontrado!\n");
+            conioPrintf("alerta", "vermelho", 0, "Produto nao encontrado!");
         }
-        printf("Digite o codigo do produto a excluir: ");
+        conioPrintf("menu_right", "branco", 0, "Digite o cod. do produto a excluir: ");
         scanf("%d", &Aux);
     }
 }
@@ -642,9 +481,9 @@ void AlterarProdCadastrado(Produtos produtos[], int TL)
     char resp;
     int Aux, ponto;
     float Aux_Preco;
-    printf("\n**Alterar produto ja cadastrado**\n");
-    getch();
-    printf("Insira o codigo do produto: \n");
+
+    conioPrintf("topo", "vermelho", 0, "Alterar produto ja cadastrado!");
+    conioPrintf("menu_right", "branco", 0, "Insira o codigo do produto: ");
     fflush(stdin);
     scanf("%d", &Aux);
     while (Aux > 0)
@@ -652,44 +491,49 @@ void AlterarProdCadastrado(Produtos produtos[], int TL)
         ponto = BusProdCod(produtos, TL, Aux);
         if (ponto == -1)
         {
-            printf("Erro ao procurar pelo Codigo!\n");
+            printf("switcher", "vermelho", 0, "Erro ao procurar pelo Codigo!");
+            getch();
         }
         else
         {
-            printf("Qual elemento alterar do %s? ", produtos[ponto].Desc);
-            printf("A - Estoque\n");
-            printf("B - Preco\n");
-            printf("C - Validade\n");
+            conioPrintf("menu_right", "branco", 1, "Qual elemento alterar do %s?", produtos[ponto].Desc);
+            conioPrintf("menu_right", "branco", 2, "[A] - Estoque");
+            conioPrintf("menu_right", "branco", 3, "[B] - Preco");
+            conioPrintf("menu_right", "branco", 4, "[C] - Validade");
+
             fflush(stdin);
             resp = toupper(getch());
+
             switch (resp)
             {
             case 'A':
-                printf("Qual a nova quantidade do %s? ", produtos[ponto].Desc);
+                conioPrintf("menu_right", "branco", 5, "Qual a nova quantidade do %s? ", produtos[ponto].Desc);
                 while (scanf(" %d", &Aux) <= 0)
-                    printf("Valor invalido\n");
+                    conioPrintf("alerta", "vermelho", 0, "Valor invalido");
                 produtos[ponto].Estoque = Aux;
                 break;
+
             case 'B':
-                printf("Qual o novo preco do %s? R$ ", produtos[ponto].Desc);
+                conioPrintf("menu_right", "branco", 5, "Qual o novo preco do %s? R$ ", produtos[ponto].Desc);
                 while (scanf(" %f", &Aux_Preco) < 0)
-                    printf("Preco invalido\n");
+                    conioPrintf("alerta", "vermelho", 0, "Preco invalido");
                 produtos[ponto].Preco = Aux_Preco;
                 break;
+
             case 'C':
-                printf("Qual a nova validade do %s? ", produtos[ponto].Desc);
+                conioPrintf("menu_right", "branco", 0, "Qual a nova validade do %s? ", produtos[ponto].Desc);
                 scanf("%d %d %d", &aux.Dia, &aux.Mes, &aux.Ano);
                 if (aux.Dia > 0 && aux.Mes > 0 && aux.Ano > 0)
                 {
                     produtos[ponto].DtValidade = aux;
                 }
                 else
-                    printf("Data invalida!");
+                    conioPrintf("alerta", "vermelho", 0, "Data invalida!");
                 break;
             }
         }
 
-        printf("Insira o codigo do produto: \n");
+        conioPrintf("menu_right", "branco", 0, "Insira o codigo do produto: ");
         fflush(stdin);
         scanf("%d", &Aux);
     }
@@ -698,38 +542,46 @@ void AlterarProdCadastrado(Produtos produtos[], int TL)
 void ConsultaProd(Produtos produtos[], int TL)
 {
     int ponto, i;
-    printf("cod. a ser consultado: ");
+    conioPrintf("topo", "rosa", 0, "Consulta de Produto!");
+    conioPrintf("menu_right", "branco", 0, "Cod. a ser consultado: ");
     scanf("%d", &ponto);
+
     i = BusProdCod(produtos, TL, ponto);
+
     if (i >= 0)
     {
-        printf("Codigo: %d\n", produtos[i].CodProd);
+        conioPrintf("menu_right", "branco", 1, "Codigo: %d", produtos[i].CodProd);
         puts(produtos[i].Desc);
-        printf("Quantidade em estoque:%d\n", produtos[i].Estoque);
-        printf("%d %d %d\n", produtos[i].DtValidade.Dia, produtos[i].DtValidade.Mes, produtos[i].DtValidade.Ano);
+        conioPrintf("menu_right", "branco", 2, "Quantidade em estoque:%d\n", produtos[i].Estoque);
+        conioPrintf("menu_right", "branco", 3, "%d %d %d", produtos[i].DtValidade.Dia, produtos[i].DtValidade.Mes, produtos[i].DtValidade.Ano);
     }
     else
-    {
-        printf("Erro! Produto nao encontrado!\n");
-    }
+        conioPrintf("alerta", "vermelho", 0, "Produto nao encontrado!");
 }
 void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[], int TL_produtos, int TL_fornecedores)
 {
     int valor, cod, pos;
     char resp;
+
+    conioPrintf("topo", "vermelho_claro", 0, "Percentual  de produtos!");
+
     do
     {
-        printf("[A] Add - [B] Subtrair\n");
+        clearElement("rightside");
+        conioPrintf("menu_right", "branco", 0, "[A] Add - [B] Subtrair");
         fflush(stdin);
         resp = toupper(getch());
     } while (resp != 'A' || resp != 'B');
-    printf("Valor em porc: ");
+    conioPrintf("menu_right", "branco", 1, "Valor em porc: ");
     fflush(stdin);
     scanf("%d", &valor);
-    printf("Cod do fornecedor para %s: ", resp == 'A' ? "adicionar" : "subtrair");
+
+    printf("menu_right", "branco", 2, "Cod do fornecedor para %s: ", resp == 'A' ? "adicionar" : "subtrair");
     fflush(stdin);
     scanf("%d", &cod);
+
     pos = BusFornCod(index_fornecedores, TL_fornecedores, cod);
+
     if (pos >= 0)
     {
         switch (resp)
@@ -738,132 +590,115 @@ void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[
             for (int i = 0; i < TL_produtos; i++)
                 if (index_produtos[i].CodForn == index_fornecedores[pos].CodForn)
                     index_produtos[i].Preco += (index_produtos[i].Preco * (valor / 100));
-            gotoxy(30, 7);
-            printf("Produtos atualizados\n");
+            conioPrintf("switcher", "verde", 0, "Produtos atualizados!");
             getch();
             break;
         case 'B':
             for (int i = 0; i < TL_produtos; i++)
                 if (index_produtos[i].CodForn == index_fornecedores[pos].CodForn)
                     index_produtos[i].Preco -= (index_produtos[i].Preco * (valor / 100));
-            gotoxy(30, 7);
-            printf("Produtos atualizados\n");
+            conioPrintf("switcher", "verde", 0, "Produtos atualizados!");
             getch();
             break;
         }
     }
     else
-    {
-        printf("\nERRO! Fornecedor nao cadastrado.\n");
-    }
+        conioPrintf("switcher", "vermelho", 0, "Erro! Fornecedor nao cadastrado!");
 }
 
 void EditaClientes(Clientes clientes[], int TL)
 {
     int opcao, pos;
     char cpf[11], opc;
+
+    conioPrintf("topo", "ciano", 0, "Editar Clientes!");
+
     if (TL > 0)
     {
-        printf("CPF a ser editado: ");
+        clearElement("rightside");
+        conioPrintf("menu_right", "branco", 0, "CPF a ser editado: ");
         fflush(stdin);
         gets(cpf);
+
         if (validarCPF(cpf) == 1)
         {
             pos = getPosClientes(clientes, TL, cpf);
-            printf("%s %s\n", clientes[pos].CPF, clientes[pos].NomeCli);
-            printf("Mudar: \n");
-            printf("A-Nome\n");
-            printf("B-Zerar Compras\n");
+            conioPrintf("menu_right", "branco", 1, "%s %s\n", clientes[pos].CPF, clientes[pos].NomeCli);
+            conioPrintf("menu_right", "branco", 2, "Mudar: ");
+            conioPrintf("menu_right", "branco", 3, "A - Nome");
+            conioPrintf("menu_right", "branco", 4, "B - Zerar Compras");
+
             opc = toupper(getch());
+
             switch (opc)
             {
             case 'A':
+                conioPrintf("menu_right", "branco", 5, "Novo nome do cliente: ");
                 fflush(stdin);
                 gets(clientes[pos].NomeCli);
                 break;
             case 'B':
                 clientes[pos].QtdeCompras = 0;
                 clientes[pos].QtdeCompras = 0;
+                conioPrintf("menu_right", "branco", 5, "Compras zeradas!");
                 // buscar compras no cpf e deletar do index_vendas;
                 break;
             }
         }
         else
-        {
-
-            clrfunc(23, 3, 23, 78);
-            gotoxy(3, 23);
-            printf("CPF n encontrado! \n");
-            clrfunc(8, 3, 20, 24);
-            gotoxy(52, 23);
-            fflush(stdin);
-
-            getch();
-        }
+            conioPrintf("switcher", "vermelho", 0, "CPF nao encontrado!");
     }
     else
-    {
-        clrfunc(23, 3, 23, 78);
-        gotoxy(3, 23);
-        printf("Lista vazia!\n");
-        clrfunc(8, 3, 20, 24);
-        gotoxy(52, 23);
-        fflush(stdin);
-        getch();
-    }
+        conioPrintf("switcher", "amarelo", 0, "Lista vazia!");
+    getch();
 }
 
 void ConsultaFornecedor(Fornecedores fornecedores[], int TL)
 {
-    int i, xD;
-    printf("Busca fornecedor pelo cod. :");
+    int i, consulta;
+    conioPrintf("topo", "verde_claro", 0, "Consulta de Fornecedores!");
+    conioPrintf("menu_right", "branco", 0, "Busca fornecedor pelo codigo: ");
     fflush(stdin);
-    scanf("%d", &xD);
-    if (xD >= 0)
+    scanf("%d", &consulta);
+
+    if (consulta >= 0)
     {
-        i = BusFornCod(fornecedores, TL, xD);
+        i = BusFornCod(fornecedores, TL, consulta);
         if (i >= 0)
         {
+            clearElement("rightside");
+            conioPrintf("menu_right", "branco", 0, "%d", fornecedores[i].CodForn);
+            conioPrintf("menu_right", "branco", 0, "%s", fornecedores[i].NomeForn);
+            conioPrintf("menu_right", "branco", 0, "%s", fornecedores[i].Cidade);
             printf("%d\n%s\n%s", fornecedores[i].CodForn, fornecedores[i].NomeForn, fornecedores[i].Cidade);
         }
         else
-        {
-            clrfunc(23, 3, 23, 78);
-            gotoxy(3, 23);
-            printf("FORNECEDOR NAO ENCONTRADO!\n");
-            clrfunc(8, 3, 20, 24);
-            gotoxy(52, 23);
-            fflush(stdin);
-
-            getch();
-        }
+            conioPrintf("switcher", "vermelho", 0, "Fornecedor nao encontrado!");
     }
     else
-    {
-        clrfunc(23, 3, 23, 78);
-        gotoxy(3, 23);
-        printf("Apenas cod's positivos\n");
-        clrfunc(8, 3, 20, 24);
-        gotoxy(52, 23);
-        fflush(stdin);
-
-        getch();
-    }
+        conioPrintf("switcher", "vermelho", 0, "Apenas cod's positivos!");
+    getch();
 }
 
 void ExcluirFornecedor(Fornecedores fornecedores[], int &TL)
 {
     int i;
     char a;
-    printf("Busca fornecedor pelo cod. : ");
+
+    conioPrintf("topo", "ciano", 0, "Busca fornecedor pelo codigo: ");
+    conioPrintf("menu_right", "branco", 0, "Busca fornecedor pelo codigo: ");
+
     fflush(stdin);
     scanf("%d", &i);
+
     i = BusFornCod(fornecedores, TL, i);
+
     if (i >= 0)
     {
-        printf("Deletar %s? S/N", fornecedores[i].NomeForn);
+        printf("menu_right", "branco", 1, "Deletar %s? S/N", fornecedores[i].NomeForn);
         fflush(stdin);
         a = toupper(getch());
+
         if (a == 'S')
         {
             for (; i < TL - 1; i++)
@@ -871,27 +706,13 @@ void ExcluirFornecedor(Fornecedores fornecedores[], int &TL)
                 fornecedores[i] = fornecedores[i + 1];
             }
             TL--;
-
-            clrfunc(23, 3, 23, 78);
-            gotoxy(3, 23);
-            printf("Deletado com sucesso!\n");
-            clrfunc(8, 3, 20, 24);
-            gotoxy(52, 23);
-            fflush(stdin);
+            conioPrintf("switcher", "verde", 0, "Deletado com sucesso!");
             getch();
         }
     }
     else
-    {
-        clrfunc(23, 3, 23, 78);
-        gotoxy(3, 23);
-        printf("Fornecedor nao encontrado \n");
-        clrfunc(8, 3, 20, 24);
-        gotoxy(52, 23);
-        fflush(stdin);
-
-        getch();
-    }
+        conioPrintf("switcher", "vermelho", 0, "Fornecedor nao encontrado! ");
+    getch();
 }
 
 int comparaData(int ano1, int mes1, int dia1, int ano2, int mes2, int dia2)
@@ -918,10 +739,11 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
     struct tm tm = *localtime(&t);
     TpData construtor_data, input;
     bool pass;
-    printf("\nNova venda\n");
-    printf("CPF do Cliente: ");
+    conioPrintf("topo", "rosa", 0, "Nova Venda!!");
+    conioPrintf("menu_right: ", "branco", 0, "CPF do Cliente: ");
     fflush(stdin);
     gets(cpf);
+
     while (strcmp(cpf, "0") != 0)
     {
         validarCPF(cpf) == 1 ? pass = true : pass = false;
@@ -930,11 +752,13 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
             pos_cliente = getPosClientes(rootClientes, TLclientes, cpf);
             if (pos_cliente >= 0)
             {
-                printf("Cliente: %s", rootClientes[pos_cliente].NomeCli);
-                printf("[A] - Usar a data atual para a venda\n");
-                printf("[B] - Data Personalizada para a venda\n");
+                clearElement("rightside");
+                conioPrintf("menu_right", "branco", 0, "Cliente: %s", rootClientes[pos_cliente].NomeCli);
+                conioPrintf("menu_right", "branco", 1, "[A] - Usar a data atual para a venda");
+                conioPrintf("menu_right", "branco", 2, "[B] - Data personalizada;");
                 fflush(stdin);
                 scanf("%c", &datahelper);
+
                 datahelper = toupper(datahelper);
                 pass = false;
                 do
@@ -958,13 +782,7 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                         }
                         break;
                     default:
-                        clrfunc(23, 3, 23, 78);
-                        gotoxy(3, 23);
-                        printf("Obrigatorio inserir data valida!\n");
-                        clrfunc(8, 3, 20, 24);
-                        gotoxy(51, 23);
-                        fflush(stdin);
-
+                        printf("switcher", "vermelho", 0, "Obrigatorio inserir data valida!");
                         getch();
                     }
                 } while (pass == false);
@@ -972,9 +790,11 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                 do
                 {
                     int prod_pos;
-                    printf("Cod do %d prod. a ser adicionado: ", TLvendasprod);
+                    clearElement("rightside");
+                    conioPrintf("menu_right", "branco", 0, "Cod do %d prod. a ser adicionado: ", TLvendasprod);
                     fflush(stdin);
                     scanf("%d", &cod_aux);
+
                     if (cod_aux > 0)
                     {
                         prod_pos = BusProdCod(rootProdutos, TLprodutos, cod_aux);
@@ -983,12 +803,13 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                             pass = false;
                             if (comparaData(rootProdutos[prod_pos].DtValidade.Ano, rootProdutos[prod_pos].DtValidade.Mes, rootProdutos[prod_pos].DtValidade.Dia, construtor_data.Ano, construtor_data.Mes, construtor_data.Dia) >= 0)
                             {
-                                printf("Produto: %s\nQtde em estoque:%d\n", rootProdutos[prod_pos].Desc, rootProdutos[prod_pos].Estoque);
+                                conioPrintf("menu_right", "branco", 1, "Produto: %s\nQtde em estoque:%d\n", rootProdutos[prod_pos].Desc, rootProdutos[prod_pos].Estoque);
                                 do
                                 {
-                                    printf("Quantidade vendida: ");
+                                    conioPrintf("menu_right", "branco", 2, "Quantidade vendida: ");
                                     fflush(stdin);
                                     scanf("%d", &var);
+
                                 } while (var <= 0);
                                 if (var <= rootProdutos[prod_pos].Estoque)
                                 {
@@ -1000,43 +821,29 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
                                     valor_variavel += rootProdutos[prod_pos].Preco * var;
                                     rootClientes[pos_cliente].QtdeCompras++;
                                     TLvendasprod++;
-                                    printf("Item %s adicionado a venda de cod. %d\n", rootProdutos[prod_pos].Desc, TLvendas + 1);
+                                    conioPrintf("switcher", "verde", 0, "Item %s adicionado a venda de cod. %d\n", rootProdutos[prod_pos].Desc, TLvendas + 1);
                                     getch();
                                 }
                                 else
                                 {
-                                    clrfunc(23, 3, 23, 78);
-                                    gotoxy(3, 23);
-                                    printf("Quantidade maior que estoque total\n");
-                                    clrfunc(8, 3, 20, 24);
-                                    gotoxy(52, 23);
-                                    fflush(stdin);
+                                    conioPrintf("switcher", "vermelho", 0, "Qtde. maior que estoque total!");
                                     getch();
                                 }
                             }
                             else
                             {
-                                clrfunc(23, 3, 23, 78);
-                                gotoxy(3, 23);
-                                printf("Validade do produto nao bate com a venda \n");
-                                clrfunc(8, 3, 20, 24);
-                                gotoxy(52, 23);
-                                fflush(stdin);
-
+                                conioPrintf("switcher", "amarelo", 0, "Validade do produto nao bate com a venda");
                                 getch();
                             }
                         }
                         else
                         {
-                            // clrfunc(23, 3, 23, 78);
-                            gotoxy(3, 23);
-                            printf("Produto nao encontrado.\nTente novamente.\n");
-                            gotoxy(41, 23);
-
+                            conioPrintf("switcher", "vermelho", 0, "Produto n. encontrado, tente novamente");
                             getch();
                         }
                     }
-                    printf("Cod do %d prod. a ser adicionado: ", TLvendasprod);
+                    clearElement("rightside");
+                    conioPrintf("menu_right", "branco", 0, "Cod do %d prod. a ser adicionado: ", TLvendasprod);
                     fflush(stdin);
                     scanf("%d", &cod_aux);
                 } while (cod_aux > 0);
@@ -1054,26 +861,18 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
             }
             else
             {
-                clrfunc(23, 3, 23, 78);
-                gotoxy(3, 23);
-                printf("Cliente nao encontrado\n");
-                clrfunc(8, 3, 20, 24);
-                gotoxy(52, 23);
-                fflush(stdin);
-
+                conioPrintf("swticher", "vermelho", 0, "Cliente nao encontrado!");
                 getch();
             }
         }
         else
         {
-            printf("Digite um CPF valido!");
             conioPrintf("alerta", "vermelho", 0, "Digite um CPF valido!");
-            fflush(stdin);
-
             getch();
         }
 
-        printf("(0 cancela) CPF do Cliente:"); // nao esta cancelando
+        clearElement("rightside");
+        conioPrintf("menu_right", "branco", 0, "(0 cancela) CPF do Cliente: ");
         fflush(stdin);
         gets(cpf);
     }
@@ -1086,7 +885,8 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
     int TL_fornecedores = 0, TL_produtos = 0, TL_clientes = 0, TL_vendas = 0, TL_cupons = 0, op;
     char opc, opc_sub;
 
-    conioPrintf("topo", "verde", 0, "%s %d","Vendas:", TL_vendas);
+    Formulario();
+    conioPrintf("topo", "verde", 0, "%s %d", "Vendas:", TL_vendas);
     conioPrintf("switcher", "verde", 0, "Selecione um item:");
     conioPrintf("menu_left", "branco", 0, "[A] - CLIENTES");
     conioPrintf("menu_left", "branco", 1, "[B] - FORNECEDORES");
@@ -1145,10 +945,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 case 27:
                     break;
                 default:
-                    clrfunc(23, 3, 23, 78);
                     conioPrintf("alerta", "vermelho", 0, "##INEXISTENTE!## Selecione novamente");
-                    clrfunc(8, 3, 20, 24);
-                    gotoxy(51, 23);
                     fflush(stdin);
                     getch();
                 }
@@ -1172,10 +969,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     if (Compara(TL_fornecedores, TF) == true)
                         CadastraFornecedor(index_fornecedores, TL_fornecedores, NULL);
                     else
-                    {
                         conioPrintf("switcher", "vermelho", 0, "Erro: dbCheio");
-                        gotoxy(41, 23);
-                    }
                     fflush(stdin);
                     getch();
                     break;
@@ -1188,7 +982,6 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     else
                     {
                         conioPrintf("switcher", "vermelho", 0, "Erro: Vetor vazio");
-                        gotoxy(41, 23);
                         getch();
                     }
                     fflush(stdin);
@@ -1200,11 +993,7 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 case 27:
                     break;
                 default:
-                    clrfunc(23, 3, 23, 78);
                     conioPrintf("alerta", "vermelho", 0, "##INEXISTENTE!## Selecione novamente");
-                    clrfunc(8, 3, 20, 24);
-                    gotoxy(52, 23);
-                    fflush(stdin);
                     getch();
                 }
             } while (opc != 27);
@@ -1252,7 +1041,6 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                     break;
                 default:
                     conioPrintf("switcher", "vermelho", 0, "##INEXISTENTE!## Selecione novamente");
-                    gotoxy(51, 23);
                     getch();
                     break;
                 }
@@ -1297,15 +1085,15 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
                 case 27:
                     break;
                 default:
-                    conioPrintf("switcher", "vermelho", 0,"##INEXISTENTE!## Selecione novamente");
-                    fflush(stdin);
+                    conioPrintf("switcher", "vermelho", 0, "##INEXISTENTE!## Selecione novamente");
                     getch();
                     break;
                 }
             } while (opc != 27);
             break;
         }
-        conioPrintf("topo", "verde", 0,"Vendas realizadas: %d", TL_vendas);
+        Formulario();
+        conioPrintf("topo", "verde", 0, "Vendas realizadas: %d", TL_vendas);
         conioPrintf("switcher", "verde", 0, "Selecione um item:");
         conioPrintf("menu_left", "branco", 0, "[A] - CLIENTES");
         conioPrintf("menu_left", "branco", 1, "[B] - FORNECEDORES");
@@ -1318,7 +1106,6 @@ void Menu(Fornecedores index_fornecedores[TF], Produtos index_produtos[TF], Clie
 
 int main(void)
 {
-    Formulario();
     Fornecedores index_fornecedores[TF];
     Produtos index_produtos[TF];
     Clientes index_clientes[TF];

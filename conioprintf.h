@@ -1,11 +1,9 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
 #include <ctype.h>
+#include <stdarg.h>
 #include <string.h>
 #include <conio2.h>
 
-/*
 void clrfunc(int LI, int CI, int LF, int CF)
 {
     int i;
@@ -18,12 +16,9 @@ void clrfunc(int LI, int CI, int LF, int CF)
             printf("%c", 32);
         }
     }
-} */
+}
 
-// arg p conversao em int
-char *conv(unsigned int, int);
-
-/*void clearElement(char *regiao)
+void clearElement(char regiao[])
 {
     if (strcmp(regiao, "topo") == 0)
         clrfunc(3, 3, 3, 70);
@@ -33,14 +28,19 @@ char *conv(unsigned int, int);
     {
         clrfunc(23, 3, 23, 78);
         clrfunc(8, 3, 20, 26);
+        clrfunc(6,29,20,78);
     }
+    else if (strcmp(regiao, "rightside"))
+        clrfunc(6,29,20,78);
+
     // switcher gatilho para limpar com printf
     // o menu esquerdo
 
-    // else if (strcmp(regiao, "rightside") == 0)
-    //     clrfunc();
-} */
+    // -- linha 6 coluna 29
+    // -- linha 20 coluna 78
+}
 
+// arg p conversao em int
 char *conv(unsigned int numero, int base)
 {
     static char Rep[] = "0123456789ABCDEF";
@@ -58,8 +58,10 @@ char *conv(unsigned int numero, int base)
     return ptr;
 }
 
-/*conioPrintf("string", "posicao", "Cor", somar linha);*/
-void conioPrintf(char *str, char *posicao, char *cor, int linha, ...)
+//>>conioPrintf("posicao", "Cor", somar linha,"string" ...formatacao...);
+//
+//posicao=topo, alerta, menu_left, menu_right, switcher
+void conioPrintf(char *posicao, char *cor, int linha, char *str, ...)
 {
     unsigned int i;
     char *transc;
@@ -103,7 +105,7 @@ void conioPrintf(char *str, char *posicao, char *cor, int linha, ...)
     else
         textcolor(15);
 
-    // clearElement(posicao);
+    clearElement(posicao);
 
     // setPos (definir pos antes)
     if (strcmp(posicao, "topo") == 0)
@@ -123,18 +125,20 @@ void conioPrintf(char *str, char *posicao, char *cor, int linha, ...)
     // setLinha
     gotoxy(wherex(), wherey() + linha);
 
-    // putStringto - old, sem opcao de formatacao
+    // putStringto - old, --sem opcao de formatacao--
     // if (*str != NULL)
     //    printf("%s ", str);
 
-    for (transc = str; *transc != '\0'; transc++)
+    //print function (ref: stdio, mingw, gnu)
+    for (transc = str; *transc != '\0';)
     {
-        while (*transc != '%')
+        while (*transc != '%' && *transc != '\0')
         {
             putchar(*transc);
             transc++;
         }
-        transc++;
+        if (*transc == '%')
+        	transc++;
         switch (*transc)
         {
         case 'd':
@@ -145,19 +149,15 @@ void conioPrintf(char *str, char *posicao, char *cor, int linha, ...)
                 putchar('-');
             }
             puts(conv(i, 10));
+            transc++;
             break;
         case 's':
             s = va_arg(arg, char *);
-            puts(s);
+            fputs(s, stdout);
+            transc++;
             break;
         }
     }
-    va_end(arg);
     textcolor(15);
+    va_end(arg);
 }
-
-int main()
-{
-    conioPrintf("Teste de %d numeros\n %s", "topo", "vermelho", 2, 23, "oo");
-}
-
