@@ -28,13 +28,10 @@ void clearElement(char regiao[])
     {
         clrfunc(23, 3, 23, 78);
         clrfunc(8, 3, 20, 26);
-        clrfunc(6,29,20,78);
+        clrfunc(6, 29, 20, 78);
     }
     else if (strcmp(regiao, "rightside") == 0)
-        clrfunc(6,29,20,78);
-
-    // switcher gatilho para limpar com printf
-    // o menu esquerdo
+        clrfunc(6, 29, 20, 78);
 }
 
 // arg p conversao em int
@@ -57,7 +54,7 @@ char *conv(unsigned int numero, int base)
 
 //>>conioPrintf("posicao", "Cor", somar linha,"string" ...formatacao...);
 //
-//posicao=topo, alerta, menu_left, menu_right, switcher
+// posicao=topo, alerta, menu_left, menu_right, switcher
 void conioPrintf(char *posicao, char *cor, int linha, char *str, ...)
 {
     unsigned int i;
@@ -122,11 +119,7 @@ void conioPrintf(char *posicao, char *cor, int linha, char *str, ...)
     // setLinha
     gotoxy(wherex(), wherey() + linha);
 
-    // putStringto - old, --sem opcao de formatacao--
-    // if (*str != NULL)
-    //    printf("%s ", str);
-
-    //print function (ref: stdio, mingw, gnu)
+    // print function (ref: stdio, mingw, gnu)
     for (transc = str; *transc != '\0';)
     {
         while (*transc != '%' && *transc != '\0')
@@ -135,7 +128,7 @@ void conioPrintf(char *posicao, char *cor, int linha, char *str, ...)
             transc++;
         }
         if (*transc == '%')
-        	transc++;
+            transc++;
         switch (*transc)
         {
         case 'd':
@@ -153,8 +146,17 @@ void conioPrintf(char *posicao, char *cor, int linha, char *str, ...)
             fputs(s, stdout);
             transc++;
             break;
+        case 'f':
+            i = va_arg(arg, double);
+            if (i < 0)
+            {
+                i = -1;
+                putchar('-');
+            }
+            fputs(conv(i, 10), stdout);
+            transc++;
+            break;
         }
-        //eu nao consegui fazer um case FLOAT ainda (13-10);
     }
     textcolor(15);
     va_end(arg);
