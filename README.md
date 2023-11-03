@@ -11,9 +11,6 @@ to-do: ;
     > no caso um parametro numerico, para identificar uma posicao especial
     > como no cadastro de vendas, escrever no menu a direita, -no bloco 1, 2 e etc-
 
-- 13/10
-    > conversao depredada de const string para char* no compilador gcc4.7.1
-
 - 16/10
     > void EditaClientes - buscar compras no cpf e deletar do index_vendas;
     > BuscaVendaPorCodigo, BuscaProdutoPorCodigo - nao feito

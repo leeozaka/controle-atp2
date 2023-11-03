@@ -105,7 +105,7 @@ void Formulario(void)
     Moldura(28, 5, 79, 21, 9, 6);
 }
 
-int validarCPF(char cpf[11]) // corrigido 25-09
+int validarCPF(char cpf[11])
 {
     int i, digito1 = 0, digito2 = 0, helper;
     for (i = 0; i < 11 && cpf[i] >= 48 && cpf[i] <= 57; i++)
@@ -152,8 +152,8 @@ void CadastraCliente(Clientes clientes[], int &TL)
     conioPrintf(TOPO, ROSA_CLARO, 0, "Cadastro de Clientes!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o CPF: ");
     fflush(stdin);
-    fgets(CPF, BUFFER, stdin);
-
+    gets(CPF);
+    
     if (validarCPF(CPF) == 1)
     {
         for (i = 0; i < TL && validar != 1; i++)
@@ -265,11 +265,11 @@ void AlterarDadosFornecedor(Fornecedores fornecedores[], int TL)
             {
             case 'A':
                 fflush(stdin);
-                fgets(fornecedores[pos].NomeForn,BUFFER,stdin);
+                gets(fornecedores[pos].NomeForn);
                 break;
             case 'B':
                 fflush(stdin);
-                fgets(fornecedores[pos].Cidade,BUFFER,stdin);
+                gets(fornecedores[pos].Cidade);
                 // buscar compras no cpf e deletar do index_vendas?;
                 break;
             }
@@ -287,8 +287,8 @@ void AlterarDadosFornecedor(Fornecedores fornecedores[], int TL)
     }
 }
 
-void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
 // int *cod passa NULL se o codigo do fornecedor ja nao foi inserido em outra funcao, exmeplo no cast do Menu();
+void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
 {
     int codforn, busca;
 
@@ -321,10 +321,10 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
     fornecedores[TL].CodForn = codforn;
     conioPrintf(MENU_RIGHT, BRANCO, 1, "Nome: "); // n ta indo pro lado direito
     fflush(stdin);
-    fgets(fornecedores[TL].NomeForn,BUFFER,stdin);
+    gets(fornecedores[TL].NomeForn);
     conioPrintf(MENU_RIGHT, BRANCO, 2, "Cidade: ");
     fflush(stdin);
-    fgets(fornecedores[TL].Cidade,BUFFER,stdin);
+    gets(fornecedores[TL].Cidade);
     TL++;
     conioPrintf(MENU_RIGHT, VERDE, 0, "Fornecedor cod.%d, %s cadastrado!", fornecedores[TL - 1].CodForn, fornecedores[TL - 1].NomeForn);
     getch();
@@ -347,7 +347,7 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
             produtos[TL_Produtos].CodProd = AuxCod;
             conioPrintf(MENU_RIGHT, BRANCO, 1, "Descricao: ");
             fflush(stdin);
-            fgets(produtos[TL_Produtos].Desc,BUFFER,stdin);
+            gets(produtos[TL_Produtos].Desc);
 
             conioPrintf(MENU_RIGHT, BRANCO, 2, "Estoque: ");
             fflush(stdin);
@@ -441,7 +441,7 @@ void DeletaClientes(Clientes clientes[], int &TL)
     conioPrintf(TOPO, VERMELHO_CLARO, 0, "Exclusao de Clientes!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF do Cliente a ser Deletado: ");
     fflush(stdin);
-    fgets(cpf,BUFFER,stdin);
+    gets(cpf);
     if (validarCPF(cpf) == 1)
     {
         for (i = 0, pos = -1; i < TL && pos == -1; i++)
@@ -638,7 +638,7 @@ void EditaClientes(Clientes clientes[], int TL)
         clearElement(RIGHTSIDE);
         conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF a ser editado: ");
         fflush(stdin);
-        fgets(cpf,BUFFER,stdin);
+        gets(cpf);
 
         if (validarCPF(cpf) == 1)
         {
@@ -655,7 +655,7 @@ void EditaClientes(Clientes clientes[], int TL)
             case 'A':
                 conioPrintf(MENU_RIGHT, BRANCO, 5, "Novo nome do cliente: ");
                 fflush(stdin);
-                fgets(clientes[pos].NomeCli,BUFFER,stdin);
+                gets(clientes[pos].NomeCli);
                 break;
             case 'B':
                 clientes[pos].QtdeCompras = 0;
@@ -767,7 +767,7 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
     conioPrintf(TOPO, ROSA, 0, "Nova Venda!!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF do Cliente: ");
     fflush(stdin);
-    fgets(cpf,BUFFER,stdin);
+    gets(cpf);
     while (strcmp(cpf, "0") != 0)
     {
         validarCPF(cpf) == 1 ? pass = true : pass = false;
@@ -898,14 +898,14 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
         clearElement(RIGHTSIDE);
         conioPrintf(MENU_RIGHT, BRANCO, 0, "(0 cancela) CPF do Cliente: ");
         fflush(stdin);
-        fgets(cpf,BUFFER,stdin);
+        gets(cpf);
     }
     return 0;
 }
 void ExcluirVenda(Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], int &TLvendas, int &TLvendasprod)
 {
     int codVenda, i, j;
-    conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o c�digo da venda a ser excluida (0 para cancelar): ");
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o codigo da venda a ser excluida (0 para cancelar): ");
     fflush(stdin);
     scanf("%d", &codVenda);
 
@@ -951,7 +951,7 @@ void AlterarVenda(Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], Pro
     int pontoVenda, pontoProd;
 
     conioPrintf(TOPO, VERDE, 0, "Alterar Venda Existente!");
-    conioPrintf(MENU_RIGHT, BRANCO, 0, "Insira o c�digo da venda: ");
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "Insira o codigo da venda: ");
     scanf("%d", &codVenda);
 
     pontoVenda = BuscaVendaPorCodigo(rootVendas, TLvendas, codVenda);
@@ -971,7 +971,7 @@ void AlterarVenda(Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], Pro
             switch (resp)
             {
             case 'A':
-                // Adicionar Produto � Venda
+                // Adicionar Produto o Venda
 
                 break;
 
@@ -1315,7 +1315,7 @@ void Menu(Fornecedores index_fornecedores[], Produtos index_produtos[], Clientes
     }
 }
 
-int main(void)
+int main(int morteaodevcpp, char **ideruim)
 {
     Fornecedores index_fornecedores[TF];
     Produtos index_produtos[TF];
@@ -1323,11 +1323,8 @@ int main(void)
     Vendas index_vendas[TF];
     Vendas_Produtos vendas[TF];
 
-    
-
     _setcursortype(0);
     Menu(index_fornecedores, index_produtos, index_clientes, index_vendas, vendas);
 
-    gotoxy(200,200);
     return 0;
 }
