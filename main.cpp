@@ -14,6 +14,8 @@
 #define TF 300
 #define QUANT 40
 
+#define BUFFER 50
+
 struct Fornecedores
 {
     int CodForn;
@@ -150,7 +152,7 @@ void CadastraCliente(Clientes clientes[], int &TL)
     conioPrintf(TOPO, ROSA_CLARO, 0, "Cadastro de Clientes!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o CPF: ");
     fflush(stdin);
-    gets(CPF);
+    fgets(CPF, BUFFER, stdin);
 
     if (validarCPF(CPF) == 1)
     {
@@ -263,11 +265,11 @@ void AlterarDadosFornecedor(Fornecedores fornecedores[], int TL)
             {
             case 'A':
                 fflush(stdin);
-                gets(fornecedores[pos].NomeForn);
+                fgets(fornecedores[pos].NomeForn,BUFFER,stdin);
                 break;
             case 'B':
                 fflush(stdin);
-                gets(fornecedores[pos].Cidade);
+                fgets(fornecedores[pos].Cidade,BUFFER,stdin);
                 // buscar compras no cpf e deletar do index_vendas?;
                 break;
             }
@@ -319,10 +321,10 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
     fornecedores[TL].CodForn = codforn;
     conioPrintf(MENU_RIGHT, BRANCO, 1, "Nome: "); // n ta indo pro lado direito
     fflush(stdin);
-    gets(fornecedores[TL].NomeForn);
+    fgets(fornecedores[TL].NomeForn,BUFFER,stdin);
     conioPrintf(MENU_RIGHT, BRANCO, 2, "Cidade: ");
     fflush(stdin);
-    gets(fornecedores[TL].Cidade);
+    fgets(fornecedores[TL].Cidade,BUFFER,stdin);
     TL++;
     conioPrintf(MENU_RIGHT, VERDE, 0, "Fornecedor cod.%d, %s cadastrado!", fornecedores[TL - 1].CodForn, fornecedores[TL - 1].NomeForn);
     getch();
@@ -345,7 +347,7 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
             produtos[TL_Produtos].CodProd = AuxCod;
             conioPrintf(MENU_RIGHT, BRANCO, 1, "Descricao: ");
             fflush(stdin);
-            gets(produtos[TL_Produtos].Desc);
+            fgets(produtos[TL_Produtos].Desc,BUFFER,stdin);
 
             conioPrintf(MENU_RIGHT, BRANCO, 2, "Estoque: ");
             fflush(stdin);
@@ -408,6 +410,7 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
         scanf("%d", &AuxCod);
     }
 }
+
 // arrumar a funcao de relatorio, e incrementar uma funcao de nota fiscal apos as vendas
 /*void Relatorio(Produtos Produtos[TF], Vendas Vendas[TF], int TL)
 {
@@ -433,20 +436,20 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
 
 void DeletaClientes(Clientes clientes[], int &TL)
 {
-    int pos;
+    int pos, i;
     char cpf[11];
     conioPrintf(TOPO, VERMELHO_CLARO, 0, "Exclusao de Clientes!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF do Cliente a ser Deletado: ");
     fflush(stdin);
-    gets(cpf);
+    fgets(cpf,BUFFER,stdin);
     if (validarCPF(cpf) == 1)
     {
-        for (int i = 0, pos = -1; i < TL && pos == -1; i++)
+        for (i = 0, pos = -1; i < TL && pos == -1; i++)
             if ((strcmp(clientes[i].CPF, cpf)) == 0)
                 pos = i;
         if (pos >= 0)
         {
-            for (int i = pos; i < TL - 1; i++)
+            for (i = pos; i < TL - 1; i++)
             {
                 clientes[i] = clientes[i + 1];
             }
@@ -566,7 +569,6 @@ void ConsultaProd(Produtos produtos[], int TL)
     }
     else
         conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
-    // limpar o final aqui, do lado direito
 }
 
 void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[], int TL_produtos, int TL_fornecedores)
@@ -636,7 +638,7 @@ void EditaClientes(Clientes clientes[], int TL)
         clearElement(RIGHTSIDE);
         conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF a ser editado: ");
         fflush(stdin);
-        gets(cpf);
+        fgets(cpf,BUFFER,stdin);
 
         if (validarCPF(cpf) == 1)
         {
@@ -653,7 +655,7 @@ void EditaClientes(Clientes clientes[], int TL)
             case 'A':
                 conioPrintf(MENU_RIGHT, BRANCO, 5, "Novo nome do cliente: ");
                 fflush(stdin);
-                gets(clientes[pos].NomeCli);
+                fgets(clientes[pos].NomeCli,BUFFER,stdin);
                 break;
             case 'B':
                 clientes[pos].QtdeCompras = 0;
@@ -765,7 +767,7 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
     conioPrintf(TOPO, ROSA, 0, "Nova Venda!!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF do Cliente: ");
     fflush(stdin);
-    gets(cpf);
+    fgets(cpf,BUFFER,stdin);
     while (strcmp(cpf, "0") != 0)
     {
         validarCPF(cpf) == 1 ? pass = true : pass = false;
@@ -896,8 +898,9 @@ int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos
         clearElement(RIGHTSIDE);
         conioPrintf(MENU_RIGHT, BRANCO, 0, "(0 cancela) CPF do Cliente: ");
         fflush(stdin);
-        gets(cpf);
+        fgets(cpf,BUFFER,stdin);
     }
+    return 0;
 }
 void ExcluirVenda(Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], int &TLvendas, int &TLvendasprod)
 {
@@ -1211,7 +1214,6 @@ void Menu(Fornecedores index_fornecedores[], Produtos index_produtos[], Clientes
                 conioPrintf(MENU_LEFT, BRANCO, 4, "[E] - DESC PERCENTUAL");
                 fflush(stdin);
                 opc = toupper(getch());
-                // em Produtos nd esta do lado direito :(
 
                 switch (opc)
                 {

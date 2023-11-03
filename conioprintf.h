@@ -89,7 +89,7 @@ char *conv(unsigned int numero, int base)
 //>>conioPrintf("posicao", "Cor", somar linha,"string" ...formatacao...);
 //
 // posicao=topo, alerta, menu_left, menu_right, switcher
-void conioPrintf(position pos, cores ref, int linha, char *str, ...)
+void conioPrintf(position pos, cores ref, int linha, const char *str, ...)
 {
     unsigned int i;
     char *transc;
@@ -175,7 +175,7 @@ void conioPrintf(position pos, cores ref, int linha, char *str, ...)
     gotoxy(wherex(), wherey() + linha);
 
     // print function (ref: stdio, mingw, gnu)
-    for (transc = str; *transc != '\0';)
+    for (transc = (char*)str; *transc != '\0';)
     {
         while (*transc != '%' && *transc != '\0')
         {

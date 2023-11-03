@@ -1,14 +1,21 @@
 {
     "tasks": [
         {
-            "type": "cppbuild",
+            "type": "shell",
             "label": "C/C++: gcc.exe build active file",
             "command": "C:/Dev-Cpp/MinGW64/bin/g++.exe",
             "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "-L",
+                "C:\\msys64\\mingw64\\x86_64-w64-mingw32\\lib",
                 "-static-libgcc",
                 "-lconio",
                 "-m32",
-                "-g3"
+                "-g3",
+                "-fpermissive"
             ],
             "options": {
                 "cwd": "C:/Dev-Cpp/MinGW64/bin/"
