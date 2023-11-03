@@ -4,6 +4,41 @@
 #include <string.h>
 #include <conio2.h>
 
+// #define _PRETO PRETO
+// #define _AZUL AZUL
+// #define _VERDE VERDE
+// #define _CIANO CIANO
+// #define _VERMELHO VERMELHO
+// #define _ROSA ROSA
+// #define _BRANCO BRANCO
+// #define _CINZA_CLARO CINZA_CLARO 
+// #define _AZUL_CLARO AZUL_CLARO
+// #define _VERDE_CLARO VERDE_CLARO
+// #define _CIANO_CLARO CIANO_CLARO
+// #define _VERMELHO_CLARO VERMELHO_CLARO
+// #define _ROSA_CLARO ROSA_CLARO
+// #define _AMARELO AMARELO
+// #define _BRANCO BRANCO
+
+enum cores
+{
+    PRETO,
+    AZUL,
+    VERDE,
+    CIANO,
+    VERMELHO,
+    ROSA,
+    BRANCO,
+    CINZA_CLARO,
+    AZUL_CLARO,
+    VERDE_CLARO,
+    CIANO_CLARO,
+    VERMELHO_CLARO,
+    ROSA_CLARO,
+    AMARELO,
+    BRANCO
+};
+
 void clrfunc(int LI, int CI, int LF, int CF)
 {
     int i;
@@ -55,7 +90,7 @@ char *conv(unsigned int numero, int base)
 //>>conioPrintf("posicao", "Cor", somar linha,"string" ...formatacao...);
 //
 // posicao=topo, alerta, menu_left, menu_right, switcher
-void conioPrintf(char *posicao, char *cor, int linha, char *str, ...)
+void conioPrintf(char *posicao, cores ref, int linha, char *str, ...)
 {
     unsigned int i;
     char *transc;
@@ -64,6 +99,7 @@ void conioPrintf(char *posicao, char *cor, int linha, char *str, ...)
     va_list arg;
     va_start(arg, str);
     // setColor
+    /*
     if (strcmp(cor, "preto") == 0)
         textcolor(0);
     else if (strcmp(cor, "azul") == 0)
@@ -98,6 +134,12 @@ void conioPrintf(char *posicao, char *cor, int linha, char *str, ...)
         textcolor(15);
     else
         textcolor(15);
+        */
+    switch (ref) {
+        case PRETO
+    }
+
+    
 
     clearElement(posicao);
 

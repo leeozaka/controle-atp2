@@ -1321,8 +1321,9 @@ int main(void)
     Vendas index_vendas[TF];
     Vendas_Produtos vendas[TF];
 
-    _setcursortype(0);
+    
 
+    _setcursortype(0);
     Menu(index_fornecedores, index_produtos, index_clientes, index_vendas, vendas);
 
     gotoxy(200,200);
