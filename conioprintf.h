@@ -4,22 +4,6 @@
 #include <string.h>
 #include <conio2.h>
 
-// #define _PRETO PRETO
-// #define _AZUL AZUL
-// #define _VERDE VERDE
-// #define _CIANO CIANO
-// #define _VERMELHO VERMELHO
-// #define _ROSA ROSA
-// #define _BRANCO BRANCO
-// #define _CINZA_CLARO CINZA_CLARO 
-// #define _AZUL_CLARO AZUL_CLARO
-// #define _VERDE_CLARO VERDE_CLARO
-// #define _CIANO_CLARO CIANO_CLARO
-// #define _VERMELHO_CLARO VERMELHO_CLARO
-// #define _ROSA_CLARO ROSA_CLARO
-// #define _AMARELO AMARELO
-// #define _BRANCO BRANCO
-
 enum cores
 {
     PRETO,
@@ -28,6 +12,7 @@ enum cores
     CIANO,
     VERMELHO,
     ROSA,
+    MARROM,
     BRANCO,
     CINZA_CLARO,
     AZUL_CLARO,
@@ -36,7 +21,16 @@ enum cores
     VERMELHO_CLARO,
     ROSA_CLARO,
     AMARELO,
-    BRANCO
+};
+
+enum position
+{
+    TOPO,
+    ALERTA,
+    MENU_LEFT,
+    MENU_RIGHT,
+    SWITCHER,
+    RIGHTSIDE
 };
 
 void clrfunc(int LI, int CI, int LF, int CF)
@@ -53,20 +47,25 @@ void clrfunc(int LI, int CI, int LF, int CF)
     }
 }
 
-void clearElement(char regiao[])
+void clearElement(position pos)
 {
-    if (strcmp(regiao, "topo") == 0)
-        clrfunc(3, 3, 3, 70);
-    else if (strcmp(regiao, "alerta") == 0)
-        clrfunc(23, 3, 23, 78);
-    else if (strcmp(regiao, "switcher") == 0)
+    switch (pos)
     {
+    case TOPO:
+        clrfunc(3, 3, 3, 70);
+        break;
+    case ALERTA:
+        clrfunc(23, 3, 23, 78);
+        break;
+    case SWITCHER:
         clrfunc(23, 3, 23, 78);
         clrfunc(8, 3, 20, 26);
         clrfunc(6, 29, 20, 78);
-    }
-    else if (strcmp(regiao, "rightside") == 0)
+        break;
+    case RIGHTSIDE:
         clrfunc(6, 29, 20, 78);
+        break;
+    }
 }
 
 // arg p conversao em int
@@ -90,7 +89,7 @@ char *conv(unsigned int numero, int base)
 //>>conioPrintf("posicao", "Cor", somar linha,"string" ...formatacao...);
 //
 // posicao=topo, alerta, menu_left, menu_right, switcher
-void conioPrintf(char *posicao, cores ref, int linha, char *str, ...)
+void conioPrintf(position pos, cores ref, int linha, char *str, ...)
 {
     unsigned int i;
     char *transc;
@@ -98,65 +97,79 @@ void conioPrintf(char *posicao, cores ref, int linha, char *str, ...)
 
     va_list arg;
     va_start(arg, str);
+
     // setColor
-    /*
-    if (strcmp(cor, "preto") == 0)
+    switch (ref)
+    {
+    case PRETO:
         textcolor(0);
-    else if (strcmp(cor, "azul") == 0)
+        break;
+    case AZUL:
         textcolor(1);
-    else if (strcmp(cor, "verde") == 0)
+        break;
+    case VERDE:
         textcolor(2);
-    else if (strcmp(cor, "ciano") == 0)
+        break;
+    case CIANO:
         textcolor(3);
-    else if (strcmp(cor, "vermelho") == 0)
+        break;
+    case VERMELHO:
         textcolor(4);
-    else if (strcmp(cor, "rosa") == 0)
+        break;
+    case ROSA:
         textcolor(5);
-    else if (strcmp(cor, "marrom") == 0)
+        break;
+    case MARROM:
         textcolor(6);
-    else if (strcmp(cor, "branco") == 0)
+        break;
+    case BRANCO:
         textcolor(7);
-    else if (strcmp(cor, "cinza_claro") == 0)
+        break;
+    case CINZA_CLARO:
         textcolor(8);
-    else if (strcmp(cor, "azul_claro") == 0)
+        break;
+    case AZUL_CLARO:
         textcolor(9);
-    else if (strcmp(cor, "verde_claro") == 0)
+        break;
+    case VERDE_CLARO:
         textcolor(10);
-    else if (strcmp(cor, "ciano_claro") == 0)
+        break;
+    case CIANO_CLARO:
         textcolor(11);
-    else if (strcmp(cor, "vermelho_claro") == 0)
+        break;
+    case VERMELHO_CLARO:
         textcolor(12);
-    else if (strcmp(cor, "rosa_claro") == 0)
+        break;
+    case ROSA_CLARO:
         textcolor(13);
-    else if (strcmp(cor, "amarelo") == 0)
+        break;
+    case AMARELO:
         textcolor(14);
-    else if (strcmp(cor, "branco") == 0)
-        textcolor(15);
-    else
-        textcolor(15);
-        */
-    switch (ref) {
-        case PRETO
+        break;
+    default:
+        textcolor(7);
     }
 
-    
-
-    clearElement(posicao);
+    clearElement(pos);
 
     // setPos (definir pos antes)
-    if (strcmp(posicao, "topo") == 0)
+    switch (pos)
     {
-        int mid = (strlen(str) / 2);
-        gotoxy(40 - mid, 3);
-    }
-    else if (strcmp(posicao, "alerta") == 0)
+    case TOPO:
+        gotoxy(40 - (strlen(str) / 2), 3);
+        break;
+    case ALERTA:
         gotoxy(3, 23);
-    else if (strcmp(posicao, "menu_left") == 0)
+        break;
+    case MENU_LEFT:
         gotoxy(4, 9);
-    else if (strcmp(posicao, "menu_right") == 0)
+        break;
+    case MENU_RIGHT:
         gotoxy(30, 7);
-    else if (strcmp(posicao, "switcher") == 0)
+        break;
+    case SWITCHER:
         gotoxy(3, 23);
+    }
 
     // setLinha
     gotoxy(wherex(), wherey() + linha);
