@@ -671,7 +671,7 @@ int EditaClientes(FILE *reg_clientes)
             fread(&cliente, sizeof(Clientes), 1, reg_clientes);
             if (strcmp(cliente.CPF, cpf) == 0)
             {
-                pos = ftell(reg_clientes);
+                pos = ftell(reg_clientes)-sizeof(Clientes);
                 break;
             }
         }
