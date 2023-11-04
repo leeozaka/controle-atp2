@@ -39,7 +39,7 @@ struct Produtos
 
 struct Clientes
 {
-    char CPF[11];
+    char CPF[12];
     char NomeCli[QUANT];
     int QtdeCompras;
     double ValorTotComprado;
@@ -48,7 +48,7 @@ struct Clientes
 struct Vendas
 {
     int CodVenda;
-    char CPF[11];
+    char CPF[12];
     TpData DtVenda;
     float TotVenda;
 };
@@ -149,7 +149,8 @@ int validarCPF(char cpf[11])
 // void CadastraCliente(Clientes clientes[], int &TL)
 int CadastraCliente(FILE *reg_clientes)
 {
-    if ((reg_clientes = fopen("clientes\\clientes.dat", "rb+")) == NULL){
+    if ((reg_clientes = fopen("clientes\\clientes.dat", "rb+")) == NULL)
+    {
         reg_clientes = fopen("clientes\\clientes.dat", "ab+");
     }
 
@@ -161,17 +162,18 @@ int CadastraCliente(FILE *reg_clientes)
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o CPF: ");
 
     fflush(stdin);
-    gets(CPF);
+    fgets(CPF,12,stdin);
 
-    if (!!validarCPF(CPF))
+    if (validarCPF(CPF))
     {
-        if (!!ftell(reg_clientes))
+        fseek(reg_clientes, 0, SEEK_END);
+        if (ftell(reg_clientes) != 0)
         {
             fseek(reg_clientes, 0, SEEK_SET);
             while (!feof(reg_clientes) && validar == 0)
             {
                 fread(&cliente, sizeof(Clientes), 1, reg_clientes);
-                if (!strcmp(CPF, cliente.CPF))
+                if (strcmp(CPF, cliente.CPF) == 0)
                     validar = 1;
             }
             if (!!validar)
@@ -182,16 +184,16 @@ int CadastraCliente(FILE *reg_clientes)
             }
         }
         strcpy(cliente.CPF, CPF);
-        // conioPrintf(MENU_RIGHT, BRANCO, 1, "Digite o nome: ");
-        // fflush(stdin);
-        // scanf("%s", &cliente.NomeCli);
+
+        conioPrintf(MENU_RIGHT, BRANCO, 1, "Digite o nome: ");
+        fflush(stdin);
+        scanf("%s", &cliente.NomeCli);
 
         cliente.QtdeCompras = 0;
         cliente.ValorTotComprado = 0;
 
         fseek(reg_clientes, 0, SEEK_END);
         fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
-        fclose(reg_clientes);
 
         conioPrintf(ALERTA, VERDE, 0, "Cliente cadastrado com sucesso!");
         getch();
