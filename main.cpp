@@ -107,16 +107,17 @@ void Formulario(void)
 
 int validarCPF(char cpf[11])
 {
-    int i, digito1 = 0, digito2 = 0, helper;
-    for (i = 0; i < 11 && cpf[i] >= 48 && cpf[i] <= 57; i++)
-        ;
-    if (i < 11)
-        return 0;
+    int i, digito1 = 0, digito2 = 0, helper, soma;
+
     ; // verifica se todos caracteres estao entre 0 e 9
-    if ((strcmp(cpf, "00000000000") == 0) || (strcmp(cpf, "11111111111") == 0) || (strcmp(cpf, "22222222222") == 0) ||
-        (strcmp(cpf, "33333333333") == 0) || (strcmp(cpf, "44444444444") == 0) || (strcmp(cpf, "55555555555") == 0) ||
-        (strcmp(cpf, "66666666666") == 0) || (strcmp(cpf, "77777777777") == 0) || (strcmp(cpf, "88888888888") == 0) ||
-        (strcmp(cpf, "99999999999") == 0))
+    for (i = 0; i < 11; i++)
+        if (isalpha(cpf[i]))
+            return 0;
+
+    for (soma = 0, helper = 0; helper < 11; helper++)
+        soma += (cpf[helper] - '0');
+    soma /= 11;
+    if (cpf[0] - '0' == soma)
         return 0;
     else
     {
@@ -145,49 +146,65 @@ int validarCPF(char cpf[11])
     return 1;
 }
 
-void CadastraCliente(Clientes clientes[], int &TL)
+// void CadastraCliente(Clientes clientes[], int &TL)
+int CadastraCliente(FILE *reg_clientes)
 {
+    if ((reg_clientes = fopen("clientes\\clientes.dat", "rb+")) == NULL){
+        reg_clientes = fopen("clientes\\clientes.dat", "ab+");
+    }
+
+    Clientes cliente;
     char CPF[11];
     int i, validar = 0;
+
     conioPrintf(TOPO, ROSA_CLARO, 0, "Cadastro de Clientes!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o CPF: ");
+
     fflush(stdin);
     gets(CPF);
-    
-    if (validarCPF(CPF) == 1)
+
+    if (!!validarCPF(CPF))
     {
-        for (i = 0; i < TL && validar != 1; i++)
+        if (!!ftell(reg_clientes))
         {
-            if (strcmp(clientes[i].CPF, CPF) == 0)
-                validar = 1;
+            fseek(reg_clientes, 0, SEEK_SET);
+            while (!feof(reg_clientes) && validar == 0)
+            {
+                fread(&cliente, sizeof(Clientes), 1, reg_clientes);
+                if (!strcmp(CPF, cliente.CPF))
+                    validar = 1;
+            }
+            if (!!validar)
+            {
+                conioPrintf(ALERTA, VERMELHO, 0, "CPF ja cadastrado");
+                getch();
+                return 0;
+            }
         }
-        if (validar == 1)
-        {
-            conioPrintf(ALERTA, VERMELHO, 0, "CPF ja cadastrado");
-            getch();
-        }
-        else
-        {
-            strcpy(clientes[TL].CPF, CPF);
-            conioPrintf(MENU_RIGHT, BRANCO, 1, "Digite o nome: ");
-            fflush(stdin);
-            scanf("%s", &clientes[TL].NomeCli);
+        strcpy(cliente.CPF, CPF);
+        // conioPrintf(MENU_RIGHT, BRANCO, 1, "Digite o nome: ");
+        // fflush(stdin);
+        // scanf("%s", &cliente.NomeCli);
 
-            clientes[TL].QtdeCompras = 0;
-            clientes[TL].ValorTotComprado = 0;
+        cliente.QtdeCompras = 0;
+        cliente.ValorTotComprado = 0;
 
-            TL++;
+        fseek(reg_clientes, 0, SEEK_END);
+        fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
+        fclose(reg_clientes);
 
-            conioPrintf(ALERTA, VERDE, 0, "Cliente cadastrado com sucesso! ");
-            getch();
-        }
+        conioPrintf(ALERTA, VERDE, 0, "Cliente cadastrado com sucesso!");
+        getch();
     }
     else
     {
         conioPrintf(ALERTA, VERMELHO, 0, "O numero de identificacao informado nao esta correto.");
         getch();
+        return 0;
     }
-    clearElement(RIGHTSIDE); // limpar lado direito
+    fclose(reg_clientes);
+    clearElement(RIGHTSIDE);
+    return 1;
 }
 
 void ConsultaClientes(Clientes clientes[], int TL)
@@ -319,7 +336,7 @@ void CadastraFornecedor(Fornecedores fornecedores[TF], int &TL, int *cod)
         }
     } while (busca != -1);
     fornecedores[TL].CodForn = codforn;
-    conioPrintf(MENU_RIGHT, BRANCO, 1, "Nome: "); // n ta indo pro lado direito
+    conioPrintf(MENU_RIGHT, BRANCO, 1, "Nome: ");
     fflush(stdin);
     gets(fornecedores[TL].NomeForn);
     conioPrintf(MENU_RIGHT, BRANCO, 2, "Cidade: ");
@@ -1080,13 +1097,18 @@ int InsereElementos(Fornecedores fornecedores[], Produtos produtos[], Clientes c
     return i;
 }
 
-void Menu(Fornecedores index_fornecedores[], Produtos index_produtos[], Clientes index_clientes[], Vendas index_vendas[], Vendas_Produtos index_vendasprod[])
+// void Menu(Fornecedores index_fornecedores[], Produtos index_produtos[], Clientes index_clientes[], Vendas index_vendas[], Vendas_Produtos index_vendasprod[])
+void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas, FILE *vendas)
 {
-    int TL_fornecedores = 0, TL_produtos = 0, TL_clientes = 0, TL_vendas = 0, TL_cupons = 0, op;
+    int op;
     char opc, opc_sub;
 
     Formulario();
-    conioPrintf(TOPO, VERDE, 0, "%s %d", "Vendas:", TL_vendas);
+
+    vendas = fopen("\\vendas\\vendas.dat", "ab+");
+    int vendas_size = ftell(vendas) / sizeof(Vendas);
+
+    conioPrintf(TOPO, VERDE, 0, "%s %d", "Vendas:", vendas_size);
     conioPrintf(SWITCHER, VERDE, 0, "Selecione um item:");
     conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - CLIENTES");
     conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - FORNECEDORES");
@@ -1100,7 +1122,6 @@ void Menu(Fornecedores index_fornecedores[], Produtos index_produtos[], Clientes
 
     while (opc != 27)
     {
-
         switch (opc)
         {
         case 'A':
@@ -1118,16 +1139,11 @@ void Menu(Fornecedores index_fornecedores[], Produtos index_produtos[], Clientes
                 switch (opc)
                 {
                 case 'A':
-                    if (Compara(TL_clientes, TF) == true)
-                        CadastraCliente(index_clientes, TL_clientes);
-                    else
-                    {
-                        conioPrintf(SWITCHER, VERMELHO, 0, "Erro: dbCheio");
-                        gotoxy(41, 23);
-                    }
+                    CadastraCliente(clientes);
                     getch();
                     break;
-                case 'B':
+                    /*
+                {case 'B':
                     ConsultaClientes(index_clientes, TL_clientes);
                     getch();
                     break;
@@ -1199,7 +1215,7 @@ void Menu(Fornecedores index_fornecedores[], Produtos index_produtos[], Clientes
                     conioPrintf(ALERTA, VERMELHO, 0, "##INEXISTENTE!## Selecione novamente");
                     getch();
                 }
-            } while (opc != 27);
+            }} while (opc != 27);
             break;
 
         case 'C':
@@ -1302,29 +1318,39 @@ void Menu(Fornecedores index_fornecedores[], Produtos index_produtos[], Clientes
         case 'E':
             conioPrintf(SWITCHER, VERDE, 0, "%d itens lidos", InsereElementos(index_fornecedores, index_produtos, index_clientes, index_vendas, index_vendasprod, TL_fornecedores, TL_produtos, TL_clientes, TL_vendas, TL_cupons));
             break;
+        */
+                }
+            } while (opc != 27);
+            Formulario();
+            conioPrintf(TOPO, VERDE, 0, "Vendas realizadas: %d", vendas_size);
+            conioPrintf(SWITCHER, VERDE, 0, "Selecione um item:");
+            conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - CLIENTES");
+            conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - FORNECEDORES");
+            conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - PRODUTOS");
+            conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - VENDAS");
+            conioPrintf(MENU_LEFT, BRANCO, 4, "ESC - Sair");
+            opc = toupper(getche());
         }
-        Formulario();
-        conioPrintf(TOPO, VERDE, 0, "Vendas realizadas: %d", TL_vendas);
-        conioPrintf(SWITCHER, VERDE, 0, "Selecione um item:");
-        conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - CLIENTES");
-        conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - FORNECEDORES");
-        conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - PRODUTOS");
-        conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - VENDAS");
-        conioPrintf(MENU_LEFT, BRANCO, 4, "ESC - Sair");
-        opc = toupper(getche());
     }
 }
 
 int main(int morteaodevcpp, char **ideruim)
 {
-    Fornecedores index_fornecedores[TF];
-    Produtos index_produtos[TF];
-    Clientes index_clientes[TF];
-    Vendas index_vendas[TF];
-    Vendas_Produtos vendas[TF];
+    // Fornecedores index_fornecedores[TF];
+    // Produtos index_produtos[TF];
+    // Clientes index_clientes[TF];
+    // Vendas index_vendas[TF];
+    // Vendas_Produtos vendas[TF];
 
+    FILE *fornecedores;
+    FILE *produtos;
+    FILE *clientes;
+    FILE *index_vendas;
+    FILE *vendas;
+
+    // Menu(index_fornecedores, index_produtos, index_clientes, index_vendas, vendas);
     _setcursortype(0);
-    Menu(index_fornecedores, index_produtos, index_clientes, index_vendas, vendas);
+    Menu(fornecedores, produtos, clientes, index_vendas, vendas);
 
     return 0;
 }
