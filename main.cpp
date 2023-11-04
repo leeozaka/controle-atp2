@@ -162,7 +162,7 @@ int CadastraCliente(FILE *reg_clientes)
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o CPF: ");
 
     fflush(stdin);
-    fgets(CPF,12,stdin);
+    fgets(CPF, 12, stdin);
 
     if (validarCPF(CPF))
     {
@@ -645,50 +645,74 @@ void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[
         conioPrintf(SWITCHER, VERMELHO, 0, "Erro! Fornecedor nao cadastrado!");
 }
 
-void EditaClientes(Clientes clientes[], int TL)
+// void EditaClientes(Clientes clientes[], int TL)
+int EditaClientes(FILE *reg_clientes)
 {
+    reg_clientes = fopen("clientes\\clientes.dat", "rb+");
+    if (reg_clientes == NULL)
+        return 0;
+
+    Clientes cliente;
     int opcao, pos;
-    char cpf[11], opc;
+    char cpf[12], opc;
 
     conioPrintf(TOPO, CIANO, 0, "Editar Clientes!");
+    clearElement(RIGHTSIDE);
 
-    if (TL > 0)
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF a ser editado: ");
+    fflush(stdin);
+    fgets(cpf, 12, stdin);
+
+    if (validarCPF(cpf))
     {
-        clearElement(RIGHTSIDE);
-        conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF a ser editado: ");
-        fflush(stdin);
-        gets(cpf);
-
-        if (validarCPF(cpf) == 1)
+        fseek(reg_clientes, 0, SEEK_SET);
+        while (!feof(reg_clientes))
         {
-            pos = getPosClientes(clientes, TL, cpf);
-            conioPrintf(MENU_RIGHT, BRANCO, 1, "%s %s\n", clientes[pos].CPF, clientes[pos].NomeCli);
-            conioPrintf(MENU_RIGHT, BRANCO, 2, "Mudar: ");
-            conioPrintf(MENU_RIGHT, BRANCO, 3, "A - Nome");
-            conioPrintf(MENU_RIGHT, BRANCO, 4, "B - Zerar Compras");
-
-            opc = toupper(getch());
-
-            switch (opc)
+            fread(&cliente, sizeof(Clientes), 1, reg_clientes);
+            if (strcmp(cliente.CPF, cpf) == 0)
             {
-            case 'A':
-                conioPrintf(MENU_RIGHT, BRANCO, 5, "Novo nome do cliente: ");
-                fflush(stdin);
-                gets(clientes[pos].NomeCli);
-                break;
-            case 'B':
-                clientes[pos].QtdeCompras = 0;
-                clientes[pos].QtdeCompras = 0;
-                conioPrintf(MENU_RIGHT, BRANCO, 5, "Compras zeradas!");
-                // buscar compras no cpf e deletar do index_vendas;
+                pos = ftell(reg_clientes);
                 break;
             }
         }
-        else
-            conioPrintf(SWITCHER, VERMELHO, 0, "CPF nao encontrado!");
+        if (ftell(reg_clientes) == EOF)
+        {
+            conioPrintf(SWITCHER, VERMELHO, 0, "Cliente Inexistente");
+            getch();
+            return 0;
+        }
+
+        conioPrintf(MENU_RIGHT, BRANCO, 2, "Mudar: ");
+        conioPrintf(MENU_RIGHT, BRANCO, 3, "A - Nome");
+        conioPrintf(MENU_RIGHT, BRANCO, 4, "B - Zerar Compras");
+
+        opc = toupper(getch());
+
+        switch (opc)
+        {
+        case 'A':
+            fseek(reg_clientes, pos, SEEK_SET);
+            fflush(stdin);
+            conioPrintf(SWITCHER, BRANCO, 0, "Nome: ");
+            fgets(cliente.NomeCli,BUFFER,stdin);
+            fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
+            fread(&cliente, sizeof(Clientes), 1, reg_clientes);
+            conioPrintf(SWITCHER,VERMELHO,0,cliente.NomeCli);
+            getch();
+            break;
+        case 'B':
+            cliente.QtdeCompras = 0;
+            cliente.ValorTotComprado = 0;
+            fseek(reg_clientes, pos, SEEK_SET);
+            fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
+            conioPrintf(MENU_RIGHT, BRANCO, 5, "Compras zeradas!");
+            // buscar compras no cpf e deletar do index_vendas;
+            break;
+        }
     }
     else
-        conioPrintf(SWITCHER, AMARELO, 0, "Lista vazia!");
+        conioPrintf(SWITCHER, VERMELHO, 0, "CPF nao encontrado!");
+    fclose(reg_clientes);
     getch();
 }
 
@@ -1102,13 +1126,18 @@ int InsereElementos(Fornecedores fornecedores[], Produtos produtos[], Clientes c
 // void Menu(Fornecedores index_fornecedores[], Produtos index_produtos[], Clientes index_clientes[], Vendas index_vendas[], Vendas_Produtos index_vendasprod[])
 void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas, FILE *vendas)
 {
-    int op;
+    int op, vendas_size;
     char opc, opc_sub;
 
     Formulario();
 
-    vendas = fopen("\\vendas\\vendas.dat", "ab+");
-    int vendas_size = ftell(vendas) / sizeof(Vendas);
+    if ((vendas = fopen("\\vendas\\vendas.dat", "rb+")) == NULL)
+        vendas_size = 0;
+    else
+    {
+        fseek(vendas, 0, SEEK_END);
+        vendas_size = ftell(vendas) / sizeof(Vendas);
+    }
 
     conioPrintf(TOPO, VERDE, 0, "%s %d", "Vendas:", vendas_size);
     conioPrintf(SWITCHER, VERDE, 0, "Selecione um item:");
@@ -1116,7 +1145,6 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
     conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - FORNECEDORES");
     conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - PRODUTOS");
     conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - VENDAS");
-    conioPrintf(MENU_LEFT, BRANCO, 4, "[E] - adicionar element");
     conioPrintf(MENU_LEFT, BRANCO, 5, "ESC - Sair");
     gotoxy(4, 14);
 
@@ -1159,9 +1187,11 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     }
                     getch();
                     break;
+                    */
                 case 'D':
-                    EditaClientes(index_clientes, TL_clientes);
+                    EditaClientes(clientes);
                     break;
+                    /*
                 case 27:
                     break;
                 default:
@@ -1338,19 +1368,12 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
 
 int main(int morteaodevcpp, char **ideruim)
 {
-    // Fornecedores index_fornecedores[TF];
-    // Produtos index_produtos[TF];
-    // Clientes index_clientes[TF];
-    // Vendas index_vendas[TF];
-    // Vendas_Produtos vendas[TF];
-
     FILE *fornecedores;
     FILE *produtos;
     FILE *clientes;
     FILE *index_vendas;
     FILE *vendas;
 
-    // Menu(index_fornecedores, index_produtos, index_clientes, index_vendas, vendas);
     _setcursortype(0);
     Menu(fornecedores, produtos, clientes, index_vendas, vendas);
 

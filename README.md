@@ -2,8 +2,6 @@
 to-do: ;
 - controle de vendas com chaves em C;
 
-- o ConsultaClientes mostra o CPF e o nome na mesma string.. 
-
 - 7/10
     > definir um melhor tamanho pra area de trabalho
     > definir as contantes de espaços a serem preenchidos para entender limites
