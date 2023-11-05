@@ -209,18 +209,44 @@ int CadastraCliente(FILE *reg_clientes)
     return 1;
 }
 
-void ConsultaClientes(Clientes clientes[], int TL)
+int ConsultaClientes(FILE *reg_clientes)
 {
-    conioPrintf(TOPO, AZUL_CLARO, 0, "Clientes cadastrados: %d", TL);
-    for (int i = 0; i < TL; i++)
+
+    reg_clientes = fopen("clientes\\clientes.dat", "rb");
+    if (reg_clientes == NULL || feof(reg_clientes))
+        return 1;
+
+    char cpf[12];
+    conioPrintf(SWITCHER, AMARELO, 0, "CPF a procurar: ");
+    fgets(cpf, 12, stdin);
+
+    Clientes cliente;
+
+    do
     {
-        conioPrintf(MENU_RIGHT, BRANCO, i * 4 + 1, "cadastro: %d", i + 1);
-        conioPrintf(MENU_RIGHT, BRANCO, i * 4 + 2, "%s", clientes[i].CPF);
-        conioPrintf(MENU_RIGHT, BRANCO, i * 4 + 3, "%d compras %f total", clientes[i].QtdeCompras, clientes[i].ValorTotComprado);
-        conioPrintf(MENU_RIGHT, BRANCO, i * 4 + 4, "--------------------------------");
-    }
+        fread(&cliente, sizeof(Clientes), 1, reg_clientes);
+    } while (!feof(reg_clientes) && strcmp(cliente.CPF, cpf));
+
+    if (!feof(reg_clientes))
+    {
+        conioPrintf(MENU_RIGHT, BRANCO, 1, "Cliente: %s", cliente.NomeCli);
+        conioPrintf(MENU_RIGHT, BRANCO, 2, "%s", cliente.CPF);
+        conioPrintf(MENU_RIGHT, BRANCO, 3, "%d compras %f total", cliente.QtdeCompras, cliente.ValorTotComprado);
+    } else conioPrintf(ALERTA, VERMELHO, 0, "cliente not found");
+
+    // conioPrintf(TOPO, AZUL_CLARO, 0, "Clientes cadastrados: %d", TL);
+    // for (int i = 0; i < TL; i++)
+    // {
+    //     conioPrintf(MENU_RIGHT, BRANCO, i * 4 + 1, "cadastro: %d", i + 1);
+    //     conioPrintf(MENU_RIGHT, BRANCO, i * 4 + 2, "%s", clientes[i].CPF);
+    //     conioPrintf(MENU_RIGHT, BRANCO, i * 4 + 3, "%d compras %f total", clientes[i].QtdeCompras, clientes[i].ValorTotComprado);
+    //     conioPrintf(MENU_RIGHT, BRANCO, i * 4 + 4, "--------------------------------");
+    // }
+
     getch();
+    return 0; 
 }
+
 int getPosClientes(Clientes clientes[], int TL, char cpf[])
 {
     for (int i = 0; i < TL; i++)
@@ -671,7 +697,7 @@ int EditaClientes(FILE *reg_clientes)
             fread(&cliente, sizeof(Clientes), 1, reg_clientes);
             if (strcmp(cliente.CPF, cpf) == 0)
             {
-                pos = ftell(reg_clientes)-sizeof(Clientes);
+                pos = ftell(reg_clientes) - sizeof(Clientes);
                 break;
             }
         }
@@ -694,10 +720,10 @@ int EditaClientes(FILE *reg_clientes)
             fseek(reg_clientes, pos, SEEK_SET);
             fflush(stdin);
             conioPrintf(SWITCHER, BRANCO, 0, "Nome: ");
-            fgets(cliente.NomeCli,BUFFER,stdin);
+            fgets(cliente.NomeCli, BUFFER, stdin);
             fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
             fread(&cliente, sizeof(Clientes), 1, reg_clientes);
-            conioPrintf(SWITCHER,VERMELHO,0,cliente.NomeCli);
+            conioPrintf(SWITCHER, VERMELHO, 0, cliente.NomeCli);
             getch();
             break;
         case 'B':
@@ -1172,11 +1198,11 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     CadastraCliente(clientes);
                     getch();
                     break;
-                    /*
-                {case 'B':
-                    ConsultaClientes(index_clientes, TL_clientes);
+                case 'B':
+                    ConsultaClientes(clientes);
                     getch();
                     break;
+                    /*
                 case 'C':
                     if (TL_clientes > 0)
                         DeletaClientes(index_clientes, TL_clientes);
