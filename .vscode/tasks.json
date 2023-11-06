@@ -15,7 +15,7 @@
                 "-lconio",
                 "-m32",
                 "-g3",
-                "-fpermissive"
+                "-fpermissive",
             ],
             "options": {
                 "cwd": "C:/Dev-Cpp/MinGW64/bin/"
