@@ -259,7 +259,7 @@ int BusProdCod(Produtos Tab[TF], int TL, int CodProd)
         return -1;
 }
 
-//retorna como posicao logica  nao local do ponteiro
+// retorna como posicao logica  nao local do ponteiro
 int getFornCod(FILE *reg_fornecedores, int TL, int find)
 {
     Fornecedores fornecedor;
@@ -395,7 +395,7 @@ int AlterarDadosFornecedor(FILE *reg_fornecedores)
     }
 }
 
-// int *cod passa NULL se o codigo do fornecedor ja nao foi inserido em outra funcao, exmeplo no cast do Menu();
+// int *cod passa NULL se o codigo do fornecedor ja nao foi inserido em outra funcao
 int CadastraFornecedor(FILE *reg_fornecedores, int *cod)
 {
     if ((reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+")) == NULL)
@@ -411,13 +411,15 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod)
     while (i < fornecedores_size)
     {
         fread(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
+        if (getFornCod(reg_fornecedores, fornecedores_size, fornecedor.CodForn))
+            ++fornecedores_cadastrados;
         i++;
     }
 
     conioPrintf(TOPO, ROSA, 0, "Cadastro de Fornecedores!");
     if (cod == NULL)
     {
-        conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do %do fornecedor: ", fornecedores_size + 1);
+        conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do %do fornecedor: ", fornecedores_cadastrados);
         scanf("%d", &codforn);
     }
     else
@@ -434,9 +436,9 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod)
             conioPrintf(MENU_RIGHT, BRANCO, 1, "Digite o cod. do %do fornecedor: ", fornecedores_size + 1);
             scanf("%d", &codforn);
             codforn = abs(codforn);
-            clearElement(RIGHTSIDE);
         }
     } while (busca != -1);
+
     fornecedor.CodForn = codforn;
     conioPrintf(MENU_RIGHT, BRANCO, 1, "Nome: ");
     fflush(stdin);
@@ -444,7 +446,10 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod)
     conioPrintf(MENU_RIGHT, BRANCO, 2, "Cidade: ");
     fflush(stdin);
     gets(fornecedor.Cidade);
+
+    fseek(reg_fornecedores, 0, SEEK_END);
     fwrite(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
+
     conioPrintf(MENU_RIGHT, VERDE, 0, "Fornecedor cod.%d, %s cadastrado!", fornecedor.CodForn, fornecedor.NomeForn);
     fclose(reg_fornecedores);
     getch();
@@ -925,38 +930,67 @@ void ConsultaFornecedor(Fornecedores fornecedores[], int TL);
 //         conioPrintf(SWITCHER, VERMELHO, 0, "Apenas cod's positivos!");
 // }
 
-void ExcluirFornecedor(Fornecedores fornecedores[], int &TL);
-// {
-//     int i;
-//     char a;
+int ExcluirFornecedor(FILE *reg_fornecedores)
+{
+    if ((reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+")) == NULL)
+        return 1;
 
-//     conioPrintf(TOPO, CIANO, 0, "Busca fornecedor pelo codigo: ");
-//     conioPrintf(MENU_RIGHT, BRANCO, 0, "Busca fornecedor pelo codigo: ");
+    Fornecedores fornecedor;
+    Fornecedores nullforn = {0};
 
-//     fflush(stdin);
-//     scanf("%d", &i);
+    int cod, pos;
 
-//     i = BusFornCod(fornecedores, TL, i);
+    fseek(reg_fornecedores, 0, SEEK_END);
+    int fornecedores_size = ftell(reg_fornecedores) / sizeof(Fornecedores);
 
-//     if (i >= 0)
-//     {
-//         conioPrintf(MENU_RIGHT, BRANCO, 1, "Deletar %s? S/N", fornecedores[i].NomeForn);
-//         fflush(stdin);
-//         a = toupper(getch());
+    conioPrintf(TOPO, CIANO, 0, "Excluir Fornecedor!!");
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "Busca fornecedor pelo codigo: ");
 
-//         if (a == 'S')
-//         {
-//             for (; i < TL - 1; i++)
-//             {
-//                 fornecedores[i] = fornecedores[i + 1];
-//             }
-//             TL--;
-//             conioPrintf(SWITCHER, VERDE, 0, "Deletado com sucesso!");
-//         }
-//     }
-//     else
-//         conioPrintf(SWITCHER, VERMELHO, 0, "Fornecedor nao encontrado! ");
-// }
+    fflush(stdin);
+    scanf("%d", &cod);
+
+    pos = getFornCod(reg_fornecedores, fornecedores_size, cod);
+
+    if (cod >= 0)
+    {
+        fseek(reg_fornecedores, pos * sizeof(Fornecedores), SEEK_SET);
+        fread(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
+
+        conioPrintf(MENU_RIGHT, VERMELHO, 1, "Deletar %s? S/N", fornecedor.NomeForn);
+        fflush(stdin);
+        char a = toupper(getch());
+        if (a == 'S')
+        {
+            int run = (ftell(reg_fornecedores) - sizeof(Fornecedores)) / sizeof(Fornecedores);
+            fseek(reg_fornecedores, pos * sizeof(Fornecedores), SEEK_SET);
+
+            while (run < fornecedores_size)
+            {
+                fseek(reg_fornecedores, 0 + sizeof(Fornecedores), SEEK_CUR);
+                fread(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
+                fseek(reg_fornecedores, 0 - (sizeof(Fornecedores) * 2), SEEK_CUR);
+                fwrite(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
+                run++;
+            }
+            fwrite(&nullforn, sizeof(Fornecedores), 1, reg_fornecedores);
+            conioPrintf(SWITCHER, VERDE, 0, "Fornecedor removido!");
+            getch();
+            fclose(reg_fornecedores);
+        }
+        else
+        {
+            fclose(reg_fornecedores);
+            return 0;
+        }
+    }
+    else
+    {
+        conioPrintf(SWITCHER, VERMELHO, 0, "Fornecedor nao encontrado! ");
+        fclose(reg_fornecedores);
+        getch();
+        return 1;
+    }
+}
 
 // funciona como <string.h> strcmp()
 int comparaData(int ano1, int mes1, int dia1, int ano2, int mes2, int dia2)
@@ -1325,19 +1359,9 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 case 'B':
                     ConsultaFornecedor(fornecedores);
                     break;
-                    /*
                 case 'C':
-                    if (TL_fornecedores > 0)
-                        ExcluirFornecedor(index_fornecedores, TL_fornecedores);
-                    else
-                    {
-                        conioPrintf(SWITCHER, VERMELHO, 0, "Erro: Vetor vazio");
-                        getch();
-                    }
-                    fflush(stdin);
-                    getch();
+                    ExcluirFornecedor(fornecedores);
                     break;
-                    */
                 case 'D':
                     AlterarDadosFornecedor(fornecedores);
                     break; /*
