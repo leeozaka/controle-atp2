@@ -5,6 +5,6 @@ to-do: ;
 - refatorando programa para arquivos binarios
 
 > deletaClientes
-- nao deleta de forma fisica (em processo)
+- gera lixo vazio no arquivo
 
 

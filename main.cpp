@@ -506,7 +506,7 @@ int DeletaClientes(FILE *reg_clientes)
         if (run == documentsize - 1)
             fwrite(&nullclient, sizeof(Clientes), 1, reg_clientes);
 
-        fseek(reg_clientes, pos, SEEK_SET);
+        /*fseek(reg_clientes, pos, SEEK_SET);
         while (run < documentsize)
         {
             fseek(reg_clientes, 0 + sizeof(Clientes), SEEK_CUR);
@@ -515,6 +515,7 @@ int DeletaClientes(FILE *reg_clientes)
             fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
             run++;
         }
+        */
         fwrite(&nullclient, sizeof(Clientes), 1, reg_clientes);
         conioPrintf(SWITCHER, VERDE, 0, "Cliente removido!");
         getch();
