@@ -473,10 +473,11 @@ void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_
 // void DeletaClientes(Clientes clientes[], int &TL)
 int DeletaClientes(FILE *reg_clientes)
 {
-    if ((reg_clientes = fopen("clientes\\clientes.dat", "rb")) == NULL || feof(reg_clientes))
+    if ((reg_clientes = fopen("clientes\\clientes.dat", "rb+")) == NULL || feof(reg_clientes))
         return 1;
 
     Clientes cliente;
+    Clientes nullclient = {0};
     char cpf[12];
     int pos;
     bool find = false;
@@ -487,7 +488,8 @@ int DeletaClientes(FILE *reg_clientes)
     fgets(cpf, 12, stdin);
 
     fseek(reg_clientes, 0, SEEK_SET);
-    int documentsize = ftell(reg_clientes)/sizeof(Clientes);
+    int documentsize = ftell(reg_clientes) / sizeof(Clientes);
+    rewind(reg_clientes);
 
     while (fread(&cliente, sizeof(Clientes), 1, reg_clientes))
     {
@@ -500,16 +502,20 @@ int DeletaClientes(FILE *reg_clientes)
 
     if (find == true)
     {
-        int run = ftell(reg_clientes)/sizeof(Clientes);
+        int run = (ftell(reg_clientes) - sizeof(Clientes)) / sizeof(Clientes);
+        if (run == documentsize - 1)
+            fwrite(&nullclient, sizeof(Clientes), 1, reg_clientes);
+
         fseek(reg_clientes, pos, SEEK_SET);
-        while (run < documentsize);
+        while (run < documentsize)
         {
-            fseek(reg_clientes, 0+sizeof(Clientes), SEEK_CUR);
+            fseek(reg_clientes, 0 + sizeof(Clientes), SEEK_CUR);
             fread(&cliente, sizeof(Clientes), 1, reg_clientes);
-            fseek(reg_clientes, 0-(sizeof(Clientes)*2), SEEK_CUR);
+            fseek(reg_clientes, 0 - (sizeof(Clientes) * 2), SEEK_CUR);
             fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
             run++;
         }
+        fwrite(&nullclient, sizeof(Clientes), 1, reg_clientes);
         conioPrintf(SWITCHER, VERDE, 0, "Cliente removido!");
         getch();
         fclose(reg_clientes);
@@ -762,14 +768,14 @@ int RelatorioClientes(FILE *reg_clientes)
     if ((reg_clientes = fopen("clientes\\clientes.dat", "rb")) == NULL)
         return 1;
 
-    int quantidade = 0, run=0;
+    int quantidade = 0, run = 0;
     float valorcompratotal = 0, maiorcompra = 0;
     Clientes cliente, highscore;
 
     conioPrintf(TOPO, AMARELO, 0, "Relatorio de Clientes!");
 
-    fseek(reg_clientes,0,SEEK_END);
-    int documentsize = ftell(reg_clientes)/sizeof(Clientes);
+    fseek(reg_clientes, 0, SEEK_END);
+    int documentsize = ftell(reg_clientes) / sizeof(Clientes);
 
     rewind(reg_clientes);
     while (run < documentsize)
