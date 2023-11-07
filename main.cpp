@@ -411,15 +411,15 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod)
     while (i < fornecedores_size)
     {
         fread(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
-        if (getFornCod(reg_fornecedores, fornecedores_size, fornecedor.CodForn))
-            ++fornecedores_cadastrados;
+        if (getFornCod(reg_fornecedores, fornecedores_size, fornecedor.CodForn) >=0 )
+            fornecedores_cadastrados++;
         i++;
     }
 
     conioPrintf(TOPO, ROSA, 0, "Cadastro de Fornecedores!");
     if (cod == NULL)
     {
-        conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do %do fornecedor: ", fornecedores_cadastrados);
+        conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do %do fornecedor: ", fornecedores_cadastrados + 1);
         scanf("%d", &codforn);
     }
     else
@@ -433,7 +433,7 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod)
         {
             conioPrintf(SWITCHER, VERMELHO, 0, "Cod. Ja existente!");
 
-            conioPrintf(MENU_RIGHT, BRANCO, 1, "Digite o cod. do %do fornecedor: ", fornecedores_size + 1);
+            conioPrintf(MENU_RIGHT, BRANCO, 1, "Digite o cod. do %do fornecedor: ", fornecedores_cadastrados + 1);
             scanf("%d", &codforn);
             codforn = abs(codforn);
         }
@@ -962,6 +962,8 @@ int ExcluirFornecedor(FILE *reg_fornecedores)
         if (a == 'S')
         {
             int run = (ftell(reg_fornecedores) - sizeof(Fornecedores)) / sizeof(Fornecedores);
+            if (run == fornecedores_size - 1)
+                fwrite(&nullforn, sizeof(Clientes), 1, reg_fornecedores);
             fseek(reg_fornecedores, pos * sizeof(Fornecedores), SEEK_SET);
 
             while (run < fornecedores_size)
