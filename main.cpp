@@ -691,7 +691,8 @@ int ExcluirFornecedor(FILE *reg_fornecedores)
 
 int RelatorioFornecedores(FILE *reg_fornecedores)
 {
-    if ((reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+"))==NULL) return 1;
+    if ((reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+")) == NULL)
+        return 1;
 
     conioPrintf(TOPO, CIANO_CLARO, 0, "Relatorio de Fornecedores!");
 
@@ -729,18 +730,175 @@ int RelatorioFornecedores(FILE *reg_fornecedores)
     return 0;
 }
 
-/*void CadastraProd(Produtos produtos[TF], Fornecedores fornecedores[TF], int &TL_Produtos, int &TL_Fornecedores)
+// arrumar a funcao de relatorio, e incrementar uma funcao de nota fiscal apos as vendas
+/*void Relatorio(Produtos Produtos[TF], Vendas Vendas[TF], int TL)
 {
-    int *ptr_codigo;
+    int i;
+    clrscr();
+    printf("\nRelatorio de Produtos\n");
+    if (TL == 0)
+        printf("\nNao ha Produtos Cadastrados!\n");
+    else
+        for (i = 0; i < TL; i++)
+        {
+            printf("\nCodigo de Venda: %d\n", Vendas[i].CodVenda);
+            printf("Produtos: \n%d\n", );
+            printf("%s\n", Produtos[i].Descr);
+            printf("%d\n", Produtos[i].Estoque);
+            printf("R$ %.2f\n", Produtos[i].Preco);
+            printf("%s\n", Produtos[i].NomeForn);
+            printf("%f\n", Produtos[i].Preco);
+        }
+    getch();
+}
+*/
+int BusProdCod(FILE *reg_produtos, int TL, int CodProd)
+{
+    Produtos produto;
+
+    int i = 0;
+    while (i < TL)
+    {
+        fread(&produto, sizeof(Produtos), 1, reg_produtos);
+        if (produto.CodProd == CodProd)
+            return i;
+        i++;
+    }
+    return -1;
+}
+
+// void ExcluirProd(Produtos produtos[], int &TL)
+// {
+//     int i, Aux, ponto;
+//     conioPrintf(TOPO, VERDE_CLARO, 0, "Exclusao de produtos!");
+//     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do produto a excluir: "); // n ta do lado direito
+//     scanf("%d", &Aux);
+//     while (Aux > 0)
+//     {
+//         ponto = BusProdCod(produtos, TL, Aux);
+//         if (ponto != -1)
+//         {
+//             for (i = ponto; i < TL - 1; i++)
+//                 produtos[i] = produtos[i + 1];
+//             TL--;
+//             conioPrintf(ALERTA, VERDE, 0, "Produto excluido com sucesso!");
+//         }
+//         else
+//         {
+//             conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
+//         }
+//         conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do produto a excluir: ");
+//         scanf("%d", &Aux);
+//     }
+// }
+
+// void AlterarProdCadastrado(Produtos produtos[], int TL)
+// {
+//     TpData aux;
+//     char resp;
+//     int Aux, ponto;
+//     float Aux_Preco;
+
+//     conioPrintf(TOPO, VERMELHO, 0, "Alterar produto ja cadastrado!");
+//     conioPrintf(MENU_RIGHT, BRANCO, 0, "Insira o codigo do produto: ");
+//     fflush(stdin);
+//     scanf("%d", &Aux);
+//     while (Aux > 0)
+//     {
+//         ponto = BusProdCod(produtos, TL, Aux);
+//         if (ponto == -1)
+//         {
+//             conioPrintf(SWITCHER, VERMELHO, 0, "Erro ao procurar pelo Codigo!");
+//             getch();
+//         }
+//         else
+//         {
+//             conioPrintf(MENU_RIGHT, BRANCO, 1, "Qual elemento alterar do %s?", produtos[ponto].Desc);
+//             conioPrintf(MENU_RIGHT, BRANCO, 2, "[A] - Estoque");
+//             conioPrintf(MENU_RIGHT, BRANCO, 3, "[B] - Preco");
+//             conioPrintf(MENU_RIGHT, BRANCO, 4, "[C] - Validade");
+
+//             fflush(stdin);
+//             resp = toupper(getch());
+
+//             switch (resp)
+//             {
+//             case 'A':
+//                 conioPrintf(MENU_RIGHT, BRANCO, 5, "Qual a nova quantidade do %s? ", produtos[ponto].Desc);
+//                 while (scanf(" %d", &Aux) <= 0)
+//                     conioPrintf(ALERTA, VERMELHO, 0, "Valor invalido");
+//                 produtos[ponto].Estoque = Aux;
+//                 break;
+
+//             case 'B':
+//                 conioPrintf(MENU_RIGHT, BRANCO, 5, "Qual o novo preco do %s? R$ ", produtos[ponto].Desc);
+//                 while (scanf(" %f", &Aux_Preco) < 0)
+//                     conioPrintf(ALERTA, VERMELHO, 0, "Preco invalido");
+//                 produtos[ponto].Preco = Aux_Preco;
+//                 break;
+
+//             case 'C':
+//                 conioPrintf(MENU_RIGHT, BRANCO, 0, "Qual a nova validade do %s? ", produtos[ponto].Desc);
+//                 scanf("%d %d %d", &aux.Dia, &aux.Mes, &aux.Ano);
+//                 if (aux.Dia > 0 && aux.Mes > 0 && aux.Ano > 0)
+//                 {
+//                     produtos[ponto].DtValidade = aux;
+//                 }
+//                 else
+//                     conioPrintf(ALERTA, VERMELHO, 0, "Data invalida!");
+//                 break;
+//             }
+//         }
+//         clearElement(RIGHTSIDE);
+//         conioPrintf(MENU_RIGHT, BRANCO, 0, "Insira o codigo do produto: ");
+//         fflush(stdin);
+//         scanf("%d", &Aux);
+//     }
+// }
+
+// void ConsultaProd(Produtos produtos[], int TL)
+// {
+//     int ponto, i;
+//     conioPrintf(TOPO, ROSA, 0, "Consulta de Produto!");
+//     conioPrintf(MENU_RIGHT, BRANCO, 0, "Cod. a ser consultado: ");
+//     scanf("%d", &ponto);
+
+//     i = BusProdCod(produtos, TL, ponto);
+
+//     if (i >= 0)
+//     {
+//         conioPrintf(MENU_RIGHT, BRANCO, 1, "Codigo: %d", produtos[i].CodProd);
+//         puts(produtos[i].Desc);
+//         conioPrintf(MENU_RIGHT, BRANCO, 2, "Quantidade em estoque:%d\n", produtos[i].Estoque);
+//         conioPrintf(MENU_RIGHT, BRANCO, 3, "%d %d %d", produtos[i].DtValidade.Dia, produtos[i].DtValidade.Mes, produtos[i].DtValidade.Ano);
+//     }
+//     else
+//         conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
+// }
+
+void CadastraProd(FILE *reg_produtos)
+{
+    if ((fopen("produtos\\produtos.dat", "rb+")) == NULL)
+        fopen("produtos\\produtos.dat", "ab+");
+
+    Produtos produto;
+
     int AuxCod, pos, helper, codigo;
     char arg;
+
     conioPrintf(TOPO, VERDE, 0, "Cadastro de Produtos!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Codigo: ");
+
     fflush(stdin);
     scanf("%d", &AuxCod);
-    while (TL_Produtos < TF && AuxCod > 0)
+
+    fseek(reg_produtos, 0, SEEK_END);
+    int documentsize = ftell(reg_produtos) / sizeof(Produtos);
+    rewind(reg_produtos);
+
+    while (AuxCod > 0)   ----------------> parei aqui
     {
-        pos = BusProdCod(produtos, TL_Produtos, AuxCod);
+        pos = BusProdCod(reg_produtos, documentsize, AuxCod) * sizeof(Produtos);
         if (pos == -1)
         {
             produtos[TL_Produtos].CodProd = AuxCod;
@@ -775,7 +933,7 @@ int RelatorioFornecedores(FILE *reg_fornecedores)
                 if (arg == 'S')
                 {
                     clearElement(RIGHTSIDE);
-                    CadastraFornecedor(fornecedores, TL_Fornecedores, ptr_codigo);
+                    CadastraFornecedor(fornecedores, TL_Fornecedores, &cod);
                     produtos[TL_Produtos].CodForn = codigo;
                     TL_Produtos++;
                     conioPrintf(ALERTA, VERDE, 0, "Fornecedor Cadastrado!");
@@ -808,149 +966,6 @@ int RelatorioFornecedores(FILE *reg_fornecedores)
         conioPrintf(MENU_RIGHT, BRANCO, 0, "Codigo: ");
         scanf("%d", &AuxCod);
     }
-}
-*/
-
-// arrumar a funcao de relatorio, e incrementar uma funcao de nota fiscal apos as vendas
-/*void Relatorio(Produtos Produtos[TF], Vendas Vendas[TF], int TL)
-{
-    int i;
-    clrscr();
-    printf("\nRelatorio de Produtos\n");
-    if (TL == 0)
-        printf("\nNao ha Produtos Cadastrados!\n");
-    else
-        for (i = 0; i < TL; i++)
-        {
-            printf("\nCodigo de Venda: %d\n", Vendas[i].CodVenda);
-            printf("Produtos: \n%d\n", );
-            printf("%s\n", Produtos[i].Descr);
-            printf("%d\n", Produtos[i].Estoque);
-            printf("R$ %.2f\n", Produtos[i].Preco);
-            printf("%s\n", Produtos[i].NomeForn);
-            printf("%f\n", Produtos[i].Preco);
-        }
-    getch();
-}
-*/
-int BusProdCod(Produtos Tab[TF], int TL, int CodProd)
-{
-    int i = 0;
-    while (i < TL && CodProd != Tab[i].CodProd)
-        i++;
-    if (i < TL)
-        return i;
-    else
-        return -1;
-}
-
-void ExcluirProd(Produtos produtos[], int &TL)
-{
-    int i, Aux, ponto;
-    conioPrintf(TOPO, VERDE_CLARO, 0, "Exclusao de produtos!");
-    conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do produto a excluir: "); // n ta do lado direito
-    scanf("%d", &Aux);
-    while (Aux > 0)
-    {
-        ponto = BusProdCod(produtos, TL, Aux);
-        if (ponto != -1)
-        {
-            for (i = ponto; i < TL - 1; i++)
-                produtos[i] = produtos[i + 1];
-            TL--;
-            conioPrintf(ALERTA, VERDE, 0, "Produto excluido com sucesso!");
-        }
-        else
-        {
-            conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
-        }
-        conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do produto a excluir: ");
-        scanf("%d", &Aux);
-    }
-}
-
-void AlterarProdCadastrado(Produtos produtos[], int TL)
-{
-    TpData aux;
-    char resp;
-    int Aux, ponto;
-    float Aux_Preco;
-
-    conioPrintf(TOPO, VERMELHO, 0, "Alterar produto ja cadastrado!");
-    conioPrintf(MENU_RIGHT, BRANCO, 0, "Insira o codigo do produto: ");
-    fflush(stdin);
-    scanf("%d", &Aux);
-    while (Aux > 0)
-    {
-        ponto = BusProdCod(produtos, TL, Aux);
-        if (ponto == -1)
-        {
-            conioPrintf(SWITCHER, VERMELHO, 0, "Erro ao procurar pelo Codigo!");
-            getch();
-        }
-        else
-        {
-            conioPrintf(MENU_RIGHT, BRANCO, 1, "Qual elemento alterar do %s?", produtos[ponto].Desc);
-            conioPrintf(MENU_RIGHT, BRANCO, 2, "[A] - Estoque");
-            conioPrintf(MENU_RIGHT, BRANCO, 3, "[B] - Preco");
-            conioPrintf(MENU_RIGHT, BRANCO, 4, "[C] - Validade");
-
-            fflush(stdin);
-            resp = toupper(getch());
-
-            switch (resp)
-            {
-            case 'A':
-                conioPrintf(MENU_RIGHT, BRANCO, 5, "Qual a nova quantidade do %s? ", produtos[ponto].Desc);
-                while (scanf(" %d", &Aux) <= 0)
-                    conioPrintf(ALERTA, VERMELHO, 0, "Valor invalido");
-                produtos[ponto].Estoque = Aux;
-                break;
-
-            case 'B':
-                conioPrintf(MENU_RIGHT, BRANCO, 5, "Qual o novo preco do %s? R$ ", produtos[ponto].Desc);
-                while (scanf(" %f", &Aux_Preco) < 0)
-                    conioPrintf(ALERTA, VERMELHO, 0, "Preco invalido");
-                produtos[ponto].Preco = Aux_Preco;
-                break;
-
-            case 'C':
-                conioPrintf(MENU_RIGHT, BRANCO, 0, "Qual a nova validade do %s? ", produtos[ponto].Desc);
-                scanf("%d %d %d", &aux.Dia, &aux.Mes, &aux.Ano);
-                if (aux.Dia > 0 && aux.Mes > 0 && aux.Ano > 0)
-                {
-                    produtos[ponto].DtValidade = aux;
-                }
-                else
-                    conioPrintf(ALERTA, VERMELHO, 0, "Data invalida!");
-                break;
-            }
-        }
-        clearElement(RIGHTSIDE);
-        conioPrintf(MENU_RIGHT, BRANCO, 0, "Insira o codigo do produto: ");
-        fflush(stdin);
-        scanf("%d", &Aux);
-    }
-}
-
-void ConsultaProd(Produtos produtos[], int TL)
-{
-    int ponto, i;
-    conioPrintf(TOPO, ROSA, 0, "Consulta de Produto!");
-    conioPrintf(MENU_RIGHT, BRANCO, 0, "Cod. a ser consultado: ");
-    scanf("%d", &ponto);
-
-    i = BusProdCod(produtos, TL, ponto);
-
-    if (i >= 0)
-    {
-        conioPrintf(MENU_RIGHT, BRANCO, 1, "Codigo: %d", produtos[i].CodProd);
-        puts(produtos[i].Desc);
-        conioPrintf(MENU_RIGHT, BRANCO, 2, "Quantidade em estoque:%d\n", produtos[i].Estoque);
-        conioPrintf(MENU_RIGHT, BRANCO, 3, "%d %d %d", produtos[i].DtValidade.Dia, produtos[i].DtValidade.Mes, produtos[i].DtValidade.Ano);
-    }
-    else
-        conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
 }
 
 void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[], int TL_produtos, int TL_fornecedores);
@@ -1034,152 +1049,152 @@ int BuscaProdutoPorCodigo(Produtos produtos[], int TL, int cod)
     return cod;
 }
 
-int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos rootProdutos[], Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], int TLclientes, int TLfornecedores, int TLprodutos, int &TLvendas, int &TLvendasprod)
-{
-    int i, pos_cliente, cod_aux, var, valor_variavel = 0;
-    char cpf[11], datahelper;
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
-    TpData construtor_data, input;
-    bool pass;
-    conioPrintf(TOPO, ROSA, 0, "Nova Venda!!");
-    conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF do Cliente: ");
-    fflush(stdin);
-    gets(cpf);
-    while (strcmp(cpf, "0") != 0)
-    {
-        validarCPF(cpf) == 1 ? pass = true : pass = false;
-        if (pass == true)
-        {
-            pos_cliente = getPosClientes(rootClientes, TLclientes, cpf);
-            if (pos_cliente >= 0)
-            {
-                clearElement(RIGHTSIDE);
-                conioPrintf(MENU_RIGHT, BRANCO, 0, "Cliente: %s", rootClientes[pos_cliente].NomeCli);
-                conioPrintf(MENU_RIGHT, BRANCO, 1, "[A] - Usar a data atual para a venda");
-                conioPrintf(MENU_RIGHT, BRANCO, 2, "[B] - Data personalizada;");
-                fflush(stdin);
-                datahelper = getch();
+// int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos rootProdutos[], Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], int TLclientes, int TLfornecedores, int TLprodutos, int &TLvendas, int &TLvendasprod)
+// {
+//     int i, pos_cliente, cod_aux, var, valor_variavel = 0;
+//     char cpf[11], datahelper;
+//     time_t t = time(NULL);
+//     struct tm tm = *localtime(&t);
+//     TpData construtor_data, input;
+//     bool pass;
+//     conioPrintf(TOPO, ROSA, 0, "Nova Venda!!");
+//     conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF do Cliente: ");
+//     fflush(stdin);
+//     gets(cpf);
+//     while (strcmp(cpf, "0") != 0)
+//     {
+//         validarCPF(cpf) == 1 ? pass = true : pass = false;
+//         if (pass == true)
+//         {
+//             pos_cliente = getPosClientes(rootClientes, TLclientes, cpf);
+//             if (pos_cliente >= 0)
+//             {
+//                 clearElement(RIGHTSIDE);
+//                 conioPrintf(MENU_RIGHT, BRANCO, 0, "Cliente: %s", rootClientes[pos_cliente].NomeCli);
+//                 conioPrintf(MENU_RIGHT, BRANCO, 1, "[A] - Usar a data atual para a venda");
+//                 conioPrintf(MENU_RIGHT, BRANCO, 2, "[B] - Data personalizada;");
+//                 fflush(stdin);
+//                 datahelper = getch();
 
-                datahelper = toupper(datahelper);
-                pass = false;
-                do
-                {
-                    construtor_data.Dia = tm.tm_mday;
-                    construtor_data.Mes = tm.tm_mon + 1;
-                    construtor_data.Ano = tm.tm_year + 1900;
-                    switch (datahelper)
-                    { // bool pass = true quando setar a data
-                    case 'A':
-                        rootVendas[TLvendas].DtVenda = construtor_data;
-                        pass = true;
-                        break;
-                    case 'B':
-                        fflush(stdin);
-                        scanf("%d %d %d", &input.Dia, &input.Mes, &input.Ano);
-                        if (comparaData(input.Ano, input.Mes, input.Dia, construtor_data.Ano, construtor_data.Mes, construtor_data.Dia) <= 0)
-                        {
-                            rootVendas[TLvendas].DtVenda = input;
-                            pass = true;
-                        }
-                        break;
-                    default:
-                        conioPrintf(SWITCHER, VERMELHO, 0, "Obrigatorio inserir data valida!");
-                        getch();
-                    }
-                } while (pass == false);
+//                 datahelper = toupper(datahelper);
+//                 pass = false;
+//                 do
+//                 {
+//                     construtor_data.Dia = tm.tm_mday;
+//                     construtor_data.Mes = tm.tm_mon + 1;
+//                     construtor_data.Ano = tm.tm_year + 1900;
+//                     switch (datahelper)
+//                     { // bool pass = true quando setar a data
+//                     case 'A':
+//                         rootVendas[TLvendas].DtVenda = construtor_data;
+//                         pass = true;
+//                         break;
+//                     case 'B':
+//                         fflush(stdin);
+//                         scanf("%d %d %d", &input.Dia, &input.Mes, &input.Ano);
+//                         if (comparaData(input.Ano, input.Mes, input.Dia, construtor_data.Ano, construtor_data.Mes, construtor_data.Dia) <= 0)
+//                         {
+//                             rootVendas[TLvendas].DtVenda = input;
+//                             pass = true;
+//                         }
+//                         break;
+//                     default:
+//                         conioPrintf(SWITCHER, VERMELHO, 0, "Obrigatorio inserir data valida!");
+//                         getch();
+//                     }
+//                 } while (pass == false);
 
-                do
-                {
-                    int prod_pos;
-                    clearElement(RIGHTSIDE);
-                    conioPrintf(MENU_RIGHT, BRANCO, 0, "Cod do %d prod. a ser adicionado: ", TLvendasprod);
-                    fflush(stdin);
-                    scanf("%d", &cod_aux);
+//                 do
+//                 {
+//                     int prod_pos;
+//                     clearElement(RIGHTSIDE);
+//                     conioPrintf(MENU_RIGHT, BRANCO, 0, "Cod do %d prod. a ser adicionado: ", TLvendasprod);
+//                     fflush(stdin);
+//                     scanf("%d", &cod_aux);
 
-                    if (cod_aux > 0)
-                    {
-                        prod_pos = BusProdCod(rootProdutos, TLprodutos, cod_aux);
-                        if (prod_pos >= 0)
-                        {
-                            pass = false;
-                            if (comparaData(rootProdutos[prod_pos].DtValidade.Ano, rootProdutos[prod_pos].DtValidade.Mes, rootProdutos[prod_pos].DtValidade.Dia, construtor_data.Ano, construtor_data.Mes, construtor_data.Dia) <= 0)
-                            {
-                                conioPrintf(MENU_RIGHT, BRANCO, 1, "Produto: %s\nQtde em estoque:%d\n", rootProdutos[prod_pos].Desc, rootProdutos[prod_pos].Estoque);
-                                do
-                                {
-                                    conioPrintf(MENU_RIGHT, BRANCO, 2, "Quantidade vendida: ");
-                                    fflush(stdin);
-                                    scanf("%d", &var);
+//                     if (cod_aux > 0)
+//                     {
+//                         prod_pos = BusProdCod(rootProdutos, TLprodutos, cod_aux);
+//                         if (prod_pos >= 0)
+//                         {
+//                             pass = false;
+//                             if (comparaData(rootProdutos[prod_pos].DtValidade.Ano, rootProdutos[prod_pos].DtValidade.Mes, rootProdutos[prod_pos].DtValidade.Dia, construtor_data.Ano, construtor_data.Mes, construtor_data.Dia) <= 0)
+//                             {
+//                                 conioPrintf(MENU_RIGHT, BRANCO, 1, "Produto: %s\nQtde em estoque:%d\n", rootProdutos[prod_pos].Desc, rootProdutos[prod_pos].Estoque);
+//                                 do
+//                                 {
+//                                     conioPrintf(MENU_RIGHT, BRANCO, 2, "Quantidade vendida: ");
+//                                     fflush(stdin);
+//                                     scanf("%d", &var);
 
-                                } while (var <= 0);
-                                if (var <= rootProdutos[prod_pos].Estoque)
-                                {
-                                    rootProdutos[prod_pos].Estoque -= var;
-                                    rootVendasProdutos[TLvendasprod].CodVenda = TLvendas + 1;
-                                    rootVendasProdutos[TLvendasprod].CodProd = rootProdutos[prod_pos].CodProd;
-                                    rootVendasProdutos[TLvendasprod].Qtde = var;
-                                    rootVendasProdutos[TLvendasprod].ValorUnitario = rootProdutos[prod_pos].Preco;
-                                    valor_variavel += rootProdutos[prod_pos].Preco * var;
-                                    rootClientes[pos_cliente].QtdeCompras++;
-                                    TLvendasprod++;
-                                    conioPrintf(SWITCHER, VERDE, 0, "Item %s adicionado a venda de cod. %d\n", rootProdutos[prod_pos].Desc, TLvendas + 1);
-                                    getch();
-                                }
-                                else
-                                {
-                                    conioPrintf(SWITCHER, VERMELHO, 0, "Qtde. maior que estoque total!");
-                                    getch();
-                                }
-                            }
-                            else
-                            {
-                                conioPrintf(SWITCHER, AMARELO, 0, "Validade do produto nao bate com a venda");
-                                getch();
-                            }
-                        }
-                        else
-                        {
-                            conioPrintf(SWITCHER, VERMELHO, 0, "Produto n. encontrado, tente novamente");
-                            getch();
-                        }
-                    }
-                    clearElement(RIGHTSIDE);
-                    conioPrintf(MENU_RIGHT, BRANCO, 0, "Cod do %d prod. a ser adicionado: ", TLvendasprod);
-                    fflush(stdin);
-                    scanf("%d", &cod_aux);
-                } while (cod_aux > 0);
+//                                 } while (var <= 0);
+//                                 if (var <= rootProdutos[prod_pos].Estoque)
+//                                 {
+//                                     rootProdutos[prod_pos].Estoque -= var;
+//                                     rootVendasProdutos[TLvendasprod].CodVenda = TLvendas + 1;
+//                                     rootVendasProdutos[TLvendasprod].CodProd = rootProdutos[prod_pos].CodProd;
+//                                     rootVendasProdutos[TLvendasprod].Qtde = var;
+//                                     rootVendasProdutos[TLvendasprod].ValorUnitario = rootProdutos[prod_pos].Preco;
+//                                     valor_variavel += rootProdutos[prod_pos].Preco * var;
+//                                     rootClientes[pos_cliente].QtdeCompras++;
+//                                     TLvendasprod++;
+//                                     conioPrintf(SWITCHER, VERDE, 0, "Item %s adicionado a venda de cod. %d\n", rootProdutos[prod_pos].Desc, TLvendas + 1);
+//                                     getch();
+//                                 }
+//                                 else
+//                                 {
+//                                     conioPrintf(SWITCHER, VERMELHO, 0, "Qtde. maior que estoque total!");
+//                                     getch();
+//                                 }
+//                             }
+//                             else
+//                             {
+//                                 conioPrintf(SWITCHER, AMARELO, 0, "Validade do produto nao bate com a venda");
+//                                 getch();
+//                             }
+//                         }
+//                         else
+//                         {
+//                             conioPrintf(SWITCHER, VERMELHO, 0, "Produto n. encontrado, tente novamente");
+//                             getch();
+//                         }
+//                     }
+//                     clearElement(RIGHTSIDE);
+//                     conioPrintf(MENU_RIGHT, BRANCO, 0, "Cod do %d prod. a ser adicionado: ", TLvendasprod);
+//                     fflush(stdin);
+//                     scanf("%d", &cod_aux);
+//                 } while (cod_aux > 0);
 
-                rootVendas[TLvendas].CodVenda = TLvendas + 1;
-                strcmp(rootVendas[TLvendas].CPF, rootClientes[pos_cliente].CPF);
-                rootVendas[TLvendas].DtVenda = construtor_data;
-                rootVendas[TLvendas].TotVenda = valor_variavel;
-                TLvendas++;
-                rootClientes[pos_cliente].ValorTotComprado += valor_variavel;
-                valor_variavel = 0;
+//                 rootVendas[TLvendas].CodVenda = TLvendas + 1;
+//                 strcmp(rootVendas[TLvendas].CPF, rootClientes[pos_cliente].CPF);
+//                 rootVendas[TLvendas].DtVenda = construtor_data;
+//                 rootVendas[TLvendas].TotVenda = valor_variavel;
+//                 TLvendas++;
+//                 rootClientes[pos_cliente].ValorTotComprado += valor_variavel;
+//                 valor_variavel = 0;
 
-                conioPrintf(ALERTA, VERDE, 0, "Venda do cliente %s registrada com sucesso", rootClientes[pos_cliente].NomeCli);
-                getch();
-            }
-            else
-            {
-                conioPrintf(SWITCHER, VERMELHO, 0, "Cliente nao encontrado!");
-                getch();
-            }
-        }
-        else
-        {
-            conioPrintf(ALERTA, VERMELHO, 0, "Digite um CPF valido!");
-            getch();
-        }
+//                 conioPrintf(ALERTA, VERDE, 0, "Venda do cliente %s registrada com sucesso", rootClientes[pos_cliente].NomeCli);
+//                 getch();
+//             }
+//             else
+//             {
+//                 conioPrintf(SWITCHER, VERMELHO, 0, "Cliente nao encontrado!");
+//                 getch();
+//             }
+//         }
+//         else
+//         {
+//             conioPrintf(ALERTA, VERMELHO, 0, "Digite um CPF valido!");
+//             getch();
+//         }
 
-        clearElement(RIGHTSIDE);
-        conioPrintf(MENU_RIGHT, BRANCO, 0, "(0 cancela) CPF do Cliente: ");
-        fflush(stdin);
-        gets(cpf);
-    }
-    return 0;
-}
+//         clearElement(RIGHTSIDE);
+//         conioPrintf(MENU_RIGHT, BRANCO, 0, "(0 cancela) CPF do Cliente: ");
+//         fflush(stdin);
+//         gets(cpf);
+//     }
+//     return 0;
+// }
 void ExcluirVenda(Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], int &TLvendas, int &TLvendasprod)
 {
     int codVenda, i, j;
@@ -1387,14 +1402,13 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 case 'E':
                     RelatorioFornecedores(fornecedores);
                     break;
-                    /*
                 case 27:
                     break;
                 default:
                     conioPrintf(ALERTA, VERMELHO, 0, "##INEXISTENTE!## Selecione novamente");
                     getch();
                 }
-            }} while (opc != 27);
+            } while (opc != 27);
             break;
 
         case 'C':
@@ -1413,15 +1427,9 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 switch (opc)
                 {
                 case 'A':
-                    if (Compara(TL_produtos, TF) == true)
-                        CadastraProd(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
-                    else
-                    {
-                        conioPrintf(SWITCHER, VERMELHO, 0, "Erro: dbCheio");
-                        gotoxy(41, 23);
-                    }
-                    getch();
+                    CadastraProd(produtos);
                     break;
+                    /*
                 case 'B':
                     ConsultaProd(index_produtos, TL_produtos);
                     getch();
