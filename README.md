@@ -4,7 +4,4 @@ to-do: ;
 
 - refatorando programa para arquivos binarios
 
-> deletaClientes
-- gera lixo vazio no arquivo
-
 
