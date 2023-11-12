@@ -619,7 +619,7 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod)
     fseek(reg_fornecedores, 0, SEEK_END);
     fwrite(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
 
-    conioPrintf(MENU_RIGHT, VERDE, 0, "Fornecedor cod.%d, %s cadastrado!", fornecedor.CodForn, fornecedor.NomeForn);
+    conioPrintf(MENU_RIGHT, VERDE, 3, "Fornecedor cod.%d, %s cadastrado!", fornecedor.CodForn, fornecedor.NomeForn);
     fclose(reg_fornecedores);
     getch();
     return 0;
@@ -833,7 +833,7 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
                     clearElement(RIGHTSIDE);
                     fclose(reg_fornecedores);
                     CadastraFornecedor(reg_fornecedores, &helper);
-                    produto.CodForn = codigo;
+                    produto.CodForn = helper;
 
                     fseek(reg_produtos, 0, SEEK_END);
                     fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
@@ -847,10 +847,7 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
             }
             else
             {
-                clearElement(RIGHTSIDE);
-                conioPrintf(MENU_RIGHT, BRANCO, 0, "Fornecedor: %d", codigo);
-                produto.CodForn = codigo;
-
+                produto.CodForn = helper;
                 fseek(reg_produtos, 0, SEEK_END);
                 fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
 
@@ -902,7 +899,7 @@ int ExcluirProd(FILE *reg_produtos)
         int i = 0;
         while (i < documentsize)
         {
-            fseek(reg_produtos, i*sizeof(Produtos), SEEK_SET);
+            fseek(reg_produtos, i * sizeof(Produtos), SEEK_SET);
             fread(&produto, sizeof(Produtos), 1, reg_produtos);
             if (produto.CodProd > 0)
                 fwrite(&produto, sizeof(Produtos), 1, reg_produtos_temp);
@@ -951,6 +948,8 @@ int ConsultaProd(FILE *reg_produtos)
         conioPrintf(MENU_RIGHT, BRANCO, 2, "Descricao: %s", produto.Desc);
         conioPrintf(MENU_RIGHT, BRANCO, 3, "Quantidade em estoque: %d", produto.Estoque);
         conioPrintf(MENU_RIGHT, BRANCO, 4, "Validade: %d/%d/%d", produto.DtValidade.Dia, produto.DtValidade.Mes, produto.DtValidade.Ano);
+        conioPrintf(MENU_RIGHT, BRANCO, 5, "Cod. Fornecedor: %d",produto.CodForn);
+        conioPrintf(MENU_RIGHT, BRANCO, 6, "Preco: %f",produto.Preco);
     }
     else
         conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
@@ -1051,60 +1050,85 @@ int AlterarProdCadastrado(FILE *reg_produtos)
     fclose(reg_produtos);
 }
 
-void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[], int TL_produtos, int TL_fornecedores);
-// {
-//     int valor, cod, pos;
-//     char resp;
+int produtosPercent(FILE *reg_produtos, FILE *reg_fornecedores)
+{
+    if ((reg_produtos = fopen("produtos\\produtos.dat", "rb+")) == NULL)
+        return 1;
+    if ((reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb")) == NULL)
+        return 1;
 
-//     conioPrintf(TOPO, VERMELHO_CLARO, 0, "Percentual  de produtos!");
+    fseek(reg_produtos, 0, SEEK_END);
+    int documentsize = ftell(reg_produtos) / sizeof(Produtos);
+    rewind(reg_produtos);
 
-//     /*do - nao funciona
-//     {
-//         clearElement(RIGHTSIDE);
-//         conioPrintf(MENU_RIGHT, BRANCO, 0, "[A] Add - [B] Subtrair");
-//         fflush(stdin);
-//         resp = toupper(getch());
-//     } while (resp != 'A' || resp != 'B');
-//     */
+    fseek(reg_fornecedores, 0, SEEK_END);
+    int fornsize = ftell(reg_fornecedores) / sizeof(Fornecedores);
+    rewind(reg_fornecedores);
 
-//     clearElement(RIGHTSIDE);
-//     conioPrintf(MENU_RIGHT, BRANCO, 0, "[A] Add - [B] Subtrair");
-//     fflush(stdin);
-//     resp = toupper(getch());
+    Produtos produto;
 
-//     conioPrintf(MENU_RIGHT, BRANCO, 1, "Valor em porc: ");
-//     fflush(stdin);
-//     scanf("%d", &valor);
+    int valor, cod, pos;
+    char resp;
 
-//     conioPrintf(MENU_RIGHT, BRANCO, 2, "Cod do fornecedor para %s: ", resp == 'A' ? "adicionar" : "subtrair");
-//     fflush(stdin);
-//     scanf("%d", &cod);
+    conioPrintf(TOPO, VERMELHO_CLARO, 0, "Percentual  de produtos!");
 
-//     pos = BusFornCod(index_fornecedores, TL_fornecedores, cod);
+    clearElement(RIGHTSIDE);
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "[A] Add - [B] Subtrair");
+    fflush(stdin);
+    resp = toupper(getch());
 
-//     if (pos >= 0)
-//     {
-//         switch (resp)
-//         {
-//         case 'A':
-//             for (int i = 0; i < TL_produtos; i++)
-//                 if (index_produtos[i].CodForn == index_fornecedores[pos].CodForn)
-//                     index_produtos[i].Preco += (index_produtos[i].Preco * (valor / 100));
-//             conioPrintf(SWITCHER, VERDE, 0, "Produtos atualizados!");
-//             getch();
-//             break;
-//         case 'B':
-//             for (int i = 0; i < TL_produtos; i++)
-//                 if (index_produtos[i].CodForn == index_fornecedores[pos].CodForn)
-//                     index_produtos[i].Preco -= (index_produtos[i].Preco * (valor / 100));
-//             conioPrintf(SWITCHER, VERDE, 0, "Produtos atualizados!");
-//             getch();
-//             break;
-//         }
-//     }
-//     else
-//         conioPrintf(SWITCHER, VERMELHO, 0, "Erro! Fornecedor nao cadastrado!");
-// }
+    conioPrintf(MENU_RIGHT, BRANCO, 1, "Valor em porcentagem: ");
+    fflush(stdin);
+    scanf("%d", &valor);
+
+    conioPrintf(MENU_RIGHT, BRANCO, 2, "Cod do fornecedor para %s: ", resp == 'A' ? "adicionar" : "subtrair");
+    fflush(stdin);
+    scanf("%d", &cod);
+
+    pos = getFornCod(reg_fornecedores, fornsize, cod);
+
+    if (pos >= 0)
+    {
+        switch (resp)
+        {
+        case 'A':
+            for (int i = 0; i < documentsize; i++)
+            {
+                fread(&produto, sizeof(Produtos), 1, reg_produtos);
+                if (produto.CodForn == cod)
+                {
+                    fseek(reg_produtos, 0 - sizeof(Produtos), SEEK_CUR);
+                    produto.Preco += produto.Preco * valor / 100;
+                    fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
+                }
+            }
+            conioPrintf(SWITCHER, VERDE, 0, "Produtos atualizados!");
+            getch();
+            break;
+
+        case 'B':
+            for (int i = 0; i < documentsize; i++)
+            {
+                fread(&produto, sizeof(Produtos), 1, reg_produtos);
+                if (produto.CodForn == cod)
+                {
+                    fseek(reg_produtos, 0 - sizeof(Produtos), SEEK_CUR);
+                    produto.Preco -= produto.Preco * valor / 100;
+                    fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
+                }
+            }
+            conioPrintf(SWITCHER, VERDE, 0, "Produtos atualizados!");
+            getch();
+            break;
+        }
+    }
+    else
+        conioPrintf(SWITCHER, VERMELHO, 0, "Erro! Fornecedor nao cadastrado!");
+
+    fclose(reg_fornecedores);
+    fclose(reg_produtos);
+    return 0;
+}
 
 // void EditaClientes(Clientes clientes[], int TL)
 
@@ -1521,11 +1545,8 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 case 'D':
                     AlterarProdCadastrado(produtos);
                     break;
-                    /*
                 case 'E':
-                    if (TL_produtos > 0)
-                        produtosPercent(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
-                    getch();
+                    produtosPercent(produtos, fornecedores);
                     break;
                 case 27:
                     break;
@@ -1538,63 +1559,60 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
             break;
 
         case 'D':
-            do
-            {
-                conioPrintf(TOPO, CIANO, 0, "Controle de Vendas!");
-                conioPrintf(SWITCHER, CIANO, 0, "Selecione uma operacao em Vendas!");
-                conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - NOVA VENDA");
-                conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - EXCLUSAO");
-                conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - ALTERACAO");
-                conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - RELATORIO TOTAL");
-                opc = toupper(getch());
-
-                switch (opc)
-                {
-                case 'A':
-                    if (TL_vendas <= TF && TL_cupons <= TF)
-                    {
-                        novaVenda(index_clientes, index_fornecedores, index_produtos, index_vendas, index_vendasprod, TL_clientes, TL_fornecedores, TL_produtos, TL_vendas, TL_cupons);
-                    }
-                    else
-                    {
-                        conioPrintf(SWITCHER, VERMELHO, 0, "Mem. Cheia!");
-                        gotoxy(41, 23);
-                    }
-                    getch();
-                    break;
-                case 'B':
-                    ExcluirVenda(index_vendas, index_vendasprod, TL_cupons, TL_vendas);
-                    getch();
-                    break;
-                case 'C':
-                    AlterarVenda(index_vendas, index_vendasprod, index_produtos, TL_cupons, TL_vendas, TL_produtos);
-                    getch();
-                    break;
-                case 'D':
-                    // RelatorioTotal();
-                    break;
-                case 27:
-                    break;
-                default:
-                    conioPrintf(SWITCHER, VERMELHO, 0, "##INEXISTENTE!## Selecione novamente");
-                    getch();
-                    break;
-                }
-            } while (opc != 27);
+            // do
+            // {
+            //     conioPrintf(TOPO, CIANO, 0, "Controle de Vendas!");
+            //     conioPrintf(SWITCHER, CIANO, 0, "Selecione uma operacao em Vendas!");
+            //     conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - NOVA VENDA");
+            //     conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - EXCLUSAO");
+            //     conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - ALTERACAO");
+            //     conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - RELATORIO TOTAL");
+            //     opc = toupper(getch());
+            //     switch (opc)
+            //     {
+            //     case 'A':
+            //         if (TL_vendas <= TF && TL_cupons <= TF)
+            //         {
+            //             novaVenda(index_clientes, index_fornecedores, index_produtos, index_vendas, index_vendasprod, TL_clientes, TL_fornecedores, TL_produtos, TL_vendas, TL_cupons);
+            //         }
+            //         else
+            //         {
+            //             conioPrintf(SWITCHER, VERMELHO, 0, "Mem. Cheia!");
+            //             gotoxy(41, 23);
+            //         }
+            //         getch();
+            //         break;
+            //     case 'B':
+            //         ExcluirVenda(index_vendas, index_vendasprod, TL_cupons, TL_vendas);
+            //         getch();
+            //         break;
+            //     case 'C':
+            //         AlterarVenda(index_vendas, index_vendasprod, index_produtos, TL_cupons, TL_vendas, TL_produtos);
+            //         getch();
+            //         break;
+            //     case 'D':
+            //         // RelatorioTotal();
+            //         break;
+            //     case 27:
+            //         break;
+            //     default:
+            //         conioPrintf(SWITCHER, VERMELHO, 0, "##INEXISTENTE!## Selecione novamente");
+            //         getch();
+            //         break;
+            //     }
+            // } while (opc != 27);
             break;
-        */
-                }
-            } while (opc != 27);
-            Formulario();
-            conioPrintf(TOPO, VERDE, 0, "Vendas realizadas: %d", vendas_size);
-            conioPrintf(SWITCHER, VERDE, 0, "Selecione um item:");
-            conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - CLIENTES");
-            conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - FORNECEDORES");
-            conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - PRODUTOS");
-            conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - VENDAS");
-            conioPrintf(MENU_LEFT, BRANCO, 4, "ESC - Sair");
-            opc = toupper(getche());
         }
+
+        Formulario();
+        conioPrintf(TOPO, VERDE, 0, "Vendas realizadas: %d", vendas_size);
+        conioPrintf(SWITCHER, VERDE, 0, "Selecione um item:");
+        conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - CLIENTES");
+        conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - FORNECEDORES");
+        conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - PRODUTOS");
+        conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - VENDAS");
+        conioPrintf(MENU_LEFT, BRANCO, 4, "ESC - Sair");
+        opc = toupper(getche());
     }
 }
 

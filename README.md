@@ -4,4 +4,4 @@ to-do: ;
 
 - refatorando programa para arquivos binarios
 
-
+- criar funcao int fsizer(arquivo, &tamanhodaestrutura, rewind true/false)
