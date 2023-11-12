@@ -458,6 +458,8 @@ int ConsultaFornecedor(FILE *reg_fornecedores)
 
     fseek(reg_fornecedores, 0, SEEK_END);
     int fornecedores_size = ftell(reg_fornecedores) / sizeof(Fornecedores);
+    rewind(reg_fornecedores);
+
     pos = getFornCod(reg_fornecedores, fornecedores_size, cod);
 
     if (pos >= 0)
@@ -792,70 +794,6 @@ int BusProdCod(FILE *reg_produtos, int TL, int CodProd)
 //     }
 // }
 
-// void AlterarProdCadastrado(Produtos produtos[], int TL)
-// {
-//     TpData aux;
-//     char resp;
-//     int Aux, ponto;
-//     float Aux_Preco;
-
-//     conioPrintf(TOPO, VERMELHO, 0, "Alterar produto ja cadastrado!");
-//     conioPrintf(MENU_RIGHT, BRANCO, 0, "Insira o codigo do produto: ");
-//     fflush(stdin);
-//     scanf("%d", &Aux);
-//     while (Aux > 0)
-//     {
-//         ponto = BusProdCod(produtos, TL, Aux);
-//         if (ponto == -1)
-//         {
-//             conioPrintf(SWITCHER, VERMELHO, 0, "Erro ao procurar pelo Codigo!");
-//             getch();
-//         }
-//         else
-//         {
-//             conioPrintf(MENU_RIGHT, BRANCO, 1, "Qual elemento alterar do %s?", produtos[ponto].Desc);
-//             conioPrintf(MENU_RIGHT, BRANCO, 2, "[A] - Estoque");
-//             conioPrintf(MENU_RIGHT, BRANCO, 3, "[B] - Preco");
-//             conioPrintf(MENU_RIGHT, BRANCO, 4, "[C] - Validade");
-
-//             fflush(stdin);
-//             resp = toupper(getch());
-
-//             switch (resp)
-//             {
-//             case 'A':
-//                 conioPrintf(MENU_RIGHT, BRANCO, 5, "Qual a nova quantidade do %s? ", produtos[ponto].Desc);
-//                 while (scanf(" %d", &Aux) <= 0)
-//                     conioPrintf(ALERTA, VERMELHO, 0, "Valor invalido");
-//                 produtos[ponto].Estoque = Aux;
-//                 break;
-
-//             case 'B':
-//                 conioPrintf(MENU_RIGHT, BRANCO, 5, "Qual o novo preco do %s? R$ ", produtos[ponto].Desc);
-//                 while (scanf(" %f", &Aux_Preco) < 0)
-//                     conioPrintf(ALERTA, VERMELHO, 0, "Preco invalido");
-//                 produtos[ponto].Preco = Aux_Preco;
-//                 break;
-
-//             case 'C':
-//                 conioPrintf(MENU_RIGHT, BRANCO, 0, "Qual a nova validade do %s? ", produtos[ponto].Desc);
-//                 scanf("%d %d %d", &aux.Dia, &aux.Mes, &aux.Ano);
-//                 if (aux.Dia > 0 && aux.Mes > 0 && aux.Ano > 0)
-//                 {
-//                     produtos[ponto].DtValidade = aux;
-//                 }
-//                 else
-//                     conioPrintf(ALERTA, VERMELHO, 0, "Data invalida!");
-//                 break;
-//             }
-//         }
-//         clearElement(RIGHTSIDE);
-//         conioPrintf(MENU_RIGHT, BRANCO, 0, "Insira o codigo do produto: ");
-//         fflush(stdin);
-//         scanf("%d", &Aux);
-//     }
-// }
-
 void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
 {
     if ((reg_produtos = fopen("produtos\\produtos.dat", "rb+")) == NULL)
@@ -973,13 +911,14 @@ int ConsultaProd(FILE *reg_produtos)
 
     fseek(reg_produtos, 0, SEEK_END);
     int documentsize = ftell(reg_produtos) / sizeof(Produtos);
+    rewind(reg_produtos);
 
     i = BusProdCod(reg_produtos, documentsize, ponto);
 
     if (i >= 0)
     {
         fseek(reg_produtos, i * sizeof(Produtos), SEEK_SET);
-        fread(&produto,sizeof(Produtos), 1, reg_produtos);
+        fread(&produto, sizeof(Produtos), 1, reg_produtos);
 
         conioPrintf(MENU_RIGHT, BRANCO, 1, "Codigo: %d", produto.CodProd);
         conioPrintf(MENU_RIGHT, BRANCO, 2, "Descricao: %s", produto.Desc);
@@ -992,6 +931,97 @@ int ConsultaProd(FILE *reg_produtos)
     getch();
     fclose(reg_produtos);
     return 0;
+}
+
+int AlterarProdCadastrado(FILE *reg_produtos)
+{
+    if ((reg_produtos = fopen("produtos\\produtos.dat", "rb+")) == NULL)
+        return 1;
+
+    TpData aux;
+    Produtos produto;
+
+    char resp;
+    int Aux, pos;
+    float Aux_Preco;
+
+    fseek(reg_produtos, 0, SEEK_END);
+    int documentsize = ftell(reg_produtos) / sizeof(Produtos);
+    rewind(reg_produtos);
+
+    conioPrintf(TOPO, VERMELHO, 0, "Alterar produto ja cadastrado!");
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "Insira o codigo do produto: ");
+    fflush(stdin);
+    scanf("%d", &Aux);
+
+    while (Aux > 0)
+    {
+        pos = BusProdCod(reg_produtos, documentsize, Aux);
+        if (pos == -1)
+        {
+            conioPrintf(SWITCHER, VERMELHO, 0, "Erro ao procurar pelo Codigo!");
+            getch();
+        }
+        else
+        {
+            fseek(reg_produtos, pos * sizeof(Produtos), SEEK_SET);
+            fread(&produto, sizeof(Produtos), 1, reg_produtos);
+
+            conioPrintf(MENU_RIGHT, BRANCO, 1, "Qual elemento alterar do %s?", produto.Desc);
+            conioPrintf(MENU_RIGHT, BRANCO, 2, "[A] - Estoque");
+            conioPrintf(MENU_RIGHT, BRANCO, 3, "[B] - Preco");
+            conioPrintf(MENU_RIGHT, BRANCO, 4, "[C] - Validade");
+
+            fflush(stdin);
+            resp = toupper(getch());
+
+            switch (resp)
+            {
+            case 'A':
+                conioPrintf(MENU_RIGHT, BRANCO, 5, "Qual a nova quantidade do %s? ", produto.Desc);
+                while ((scanf(" %d", &Aux)) <= 0)
+                    conioPrintf(ALERTA, VERMELHO, 0, "Valor invalido");
+                produto.Estoque = Aux;
+
+                fseek(reg_produtos, pos * sizeof(Produtos), SEEK_SET);
+                fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
+                conioPrintf(ALERTA, VERDE, 0, "Quantidade atualizada!");
+                break;
+
+            case 'B':
+                conioPrintf(MENU_RIGHT, BRANCO, 5, "Qual o novo preco do %s? R$ ", produto.Desc);
+                while (scanf(" %f", &Aux_Preco) < 0)
+                    conioPrintf(ALERTA, VERMELHO, 0, "Preco invalido");
+                produto.Preco = Aux_Preco;
+
+                fseek(reg_produtos, pos * sizeof(Produtos), SEEK_SET);
+                fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
+                conioPrintf(ALERTA, VERDE, 0, "Preco atualizado!");
+                break;
+
+            case 'C':
+                conioPrintf(MENU_RIGHT, BRANCO, 0, "Qual a nova validade do %s? ", produto.Desc);
+                scanf("%d %d %d", &aux.Dia, &aux.Mes, &aux.Ano);
+                if (aux.Dia > 0 && aux.Mes > 0 && aux.Ano > 0)
+                {
+                    produto.DtValidade = aux;
+
+                    fseek(reg_produtos, pos * sizeof(Produtos), SEEK_SET);
+                    fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
+                    conioPrintf(ALERTA, VERDE, 0, "Validade Atualizada!");
+                }
+                else
+                    conioPrintf(ALERTA, VERMELHO, 0, "Data invalida!");
+                break;
+            }
+        }
+
+        clearElement(RIGHTSIDE);
+        conioPrintf(MENU_RIGHT, BRANCO, 0, "Insira o codigo do produto: ");
+        fflush(stdin);
+        scanf("%d", &Aux);
+    }
+    fclose(reg_produtos);
 }
 
 void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[], int TL_produtos, int TL_fornecedores);
@@ -1458,15 +1488,13 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 case 'B':
                     ConsultaProd(produtos);
                     break;
-                    /*
-                case 'C':
-                    ExcluirProd(index_produtos, TL_produtos);
-                    getch();
-                    break;
+                // case 'C':
+                //     ExcluirProd(index_produtos, TL_produtos);
+                //     break;
                 case 'D':
-                    AlterarProdCadastrado(index_produtos, TL_produtos);
-                    getch();
+                    AlterarProdCadastrado(produtos);
                     break;
+                    /*
                 case 'E':
                     if (TL_produtos > 0)
                         produtosPercent(index_produtos, index_fornecedores, TL_produtos, TL_fornecedores);
