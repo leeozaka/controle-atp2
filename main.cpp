@@ -876,15 +876,25 @@ int BusProdCod(FILE *reg_produtos, int TL, int CodProd)
 //         conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
 // }
 
-void CadastraProd(FILE *reg_produtos)
+void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
 {
-    if ((fopen("produtos\\produtos.dat", "rb+")) == NULL)
-        fopen("produtos\\produtos.dat", "ab+");
+    if ((reg_produtos = fopen("produtos\\produtos.dat", "rb+")) == NULL)
+        reg_produtos = fopen("produtos\\produtos.dat", "ab+");
+    if ((reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+")) == NULL)
+        reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "ab+");
 
     Produtos produto;
 
     int AuxCod, pos, helper, codigo;
     char arg;
+
+    fseek(reg_produtos, 0, SEEK_END);
+    int prodsize = ftell(reg_produtos) / sizeof(Produtos);
+    rewind(reg_produtos);
+
+    fseek(reg_fornecedores, 0, SEEK_END);
+    int fornsize = ftell(reg_fornecedores) / sizeof(Fornecedores);
+    rewind(reg_fornecedores);
 
     conioPrintf(TOPO, VERDE, 0, "Cadastro de Produtos!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Codigo: ");
@@ -892,38 +902,33 @@ void CadastraProd(FILE *reg_produtos)
     fflush(stdin);
     scanf("%d", &AuxCod);
 
-    fseek(reg_produtos, 0, SEEK_END);
-    int documentsize = ftell(reg_produtos) / sizeof(Produtos);
-    rewind(reg_produtos);
-
-    while (AuxCod > 0)   ----------------> parei aqui
+    while (AuxCod > 0)
     {
-        pos = BusProdCod(reg_produtos, documentsize, AuxCod) * sizeof(Produtos);
+        pos = BusProdCod(reg_produtos, prodsize, AuxCod);
         if (pos == -1)
         {
-            produtos[TL_Produtos].CodProd = AuxCod;
+            produto.CodProd = AuxCod;
             conioPrintf(MENU_RIGHT, BRANCO, 1, "Descricao: ");
             fflush(stdin);
-            gets(produtos[TL_Produtos].Desc);
+            gets(produto.Desc);
 
             conioPrintf(MENU_RIGHT, BRANCO, 2, "Estoque: ");
             fflush(stdin);
-            scanf("%d", &produtos[TL_Produtos].Estoque);
+            scanf("%d", &produto.Estoque);
 
             conioPrintf(MENU_RIGHT, BRANCO, 3, "Preco R$: ");
             fflush(stdin);
-            scanf("%f", &produtos[TL_Produtos].Preco);
+            scanf("%f", &produto.Preco);
 
             conioPrintf(MENU_RIGHT, BRANCO, 4, "Data de Validade[dd mm aaaa]: ");
             fflush(stdin);
-            scanf("%d %d %d", &produtos[TL_Produtos].DtValidade.Dia, &produtos[TL_Produtos].DtValidade.Mes, &produtos[TL_Produtos].DtValidade.Ano);
+            scanf("%d %d %d", &produto.DtValidade.Dia, &produto.DtValidade.Mes, &produto.DtValidade.Ano);
 
             conioPrintf(MENU_RIGHT, BRANCO, 5, "Busca fornecedor, cod: ");
             fflush(stdin);
             scanf("%d", &helper);
-            ptr_codigo = &helper;
 
-            codigo = ConsultaFornecedor(fornecedores, TL_Fornecedores, helper);
+            codigo = getFornCod(reg_fornecedores, fornsize, helper);
 
             if (codigo == -1)
             {
@@ -933,9 +938,13 @@ void CadastraProd(FILE *reg_produtos)
                 if (arg == 'S')
                 {
                     clearElement(RIGHTSIDE);
-                    CadastraFornecedor(fornecedores, TL_Fornecedores, &cod);
-                    produtos[TL_Produtos].CodForn = codigo;
-                    TL_Produtos++;
+                    fclose(reg_fornecedores);
+                    CadastraFornecedor(reg_fornecedores, &helper);
+                    produto.CodForn = codigo;
+
+                    fseek(reg_produtos, 0, SEEK_END);
+                    fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
+
                     conioPrintf(ALERTA, VERDE, 0, "Fornecedor Cadastrado!");
                     getch();
                 }
@@ -949,9 +958,12 @@ void CadastraProd(FILE *reg_produtos)
             {
                 clearElement(RIGHTSIDE);
                 conioPrintf(MENU_RIGHT, BRANCO, 0, "Fornecedor: %d", codigo);
-                produtos[TL_Produtos].CodForn = codigo;
-                TL_Produtos++;
-                conioPrintf(ALERTA, VERDE, 0, "Produto %s cadastrado!", produtos[TL_Produtos - 1].Desc);
+                produto.CodForn = codigo;
+
+                fseek(reg_produtos, 0, SEEK_END);
+                fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
+
+                conioPrintf(ALERTA, VERDE, 0, "Produto %s cadastrado!", produto.Desc);
                 getch();
             }
         }
@@ -966,6 +978,7 @@ void CadastraProd(FILE *reg_produtos)
         conioPrintf(MENU_RIGHT, BRANCO, 0, "Codigo: ");
         scanf("%d", &AuxCod);
     }
+    fclose(reg_produtos);
 }
 
 void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[], int TL_produtos, int TL_fornecedores);
@@ -1427,7 +1440,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 switch (opc)
                 {
                 case 'A':
-                    CadastraProd(produtos);
+                    CadastraProd(produtos, fornecedores);
                     break;
                     /*
                 case 'B':
