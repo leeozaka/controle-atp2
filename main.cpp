@@ -356,7 +356,7 @@ int DeletaClientes(FILE *reg_clientes)
         {
             fseek(reg_clientes, i * sizeof(Clientes), SEEK_SET);
             fread(&cliente, sizeof(Clientes), 1, reg_clientes);
-            if (strcmp(cliente.CPF, nullclient.CPF) != 0)
+            if (!strcmp(cliente.CPF, nullclient.CPF))
                 fwrite(&cliente, sizeof(Clientes), 1, reg_clientes_tmp);
             i++;
         }
@@ -769,31 +769,6 @@ int BusProdCod(FILE *reg_produtos, int TL, int CodProd)
     return -1;
 }
 
-// void ExcluirProd(Produtos produtos[], int &TL)
-// {
-//     int i, Aux, ponto;
-//     conioPrintf(TOPO, VERDE_CLARO, 0, "Exclusao de produtos!");
-//     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do produto a excluir: "); // n ta do lado direito
-//     scanf("%d", &Aux);
-//     while (Aux > 0)
-//     {
-//         ponto = BusProdCod(produtos, TL, Aux);
-//         if (ponto != -1)
-//         {
-//             for (i = ponto; i < TL - 1; i++)
-//                 produtos[i] = produtos[i + 1];
-//             TL--;
-//             conioPrintf(ALERTA, VERDE, 0, "Produto excluido com sucesso!");
-//         }
-//         else
-//         {
-//             conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
-//         }
-//         conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do produto a excluir: ");
-//         scanf("%d", &Aux);
-//     }
-// }
-
 void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
 {
     if ((reg_produtos = fopen("produtos\\produtos.dat", "rb+")) == NULL)
@@ -895,6 +870,58 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
         scanf("%d", &AuxCod);
     }
     fclose(reg_produtos);
+}
+
+int ExcluirProd(FILE *reg_produtos)
+{
+    if ((reg_produtos = fopen("produtos\\produtos.dat", "rb+")) == NULL)
+        return 1;
+
+    Produtos nullprod = {0};
+    Produtos produto;
+
+    int Aux, pos;
+
+    fseek(reg_produtos, 0, SEEK_END);
+    int documentsize = ftell(reg_produtos) / sizeof(Produtos);
+    rewind(reg_produtos);
+
+    conioPrintf(TOPO, VERDE_CLARO, 0, "Exclusao de produtos!");
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do produto a excluir: ");
+    scanf("%d", &Aux);
+
+    pos = BusProdCod(reg_produtos, documentsize, Aux);
+    if (pos != -1)
+    {
+        fseek(reg_produtos, pos * sizeof(Produtos), SEEK_SET);
+        fwrite(&nullprod, sizeof(Produtos), 1, reg_produtos);
+        rewind(reg_produtos);
+
+        FILE *reg_produtos_temp = fopen("produtos\\produtos_temp.dat", "wb+");
+
+        int i = 0;
+        while (i < documentsize)
+        {
+            fseek(reg_produtos, i*sizeof(Produtos), SEEK_SET);
+            fread(&produto, sizeof(Produtos), 1, reg_produtos);
+            if (produto.CodProd > 0)
+                fwrite(&produto, sizeof(Produtos), 1, reg_produtos_temp);
+            i++;
+        }
+
+        fclose(reg_produtos);
+        fclose(reg_produtos_temp);
+        remove("produtos\\produtos.dat");
+        rename("produtos\\produtos_temp.dat", "produtos\\produtos.dat");
+
+        conioPrintf(ALERTA, VERDE, 0, "Produto excluido com sucesso!");
+    }
+    else
+        conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
+
+    fclose(reg_produtos);
+    getch();
+    return 0;
 }
 
 int ConsultaProd(FILE *reg_produtos)
@@ -1488,9 +1515,9 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 case 'B':
                     ConsultaProd(produtos);
                     break;
-                // case 'C':
-                //     ExcluirProd(index_produtos, TL_produtos);
-                //     break;
+                case 'C':
+                    ExcluirProd(produtos);
+                    break;
                 case 'D':
                     AlterarProdCadastrado(produtos);
                     break;
