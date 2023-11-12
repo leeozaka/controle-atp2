@@ -856,26 +856,6 @@ int BusProdCod(FILE *reg_produtos, int TL, int CodProd)
 //     }
 // }
 
-// void ConsultaProd(Produtos produtos[], int TL)
-// {
-//     int ponto, i;
-//     conioPrintf(TOPO, ROSA, 0, "Consulta de Produto!");
-//     conioPrintf(MENU_RIGHT, BRANCO, 0, "Cod. a ser consultado: ");
-//     scanf("%d", &ponto);
-
-//     i = BusProdCod(produtos, TL, ponto);
-
-//     if (i >= 0)
-//     {
-//         conioPrintf(MENU_RIGHT, BRANCO, 1, "Codigo: %d", produtos[i].CodProd);
-//         puts(produtos[i].Desc);
-//         conioPrintf(MENU_RIGHT, BRANCO, 2, "Quantidade em estoque:%d\n", produtos[i].Estoque);
-//         conioPrintf(MENU_RIGHT, BRANCO, 3, "%d %d %d", produtos[i].DtValidade.Dia, produtos[i].DtValidade.Mes, produtos[i].DtValidade.Ano);
-//     }
-//     else
-//         conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
-// }
-
 void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
 {
     if ((reg_produtos = fopen("produtos\\produtos.dat", "rb+")) == NULL)
@@ -944,8 +924,6 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
 
                     fseek(reg_produtos, 0, SEEK_END);
                     fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
-
-                    conioPrintf(ALERTA, VERDE, 0, "Fornecedor Cadastrado!");
                     getch();
                 }
                 else
@@ -979,6 +957,41 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
         scanf("%d", &AuxCod);
     }
     fclose(reg_produtos);
+}
+
+int ConsultaProd(FILE *reg_produtos)
+{
+    if ((reg_produtos = fopen("produtos\\produtos.dat", "rb+")) == NULL)
+        return 1;
+
+    int ponto, i;
+    Produtos produto;
+
+    conioPrintf(TOPO, ROSA, 0, "Consulta de Produto!");
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "Cod. a ser consultado: ");
+    scanf("%d", &ponto);
+
+    fseek(reg_produtos, 0, SEEK_END);
+    int documentsize = ftell(reg_produtos) / sizeof(Produtos);
+
+    i = BusProdCod(reg_produtos, documentsize, ponto);
+
+    if (i >= 0)
+    {
+        fseek(reg_produtos, i * sizeof(Produtos), SEEK_SET);
+        fread(&produto,sizeof(Produtos), 1, reg_produtos);
+
+        conioPrintf(MENU_RIGHT, BRANCO, 1, "Codigo: %d", produto.CodProd);
+        conioPrintf(MENU_RIGHT, BRANCO, 2, "Descricao: %s", produto.Desc);
+        conioPrintf(MENU_RIGHT, BRANCO, 3, "Quantidade em estoque: %d", produto.Estoque);
+        conioPrintf(MENU_RIGHT, BRANCO, 4, "Validade: %d/%d/%d", produto.DtValidade.Dia, produto.DtValidade.Mes, produto.DtValidade.Ano);
+    }
+    else
+        conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
+
+    getch();
+    fclose(reg_produtos);
+    return 0;
 }
 
 void produtosPercent(Produtos index_produtos[], Fornecedores index_fornecedores[], int TL_produtos, int TL_fornecedores);
@@ -1442,11 +1455,10 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 case 'A':
                     CadastraProd(produtos, fornecedores);
                     break;
-                    /*
                 case 'B':
-                    ConsultaProd(index_produtos, TL_produtos);
-                    getch();
+                    ConsultaProd(produtos);
                     break;
+                    /*
                 case 'C':
                     ExcluirProd(index_produtos, TL_produtos);
                     getch();
