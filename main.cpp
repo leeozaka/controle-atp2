@@ -402,7 +402,7 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod)
     codforn = abs(codforn);
     do
     {
-        if (find_fornecedores(reg_fornecedores, fornecedor, codforn, busca, LOGIC))
+        if (find_fornecedores(reg_fornecedores, fornecedor, codforn, busca, LOGIC) || codforn == 0)
         {
             conioPrintf(SWITCHER, VERMELHO, 0, "Cod. Ja existente!");
 
@@ -459,18 +459,18 @@ int ExcluirFornecedor(FILE *reg_fornecedores, FILE *reg_produtos)
             fwrite(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
             
             int produtos_size = fsizer(reg_produtos,sizeof(Produtos), SET, LOGIC);
-            int i = 0;
-            do {
-                fread(&produto, sizeof(Produtos),1,reg_produtos);
-                if (produto.flag && produto.CodForn == cod){
+
+            //busca e deleta logicamente produtos com o cod. do forn. 
+            for (int i = 0 ; i < produtos_size ; i++) {
+                if (find_produtos(reg_produtos, produto, cod, pos, BYTE)) {
                     produto.flag = false;
-                    fseek(reg_produtos,0-sizeof(Produtos),SEEK_CUR);
-                    fwrite(&produto, sizeof(Produtos),1,reg_produtos);
+                    fseek(reg_produtos,pos, SEEK_SET);
+                    fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
                 }
-                i++;
-            } while (i < produtos_size);
+            }
 
             conioPrintf(SWITCHER, VERDE, 0, "Fornecedor/produtos removido(s)!");
+            fclose(reg_produtos);
             fclose(reg_fornecedores);
             getch();
 
@@ -575,7 +575,6 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
 
     while (AuxCod > 0)
     {
-        // pos = BusProdCod(reg_produtos, prodsize, AuxCod);
         if (!find_produtos(reg_produtos, produto, AuxCod, pos, LOGIC))
         {
             produto.CodProd = AuxCod;
@@ -597,13 +596,14 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
 
             conioPrintf(MENU_RIGHT, BRANCO, 5, "Busca fornecedor, cod: ");
             fflush(stdin);
-            scanf("%d", &helper);
+            scanf(" %d", &helper);
 
             produto.flag = true;
 
             if (!find_fornecedores(reg_fornecedores, fornecedor, helper, codigo, LOGIC))
             {
                 conioPrintf(MENU_RIGHT, BRANCO, 6, "Fornecedor nao encontrado. Cadastrar fornecedor? S/N");
+                fflush(stdin);
                 arg = toupper(getch());
 
                 if (arg == 'S')
@@ -644,6 +644,7 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
         conioPrintf(MENU_RIGHT, BRANCO, 0, "Codigo: ");
         scanf("%d", &AuxCod);
     }
+    fclose(reg_fornecedores);
     fclose(reg_produtos);
 }
 
