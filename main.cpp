@@ -430,12 +430,14 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod)
     return 0;
 }
 
-int ExcluirFornecedor(FILE *reg_fornecedores)
+int ExcluirFornecedor(FILE *reg_fornecedores, FILE *reg_produtos)
 {
     if ((reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+")) == NULL)
         return 1;
+    reg_produtos = fopen("produtos\\produtos.dat", "rb+");
 
     Fornecedores fornecedor;
+    Produtos produto;
 
     int cod, pos;
     int fornecedores_size = fsizer(reg_fornecedores, sizeof(Fornecedores), SET, BYTE);
@@ -455,9 +457,24 @@ int ExcluirFornecedor(FILE *reg_fornecedores)
             fornecedor.flag = false;
             fseek(reg_fornecedores, pos, SEEK_SET);
             fwrite(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
-            conioPrintf(SWITCHER, VERDE, 0, "Fornecedor removido!");
+            
+            int produtos_size = fsizer(reg_produtos,sizeof(Produtos), SET, LOGIC);
+            int i = 0;
+            do {
+                fread(&produto, sizeof(Produtos),1,reg_produtos);
+                if (produto.flag && produto.CodForn == cod){
+                    produto.flag = false;
+                    fseek(reg_produtos,0-sizeof(Produtos),SEEK_CUR);
+                    fwrite(&produto, sizeof(Produtos),1,reg_produtos);
+                }
+                i++;
+            } while (i < produtos_size);
+
+            conioPrintf(SWITCHER, VERDE, 0, "Fornecedor/produtos removido(s)!");
             fclose(reg_fornecedores);
             getch();
+
+            
         }
         else
         {
@@ -1215,7 +1232,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     ConsultaFornecedor(fornecedores);
                     break;
                 case 'C':
-                    ExcluirFornecedor(fornecedores);
+                    ExcluirFornecedor(fornecedores, produtos);
                     break;
                 case 'D':
                     AlterarDadosFornecedor(fornecedores);
