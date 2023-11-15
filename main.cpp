@@ -9,12 +9,6 @@
 #include "fcontrol.h"
 #include "draw.h"
 
-
-static inline bool Compara(int vet, int size)
-{
-    return vet < size ? true : false;
-}
-
 int validarCPF(char cpf[11])
 {
     int i, digito1 = 0, digito2 = 0, helper, soma;
@@ -483,7 +477,7 @@ int ExcluirFornecedor(FILE *reg_fornecedores)
     fflush(stdin);
     scanf("%d", &cod);
 
-    if (find_fornecedores(reg_fornecedores,fornecedor, cod, pos))
+    if (find_fornecedores(reg_fornecedores, fornecedor, cod, pos))
     {
         fseek(reg_fornecedores, pos * sizeof(Fornecedores), SEEK_SET);
         fread(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
@@ -588,21 +582,6 @@ void RelatorioProdutos(FILE *reg_produtos);
 //     getch();
 // }
 
-int BusProdCod(FILE *reg_produtos, int TL, int CodProd)
-{
-    Produtos produto;
-
-    int i = 0;
-    while (i < TL)
-    {
-        fread(&produto, sizeof(Produtos), 1, reg_produtos);
-        if (produto.CodProd == CodProd)
-            return i;
-        i++;
-    }
-    return -1;
-}
-
 void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
 {
     if ((reg_produtos = fopen("produtos\\produtos.dat", "rb+")) == NULL)
@@ -627,8 +606,8 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
 
     while (AuxCod > 0)
     {
-        pos = BusProdCod(reg_produtos, prodsize, AuxCod);
-        if (pos == -1)
+        // pos = BusProdCod(reg_produtos, prodsize, AuxCod);
+        if (find_produtos(reg_produtos, produto, AuxCod, pos))
         {
             produto.CodProd = AuxCod;
             conioPrintf(MENU_RIGHT, BRANCO, 1, "Descricao: ");
@@ -714,8 +693,7 @@ int ExcluirProd(FILE *reg_produtos)
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do produto a excluir: ");
     scanf("%d", &Aux);
 
-    pos = BusProdCod(reg_produtos, documentsize, Aux);
-    if (pos != -1)
+    if (find_produtos(reg_produtos, produto, Aux, pos))
     {
         fseek(reg_produtos, pos * sizeof(Produtos), SEEK_SET);
         fwrite(&nullprod, sizeof(Produtos), 1, reg_produtos);
@@ -762,9 +740,7 @@ int ConsultaProd(FILE *reg_produtos)
 
     int documentsize = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
 
-    i = BusProdCod(reg_produtos, documentsize, ponto);
-
-    if (i >= 0)
+    if (find_produtos(reg_produtos, produto, ponto, i))
     {
         fseek(reg_produtos, i * sizeof(Produtos), SEEK_SET);
         fread(&produto, sizeof(Produtos), 1, reg_produtos);
@@ -805,8 +781,8 @@ int AlterarProdCadastrado(FILE *reg_produtos)
 
     while (Aux > 0)
     {
-        pos = BusProdCod(reg_produtos, documentsize, Aux);
-        if (pos == -1)
+        // pos = BusProdCod(reg_produtos, documentsize, Aux);
+        if (find_produtos(reg_produtos, produto, Aux, pos))
         {
             conioPrintf(SWITCHER, VERMELHO, 0, "Erro ao procurar pelo Codigo!");
             getch();

@@ -71,12 +71,17 @@ struct Vendas_Produtos
     bool flag;
 };
 
+static inline bool Compara(int vet, int size)
+{
+    return vet < size ? true : false;
+}
+
 // pega o arquivo, le, posiciona o cursor e retorna o tamanho
 //@param ref arquivo aberto para leitura
 //@param size Tamanho da estrutura
 //@param dir: SET CUR e END Posicao final do ponteiro no arquivo
 //@param tipo_retorno LOGIC ou BYTE: tamanho logico ou tamanho em bytes retornados
-static inline int fsizer(FILE *ref, int size, POS_SET dir, SIZE_LOGIC tipo_retorno)
+static int fsizer(FILE *ref, int size, POS_SET dir, SIZE_LOGIC tipo_retorno)
 {
     fseek(ref, 0, SEEK_END);
     int contagem = ftell(ref);
@@ -125,6 +130,23 @@ static bool find_fornecedores(FILE *reg_fornecedores, Fornecedores &fornecedor, 
     {
         fread(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
         if (elemento == fornecedor.CodForn)
+        {
+            pos = run;
+            return true;
+        }
+        run++;
+    }
+    return false;
+}
+
+static bool find_produtos(FILE *reg_produtos, Produtos &produto, int find, int &pos)
+{
+    int run = 0;
+    int TL = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
+    while (run < TL)
+    {
+        fread(&produto, sizeof(Produtos), 1, reg_produtos);
+        if (find == produto.CodProd)
         {
             pos = run;
             return true;
