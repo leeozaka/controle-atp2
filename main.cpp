@@ -5,9 +5,9 @@
 
 // issues em README.md
 
-#include "conioprintf.h"
-#include "fcontrol.h"
-#include "draw.h"
+#include "includes\\conioprintf.h"
+#include "includes\\fcontrol.h"
+#include "includes\\draw.h"
 
 int validarCPF(char cpf[11])
 {
@@ -44,6 +44,21 @@ int validarCPF(char cpf[11])
         }
     }
     return 1;
+}
+
+// funciona como <string.h> strcmp()
+double comparaData(int ano1, int mes1, int dia1, int ano2, int mes2, int dia2)
+{
+    struct tm data1 = {0};
+    data1.tm_year = ano1 - 1900;
+    data1.tm_mon = mes1 - 1;
+    data1.tm_mday = dia1;
+
+    struct tm data2 = {0};
+    data2.tm_year = ano2 - 1900;
+    data2.tm_mon = mes2 - 1;
+    data2.tm_mday = dia2;
+    return difftime((mktime(&data2)), mktime(&data1));
 }
 
 int CadastraCliente(FILE *reg_clientes)
@@ -457,14 +472,16 @@ int ExcluirFornecedor(FILE *reg_fornecedores, FILE *reg_produtos)
             fornecedor.flag = false;
             fseek(reg_fornecedores, pos, SEEK_SET);
             fwrite(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
-            
-            int produtos_size = fsizer(reg_produtos,sizeof(Produtos), SET, LOGIC);
 
-            //busca e deleta logicamente produtos com o cod. do forn. 
-            for (int i = 0 ; i < produtos_size ; i++) {
-                if (find_produtos(reg_produtos, produto, cod, pos, BYTE)) {
+            int produtos_size = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
+
+            // busca e deleta logicamente produtos com o cod. do forn.
+            for (int i = 0; i < produtos_size; i++)
+            {
+                if (find_produtos(reg_produtos, produto, cod, pos, BYTE))
+                {
                     produto.flag = false;
-                    fseek(reg_produtos,pos, SEEK_SET);
+                    fseek(reg_produtos, pos, SEEK_SET);
                     fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
                 }
             }
@@ -473,8 +490,6 @@ int ExcluirFornecedor(FILE *reg_fornecedores, FILE *reg_produtos)
             fclose(reg_produtos);
             fclose(reg_fornecedores);
             getch();
-
-            
         }
         else
         {
@@ -529,27 +544,6 @@ int RelatorioFornecedores(FILE *reg_fornecedores)
     fclose(reg_fornecedores);
     return 0;
 }
-
-void RelatorioProdutos(FILE *reg_produtos);
-// {
-//     int i, TL;
-//     clrscr();
-//     printf("\nRelatorio de Produtos\n");
-//     if (TL == 0)
-//         printf("\nNao ha Produtos Cadastrados!\n");
-//     else
-//         for (i = 0; i < TL; i++)
-//         {
-//             printf("\nCodigo de Venda: %d\n", Vendas[i].CodVenda);
-//             printf("Produtos: \n%d\n", );
-//             printf("%s\n", Produtos[i].Descr);
-//             printf("%d\n", Produtos[i].Estoque);
-//             printf("R$ %.2f\n", Produtos[i].Preco);
-//             printf("%s\n", Produtos[i].NomeForn);
-//             printf("%f\n", Produtos[i].Preco);
-//         }
-//     getch();
-// }
 
 void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
 {
@@ -878,19 +872,38 @@ int produtosPercent(FILE *reg_produtos, FILE *reg_fornecedores)
     return 0;
 }
 
-// funciona como <string.h> strcmp()
-int comparaData(int ano1, int mes1, int dia1, int ano2, int mes2, int dia2)
+int RelatorioProdutos(FILE *reg_produtos)
 {
-    struct tm data1 = {0};
-    data1.tm_year = ano1 - 1900;
-    data1.tm_mon = mes1 - 1;
-    data1.tm_mday = dia1;
+    if ((reg_produtos = fopen("produtos\\produtos.dat", "rb")) == NULL)
+        return 1;
 
-    struct tm data2 = {0};
-    data2.tm_year = ano2 - 1900;
-    data2.tm_mon = mes2 - 1;
-    data2.tm_mday = dia2;
-    return difftime((mktime(&data2)), mktime(&data1));
+    conioPrintf(TOPO, ROSA_CLARO, 0, "Relatorio de Produtos!");
+    Produtos produto, highscore = {0};
+
+    // Relatorio de produtos:
+    // Quantidade total de produtos cadastrados, estoque total, preço total da mercadoria, produto mais proximo do venc.
+    int total_produtos = 0, total_estoque = 0;
+    float media_precos = 0;
+    double total_preco = 0;
+
+    int produtos_size = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
+
+    for (int i = 0; i < produtos_size; i++)
+    {
+        fread(&produto, sizeof(Produtos), 1, reg_produtos);
+        if (produto.flag)
+        {
+            total_produtos++;
+            total_estoque += produto.Estoque;
+            total_preco += produto.Preco;
+            media_precos = (media_precos + produto.Preco) / 2;
+            if (produto.Preco > highscore.Preco)
+            {
+                highscore = produto;
+            }
+
+        }
+    }
 }
 
 // int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos rootProdutos[], Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], int TLclientes, int TLfornecedores, int TLprodutos, int &TLvendas, int &TLvendasprod)
@@ -1244,7 +1257,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 case 27:
                     break;
                 default:
-                    conioPrintf(ALERTA, VERMELHO, 0, "##INEXISTENTE!## Selecione novamente");
+                    conioPrintf(ALERTA, VERMELHO, 0, "INEXISTENTE! Selecione novamente");
                     getch();
                 }
             } while (opc != 27);
@@ -1282,12 +1295,12 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     produtosPercent(produtos, fornecedores);
                     break;
                 case 'F':
-                    // RelatorioProdutos(produtos);
+                    RelatorioProdutos(produtos);
                     break;
                 case 27:
                     break;
                 default:
-                    conioPrintf(SWITCHER, VERMELHO, 0, "##INEXISTENTE!## Selecione novamente");
+                    conioPrintf(SWITCHER, VERMELHO, 0, "INEXISTENTE! Selecione novamente");
                     getch();
                     break;
                 }
@@ -1332,7 +1345,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
             //     case 27:
             //         break;
             //     default:
-            //         conioPrintf(SWITCHER, VERMELHO, 0, "##INEXISTENTE!## Selecione novamente");
+            //         conioPrintf(SWITCHER, VERMELHO, 0, "INEXISTENTE! Selecione novamente");
             //         getch();
             //         break;
             //     }
