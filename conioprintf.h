@@ -4,6 +4,8 @@
 #include <string.h>
 #include <conio2.h>
 
+#define CONIOPRINTF
+
 enum cores
 {
     PRETO,
