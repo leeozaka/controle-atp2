@@ -12,7 +12,6 @@
 
 #define TF 300
 #define QUANT 40
-
 #define BUFFER 50
 
 struct Fornecedores
@@ -20,6 +19,7 @@ struct Fornecedores
     int CodForn;
     char NomeForn[QUANT];
     char Cidade[QUANT];
+    bool flag;
 };
 
 struct TpData
@@ -34,6 +34,7 @@ struct Produtos
     float Preco;
     TpData DtValidade;
     int CodForn;
+    bool flag;
 };
 
 struct Clientes
@@ -42,6 +43,7 @@ struct Clientes
     char NomeCli[QUANT];
     int QtdeCompras;
     double ValorTotComprado;
+    bool flag;
 };
 
 struct Vendas
@@ -58,6 +60,7 @@ struct Vendas_Produtos
     int CodProd;
     int Qtde;
     float ValorUnitario;
+    bool flag;
 };
 bool Compara(int vet, int size)
 {
@@ -178,7 +181,7 @@ int CadastraCliente(FILE *reg_clientes)
                 if (strcmp(CPF, cliente.CPF) == 0)
                     validar = 1;
             }
-            if (!!validar)
+            if (validar)
             {
                 conioPrintf(ALERTA, VERMELHO, 0, "CPF ja cadastrado");
                 getch();
@@ -193,6 +196,7 @@ int CadastraCliente(FILE *reg_clientes)
 
         cliente.QtdeCompras = 0;
         cliente.ValorTotComprado = 0;
+        cliente.flag = true;
 
         fseek(reg_clientes, 0, SEEK_END);
         fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
@@ -228,14 +232,14 @@ int ConsultaClientes(FILE *reg_clientes)
         fread(&cliente, sizeof(Clientes), 1, reg_clientes);
     while (!feof(reg_clientes) && strcmp(cliente.CPF, cpf));
 
-    if (!feof(reg_clientes))
+    if (!feof(reg_clientes) && cliente.flag)
     {
         conioPrintf(MENU_RIGHT, BRANCO, 1, "Cliente: %s", cliente.NomeCli);
         conioPrintf(MENU_RIGHT, BRANCO, 2, "%s", cliente.CPF);
         conioPrintf(MENU_RIGHT, BRANCO, 3, "%d compras %f total", cliente.QtdeCompras, cliente.ValorTotComprado);
     }
     else
-        conioPrintf(ALERTA, VERMELHO, 0, "cliente not found");
+        conioPrintf(ALERTA, VERMELHO, 0, "Cliente not found");
 
     fclose(reg_clientes);
     getch();
@@ -262,16 +266,14 @@ int EditaClientes(FILE *reg_clientes)
     if (validarCPF(cpf))
     {
         fseek(reg_clientes, 0, SEEK_SET);
-        while (!feof(reg_clientes))
+        do
         {
             fread(&cliente, sizeof(Clientes), 1, reg_clientes);
-            if (strcmp(cliente.CPF, cpf) == 0)
-            {
+            if (!strcmp(cliente.CPF, cpf))
                 pos = ftell(reg_clientes) - sizeof(Clientes);
-                break;
-            }
-        }
-        if (ftell(reg_clientes) == EOF)
+        } while (!feof(reg_clientes));
+    
+        if (ftell(reg_clientes) == EOF || cliente.flag)
         {
             conioPrintf(SWITCHER, VERMELHO, 0, "Cliente Inexistente");
             getch();
@@ -317,7 +319,6 @@ int DeletaClientes(FILE *reg_clientes)
         return 1;
 
     Clientes cliente;
-    Clientes nullclient = {0};
 
     char cpf[12];
     int pos;
@@ -328,9 +329,6 @@ int DeletaClientes(FILE *reg_clientes)
     fflush(stdin);
     fgets(cpf, 12, stdin);
 
-    // fseek(reg_clientes, 0, SEEK_END);
-    // int documentsize = ftell(reg_clientes) / sizeof(Clientes);
-    // rewind(reg_clientes);
     int documentsize = fsizer(reg_clientes, sizeof(Clientes), SET, LOGIC);
 
     while (fread(&cliente, sizeof(Clientes), 1, reg_clientes))
@@ -342,26 +340,33 @@ int DeletaClientes(FILE *reg_clientes)
         }
     }
 
-    if (find == true)
+    if (find == true && !cliente.flag)
     {
-        FILE *reg_clientes_tmp = fopen("clientes\\clientes_temp.dat", "wb+");
-        fseek(reg_clientes, pos, SEEK_SET);
-        fwrite(&nullclient, sizeof(Clientes), 1, reg_clientes);
-
-        int i = 0;
-        while (i < documentsize)
+        // FILE *reg_clientes_tmp = fopen("clientes\\clientes_temp.dat", "wb+");
+        conioPrintf(MENU_RIGHT, VERMELHO, 1, "Deletar %s?  S/N", cliente.NomeCli);
+        if ((toupper(getch())) == 'S')
         {
-            fseek(reg_clientes, i * sizeof(Clientes), SEEK_SET);
-            fread(&cliente, sizeof(Clientes), 1, reg_clientes);
-            if (!strcmp(cliente.CPF, nullclient.CPF))
-                fwrite(&cliente, sizeof(Clientes), 1, reg_clientes_tmp);
-            i++;
+            cliente.flag = false;
+            fseek(reg_clientes, pos, SEEK_SET);
+            fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
+            fclose(reg_clientes);
+            conioPrintf(ALERTA, VERDE, 0, "Cliente removido!");
+            getch();
         }
 
-        fclose(reg_clientes);
-        fclose(reg_clientes_tmp);
-        remove("clientes\\clientes.dat");
-        rename("clientes\\clientes_temp.dat", "clientes\\clientes.dat");
+        // int i = 0;
+        // while (i < documentsize)
+        // {
+        //     fseek(reg_clientes, i * sizeof(Clientes), SEEK_SET);
+        //     fread(&cliente, sizeof(Clientes), 1, reg_clientes);
+        //     if (!strcmp(cliente.CPF, nullclient.CPF))
+        //         fwrite(&cliente, sizeof(Clientes), 1, reg_clientes_tmp);
+        //     i++;
+        // }
+
+        // fclose(reg_clientes_tmp);
+        // remove("clientes\\clientes.dat");
+        // rename("clientes\\clientes_temp.dat", "clientes\\clientes.dat");
     }
     else
     {
@@ -387,7 +392,7 @@ int RelatorioClientes(FILE *reg_clientes)
     while (run < documentsize)
     {
         fread(&cliente, sizeof(Clientes), 1, reg_clientes);
-        if (validarCPF(cliente.CPF))
+        if (validarCPF(cliente.CPF) && cliente.flag)
         {
             quantidade++;
             valorcompratotal += cliente.ValorTotComprado;
@@ -602,6 +607,7 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod)
     conioPrintf(MENU_RIGHT, BRANCO, 2, "Cidade: ");
     fflush(stdin);
     gets(fornecedor.Cidade);
+    fornecedor.flag = true;
 
     fseek(reg_fornecedores, 0, SEEK_END);
     fwrite(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
@@ -718,7 +724,7 @@ int RelatorioFornecedores(FILE *reg_fornecedores)
 
 void RelatorioProdutos(FILE *reg_produtos);
 // {
-//     int i;
+//     int i, TL;
 //     clrscr();
 //     printf("\nRelatorio de Produtos\n");
 //     if (TL == 0)
@@ -799,6 +805,8 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
             fflush(stdin);
             scanf("%d", &helper);
 
+            produto.flag = true;
+
             codigo = getFornCod(reg_fornecedores, fornsize, helper);
 
             if (codigo == -1)
@@ -856,10 +864,7 @@ int ExcluirProd(FILE *reg_produtos)
     Produtos produto;
 
     int Aux, pos;
-
-    fseek(reg_produtos, 0, SEEK_END);
-    int documentsize = ftell(reg_produtos) / sizeof(Produtos);
-    rewind(reg_produtos);
+    int documentsize = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
 
     conioPrintf(TOPO, VERDE_CLARO, 0, "Exclusao de produtos!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do produto a excluir: ");
@@ -1383,7 +1388,6 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
         vendas_size = 0;
     else
         vendas_size = fsizer(vendas, sizeof(Vendas), SET, LOGIC);
-    
 
     conioPrintf(TOPO, VERDE, 0, "%s %d", "Vendas:", vendas_size);
     conioPrintf(SWITCHER, VERDE, 0, "Selecione um item:");
@@ -1504,7 +1508,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     produtosPercent(produtos, fornecedores);
                     break;
                 case 'F':
-                    RelatorioProdutos(produtos);
+                    // RelatorioProdutos(produtos);
                     break;
                 case 27:
                     break;

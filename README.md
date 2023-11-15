@@ -3,5 +3,3 @@ to-do: ;
 - controle de vendas com chaves em C;
 
 - refatorando programa para arquivos binarios
-
-- criar funcao int fsizer(arquivo, &tamanhodaestrutura, rewind true/false)

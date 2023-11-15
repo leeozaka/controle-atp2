@@ -24,7 +24,7 @@ static inline int fsizer(FILE *ref, int size, POS_SET dir, SIZE_LOGIC tipo_retor
     int contagem = ftell(ref);
     switch (dir)
     {
-    case SET: // seta a partir de um offset
+    case SET:
         fseek(ref, 0, SEEK_SET);
         break;
     case CUR:
