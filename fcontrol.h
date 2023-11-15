@@ -3,73 +3,9 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "data.h"
+
 #define FCONTROL
-
-enum POS_SET
-{
-    SET,
-    CUR,
-    END
-};
-
-enum SIZE_LOGIC
-{
-    LOGIC,
-    BYTE
-};
-
-#define TF 300
-#define QUANT 40
-#define BUFFER 50
-
-struct Fornecedores
-{
-    int CodForn;
-    char NomeForn[QUANT];
-    char Cidade[QUANT];
-    bool flag;
-};
-
-struct TpData
-{
-    int Dia, Mes, Ano;
-};
-
-struct Produtos
-{
-    int CodProd, Estoque;
-    char Desc[QUANT];
-    float Preco;
-    TpData DtValidade;
-    int CodForn;
-    bool flag;
-};
-
-struct Clientes
-{
-    char CPF[12];
-    char NomeCli[QUANT];
-    int QtdeCompras;
-    double ValorTotComprado;
-    bool flag;
-};
-
-struct Vendas
-{
-    int CodVenda;
-    char CPF[12];
-    TpData DtVenda;
-    float TotVenda;
-};
-
-struct Vendas_Produtos
-{
-    int CodVenda;
-    int CodProd;
-    int Qtde;
-    float ValorUnitario;
-    bool flag;
-};
 
 static inline bool Compara(int vet, int size)
 {
@@ -106,7 +42,13 @@ static int fsizer(FILE *ref, int size, POS_SET dir, SIZE_LOGIC tipo_retorno)
     return contagem;
 }
 
-static bool find_clientes(FILE *busca, Clientes &cliente, char *elemento, int &pos)
+//retorna true se encontrar
+//@param busca recebe um arquivo aberto
+//@param cliente variavel armazenada do cliente atual lido
+//@param elemento cpf a ser consultado
+//@param pos posicao a retornar na variavel
+//@param res BYTE ou LOGIC - retorna a posicao em bytes em pos ou em posicao logica
+static bool find_clientes(FILE *busca, Clientes &cliente, char *elemento, int &pos, SIZE_LOGIC res)
 {
     int TL = fsizer(busca, sizeof(Clientes), SET, LOGIC);
     for (int i = 0; i < TL; i++)
@@ -114,14 +56,20 @@ static bool find_clientes(FILE *busca, Clientes &cliente, char *elemento, int &p
         fread(&cliente, sizeof(Clientes), 1, busca);
         if (!strcmp(elemento, cliente.CPF) && cliente.flag)
         {
-            pos = i;
+            res == BYTE ? pos = i * sizeof(Clientes) : pos = i;
             return true;
         }
     }
     return false;
 }
 
-static bool find_fornecedores(FILE *reg_fornecedores, Fornecedores &fornecedor, int elemento, int &pos)
+//retorna true se encontrar
+//@param busca recebe um arquivo aberto
+//@param fornecedor variavel armazenada do fornecedor atual lido
+//@param elemento cod a ser consultado
+//@param pos posicao a retornar na variavel
+//@param res BYTE ou LOGIC - retorna a posicao em bytes em pos ou em posicao logica
+static bool find_fornecedores(FILE *reg_fornecedores, Fornecedores &fornecedor, int elemento, int &pos, SIZE_LOGIC res)
 {
     int run = 0;
     int TL = fsizer(reg_fornecedores, sizeof(Fornecedores), SET, LOGIC);
@@ -129,9 +77,9 @@ static bool find_fornecedores(FILE *reg_fornecedores, Fornecedores &fornecedor, 
     while (run < TL)
     {
         fread(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
-        if (elemento == fornecedor.CodForn)
+        if (elemento == fornecedor.CodForn && fornecedor.flag)
         {
-            pos = run;
+            res == BYTE ? pos = run * sizeof(Fornecedores) : pos = run;
             return true;
         }
         run++;
@@ -139,16 +87,22 @@ static bool find_fornecedores(FILE *reg_fornecedores, Fornecedores &fornecedor, 
     return false;
 }
 
-static bool find_produtos(FILE *reg_produtos, Produtos &produto, int find, int &pos)
+//retorna true se encontrar
+//@param busca recebe um arquivo aberto
+//@param produto variavel armazenada do produto atual lido
+//@param find cod a ser consultado
+//@param pos posicao a retornar na variavel
+//@param res BYTE ou LOGIC - retorna a posicao em bytes em pos ou em posicao logica
+static bool find_produtos(FILE *reg_produtos, Produtos &produto, int find, int &pos, SIZE_LOGIC res)
 {
     int run = 0;
     int TL = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
     while (run < TL)
     {
         fread(&produto, sizeof(Produtos), 1, reg_produtos);
-        if (find == produto.CodProd)
+        if (find == produto.CodProd && produto.flag)
         {
-            pos = run;
+            res == BYTE ? pos = run * sizeof(Produtos) : pos = run;
             return true;
         }
         run++;
