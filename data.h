@@ -58,6 +58,7 @@ struct Vendas
     char CPF[12];
     TpData DtVenda;
     float TotVenda;
+    bool flag;
 };
 
 struct Vendas_Produtos
