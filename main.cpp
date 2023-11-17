@@ -937,7 +937,7 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
     struct tm tm = *localtime(&t);
     TpData construtor_data, input;
     bool pass;
-    
+
     conioPrintf(TOPO, ROSA, 0, "Nova Venda!!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF do Cliente: ");
     fflush(stdin);
@@ -946,17 +946,14 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
     validarCPF(cpf) == 1 ? pass = true : pass = false;
     if (pass == true)
     {
-        // pos_cliente = getPosClientes(rootClientes, TLclientes, cpf);
-
-        if (pos_cliente >= 0)
+        if (find_clientes(reg_clientes, cliente, cpf, pos_cliente, BYTE))
         {
             clearElement(RIGHTSIDE);
-            conioPrintf(MENU_RIGHT, BRANCO, 0, "Cliente: %s", rootClientes[pos_cliente].NomeCli);
+            conioPrintf(MENU_RIGHT, BRANCO, 0, "Cliente: %s", cliente.NomeCli);
             conioPrintf(MENU_RIGHT, BRANCO, 1, "[A] - Usar a data atual para a venda");
             conioPrintf(MENU_RIGHT, BRANCO, 2, "[B] - Data personalizada;");
             fflush(stdin);
-            datahelper = getch();
-            datahelper = toupper(datahelper);
+            datahelper = toupper(getch());
             pass = false;
             do
             {
