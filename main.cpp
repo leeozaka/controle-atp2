@@ -881,12 +881,12 @@ int RelatorioProdutos(FILE *reg_produtos)
     Produtos produto, highscore = {0};
 
     // Relatorio de produtos:
-    // Quantidade total de produtos cadastrados, estoque total, preço total da mercadoria, produto mais proximo do venc.
-    int total_produtos = 0, total_estoque = 0;
+    // Quantidade total de produtos cadastrados, estoque total, preço total da mercadoria
+    int total_produtos = 0, total_estoque = 0, produtos_size = 0;
     float media_precos = 0;
     double total_preco = 0;
 
-    int produtos_size = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
+    if ((produtos_size = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC)) == 0) return 0;
 
     for (int i = 0; i < produtos_size; i++)
     {
@@ -901,9 +901,10 @@ int RelatorioProdutos(FILE *reg_produtos)
             {
                 highscore = produto;
             }
-
         }
     }
+
+    
 }
 
 // int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos rootProdutos[], Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], int TLclientes, int TLfornecedores, int TLprodutos, int &TLvendas, int &TLvendasprod)
