@@ -1,6 +1,8 @@
 // commit history available in
 // github.com/leeozaka/controle-atp2;
 
+//vscode tokyo-night-vim-ported
+
 // Leonardo Neves - 262310406
 
 // issues em README.md
@@ -81,9 +83,7 @@ int CadastraCliente(FILE *reg_clientes)
         if (find_clientes(reg_clientes, cliente, CPF, pos, BYTE))
         {
             conioPrintf(ALERTA, VERMELHO, 0, "CPF ja cadastrado");
-            getch();
-            fclose(reg_clientes);
-            return 0;
+            return getchclose(reg_clientes);
         }
         strcpy(cliente.CPF, CPF);
 
@@ -99,18 +99,13 @@ int CadastraCliente(FILE *reg_clientes)
         fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
 
         conioPrintf(ALERTA, VERDE, 0, "Cliente cadastrado com sucesso!");
-        getch();
+        return getchclose(reg_clientes);
     }
     else
     {
         conioPrintf(ALERTA, VERMELHO, 0, "O numero de identificacao informado nao esta correto.");
-        getch();
-        fclose(reg_clientes);
-        return 0;
+        return getchclose(reg_clientes);
     }
-    clearElement(RIGHTSIDE);
-    fclose(reg_clientes);
-    return 1;
 }
 int ConsultaClientes(FILE *reg_clientes)
 {
@@ -137,9 +132,7 @@ int ConsultaClientes(FILE *reg_clientes)
     else
         conioPrintf(ALERTA, VERMELHO, 0, "Cliente not found");
 
-    fclose(reg_clientes);
-    getch();
-    return 0;
+    return getchclose(reg_clientes);
 }
 
 int EditaClientes(FILE *reg_clientes)
@@ -184,7 +177,6 @@ int EditaClientes(FILE *reg_clientes)
             fgets(cliente.NomeCli, BUFFER, stdin);
             fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
             conioPrintf(SWITCHER, VERDE, 0, "Nome atualizado!!");
-            getch();
             break;
         case 'B':
             cliente.QtdeCompras = 0;
@@ -198,8 +190,7 @@ int EditaClientes(FILE *reg_clientes)
     }
     else
         conioPrintf(SWITCHER, VERMELHO, 0, "CPF invalido!");
-    fclose(reg_clientes);
-    getch();
+    return getchclose(reg_clientes);
 }
 
 int DeletaClientes(FILE *reg_clientes)
@@ -235,9 +226,7 @@ int DeletaClientes(FILE *reg_clientes)
     else
     {
         conioPrintf(ALERTA, VERMELHO, 0, "Cliente nao encontrado!");
-        getch();
-        fclose(reg_clientes);
-        return 1;
+        return getchclose(reg_clientes);
     }
 }
 
@@ -284,9 +273,8 @@ int RelatorioClientes(FILE *reg_clientes)
     }
     else
         conioPrintf(SWITCHER, VERMELHO, 0, "Sem dados a serem exibidos");
-    fclose(reg_clientes);
-    getch();
-    return 0;
+    
+    return getchclose(reg_clientes);
 }
 
 int ConsultaFornecedor(FILE *reg_fornecedores)
@@ -310,16 +298,12 @@ int ConsultaFornecedor(FILE *reg_fornecedores)
         conioPrintf(MENU_RIGHT, BRANCO, 0, "Nome: %s", fornecedor.NomeForn);
         conioPrintf(MENU_RIGHT, BRANCO, 1, "Cidade: %s", fornecedor.Cidade);
 
-        getch();
-        fclose(reg_fornecedores);
-        return 0;
+        return getchclose(reg_fornecedores);
     }
     else
     {
         conioPrintf(ALERTA, ROSA, 0, "Cod. N Encontrado!");
-        getch();
-        fclose(reg_fornecedores);
-        return 0;
+        return getchclose(reg_fornecedores);
     }
 }
 
@@ -375,23 +359,18 @@ int AlterarDadosFornecedor(FILE *reg_fornecedores)
             fclose(reg_fornecedores);
 
             conioPrintf(SWITCHER, VERDE, 0, "Fornecedor %s atualizado!", fornecedor.NomeForn);
-            getch();
-            return 0;
+            return getchclose(reg_fornecedores);
         }
         else
         {
             conioPrintf(ALERTA, VERMELHO, 0, "Cod. n encontrado!");
-            fclose(reg_fornecedores);
-            getch();
-            return 0;
+            return getchclose(reg_fornecedores);
         }
     }
     else
     {
         conioPrintf(ALERTA, VERMELHO, 0, "Arquivo vazio!");
-        fclose(reg_fornecedores);
-        getch();
-        return 1;
+        return getchclose(reg_fornecedores);
     }
 }
 
@@ -440,9 +419,8 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod)
     fwrite(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
 
     conioPrintf(MENU_RIGHT, VERDE, 3, "Fornecedor cod.%d, %s cadastrado!", fornecedor.CodForn, fornecedor.NomeForn);
-    fclose(reg_fornecedores);
-    getch();
-    return 0;
+
+    return getchclose(reg_fornecedores);
 }
 
 int ExcluirFornecedor(FILE *reg_fornecedores, FILE *reg_produtos)
@@ -540,9 +518,8 @@ int RelatorioFornecedores(FILE *reg_fornecedores)
 
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Fornecedores cadastrados: %d", documentsize);
     conioPrintf(MENU_RIGHT, BRANCO, 1, "Quantidade de cidades diferentes: %d", sizeof_cidades);
-    getch();
-    fclose(reg_fornecedores);
-    return 0;
+    
+    return getchclose(reg_fornecedores);
 }
 
 void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores)
@@ -671,9 +648,10 @@ int ExcluirProd(FILE *reg_produtos)
     else
         conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
 
-    fclose(reg_produtos);
-    getch();
-    return 0;
+    return getchclose(reg_produtos);
+    //fclose(reg_produtos);
+    //getch();
+    //return 0;
 }
 
 int ConsultaProd(FILE *reg_produtos)
@@ -705,9 +683,10 @@ int ConsultaProd(FILE *reg_produtos)
     else
         conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
 
-    getch();
-    fclose(reg_produtos);
-    return 0;
+    return getchclose(reg_produtos);
+    //getch();
+    //fclose(reg_produtos);
+    //return 0;
 }
 
 int AlterarProdCadastrado(FILE *reg_produtos)
@@ -882,11 +861,17 @@ int RelatorioProdutos(FILE *reg_produtos)
 
     // Relatorio de produtos:
     // Quantidade total de produtos cadastrados, estoque total, preço total da mercadoria
+
     int total_produtos = 0, total_estoque = 0, produtos_size = 0;
     float media_precos = 0;
     double total_preco = 0;
 
-    if ((produtos_size = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC)) == 0) return 0;
+    if ((produtos_size = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC)) == 0)
+    {
+        fclose(reg_produtos);
+        return 0;
+    } 
+        
 
     for (int i = 0; i < produtos_size; i++)
     {
@@ -904,7 +889,19 @@ int RelatorioProdutos(FILE *reg_produtos)
         }
     }
 
-    
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "Total de produtos cadastrados: %d", total_produtos);
+    conioPrintf(MENU_RIGHT, BRANCO, 1, "Qte. produtos em estoque: %d", total_estoque);
+    conioPrintf(MENU_RIGHT, BRANCO, 2, "Valor tot. em mercadorias: %f", total_preco);
+    conioPrintf(MENU_RIGHT, BRANCO, 3, "Media de precos: %f", media_precos);
+    conioPrintf(MENU_RIGHT, AMARELO, 4, "--------------");
+    conioPrintf(MENU_RIGHT, AMARELO, 5, "Produto mais caro: %s", highscore.Desc);
+    conioPrintf(MENU_RIGHT, AMARELO, 6, "Valor: R$%f", highscore.Preco);
+
+
+    return getchclose(reg_produtos);
+    //getch();
+    //fclose(reg_produtos);
+    //return 0;
 }
 
 // int novaVenda(Clientes rootClientes[], Fornecedores rootFornecedores[], Produtos rootProdutos[], Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], int TLclientes, int TLfornecedores, int TLprodutos, int &TLvendas, int &TLvendasprod)

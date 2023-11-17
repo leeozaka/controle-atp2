@@ -109,3 +109,12 @@ static bool find_produtos(FILE *reg_produtos, Produtos &produto, int find, int &
     }
     return false;
 }
+
+
+//usa getch, em sequencia fecha o arquivo atual e retorna 0
+//@param file arquivo a ser fechado
+inline int getchclose(FILE *file){
+    getch();
+    fclose(file);
+    return 0;
+}
