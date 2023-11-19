@@ -266,7 +266,7 @@ int RelatorioClientes(FILE *reg_clientes)
             conioPrintf(MENU_RIGHT, BRANCO, 4, "Nome: %s", highscore.NomeCli);
             conioPrintf(MENU_RIGHT, BRANCO, 5, "CPF: %s", highscore.CPF);
             conioPrintf(MENU_RIGHT, BRANCO, 6, "Total de Compras: %f", highscore.ValorTotComprado);
-            conioPrintf(MENU_RIGHT, BRANCO, 6, "Quantidade de compras: %f", highscore.QtdeCompras);
+            conioPrintf(MENU_RIGHT, BRANCO, 7, "Quantidade de compras: %d", highscore.QtdeCompras);
         }
     }
     else
@@ -1072,7 +1072,7 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
             }
 
             venda.CodVenda = codigo_venda_atual;
-            strcmp(venda.CPF, cpf);
+            strcpy(venda.CPF, cpf);
             venda.DtVenda = construtor_data;
             venda.TotVenda = valor_variavel;
             venda.flag = true;
@@ -1246,15 +1246,15 @@ void listaClientes(FILE *clientes)
     Clientes cliente;
     int TL = fsizer(clientes, sizeof(Clientes), SET, LOGIC);
     int i = 0;
-    int linha = 1;
-    // for (int i = 0; i < TL && cliente.flag; i++)
+    int linha = 2;
+    printf(" Nome Cliente             |   CPF     |Qtd. Compras| Valor Total Gasto |");
     while (i < TL)
     {
         fread(&cliente, sizeof(Clientes), 1, clientes);
         if (cliente.flag)
         {
             gotoxy(1, linha);
-            printf("                          |           |            |        ");
+            printf("                          |           |            |                   |");
             gotoxy(1, linha);
             printf("%s", cliente.NomeCli);
             gotoxy(28, linha);
@@ -1309,7 +1309,7 @@ void listaProdutos(FILE *produtos)
     int TL = fsizer(produtos, sizeof(Produtos), SET, LOGIC);
     int linha = 2, i = 0;
     gotoxy(1, 1);
-    printf("Cod.|  Nome do Produto  | Preco  | Data de Validade | Fornecedor");
+    printf("Cod.|  Nome do Produto  | Preco  | Data de Validade | Fornecedor | Estoque |");
 
     while (i < TL)
     {
@@ -1317,7 +1317,7 @@ void listaProdutos(FILE *produtos)
         if (produto.flag)
         {
             gotoxy(1, linha);
-            printf("    |                   |        |                  |           ");
+            printf("    |                   |        |                  |            |         |");
             gotoxy(1, linha);
             printf("%d", produto.CodProd);
             gotoxy(7, linha);
@@ -1328,6 +1328,8 @@ void listaProdutos(FILE *produtos)
             printf("%d/%d/%d", produto.DtValidade.Dia, produto.DtValidade.Mes, produto.DtValidade.Ano);
             gotoxy(55, linha);
             printf("%d", produto.CodForn);
+            gotoxy(68, linha);
+            printf("%d", produto.Estoque);
             linha++;
         }
         i++;
@@ -1383,14 +1385,14 @@ void listaVendas(FILE *vendas, FILE *index_vendas)
                     gotoxy(8, linha);
                     find_produtos(produtos, produto, venda_produto.CodProd, lixo, LOGIC);
                     printf("%d - %s", produto.CodProd, produto.Desc);
-                    gotoxy(20, linha);
+                    gotoxy(42, linha);
                     printf("R$%.2f = R$%.2f", venda_produto.ValorUnitario, (venda_produto.ValorUnitario * venda_produto.Qtde));
+                    linha++;
                 }
-                linha++;
                 j++;
             }
-            linha++;
         }
+        linha++;
         i++;
     }
     getch();
@@ -1432,7 +1434,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
 
     vendas_size = _getActualSells();
 
-    conioPrintf(TOPO, VERDE, 0, "%s %d", "Vendas realizadas:", vendas_size);
+    conioPrintf(TOPO, VERDE, 0, "Vendas realizadas: %d", vendas_size);
     conioPrintf(SWITCHER, VERDE, 0, "Selecione um item:");
     conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - CLIENTES");
     conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - FORNECEDORES");
@@ -1599,6 +1601,17 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     break;
                 case 'F':
                     listaVendas(vendas, index_vendas);
+                    break;
+                case 'X':
+                    clrscr();
+                    FILE *teste;
+                    teste = fopen("vendas\\vendas.dat", "rb");
+                    Vendas venda;
+                    fread(&venda, sizeof(Vendas), 1, teste);
+                    puts(venda.CPF);
+                    getch();
+                    fclose(teste);
+                    break;
                     //     case 'C':
                     //         AlterarVenda(index_vendas, index_vendasprod, index_produtos, TL_cupons, TL_vendas, TL_produtos);
                     //         getch();
