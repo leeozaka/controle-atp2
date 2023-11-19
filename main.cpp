@@ -1072,31 +1072,18 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
             fwrite(&venda, sizeof(Vendas), 1, reg_vendas);
 
             conioPrintf(ALERTA, VERDE, 0, "Venda do cliente %s registrada com sucesso", cliente.NomeCli);
-            fclose(reg_fornecedores);
-            fclose(reg_index_vendas);
-            fclose(reg_vendas);
-            fclose(reg_produtos);
-            return getchclose(reg_clientes);
         }
         else
-        {
             conioPrintf(SWITCHER, VERMELHO, 0, "Cliente nao encontrado!");
-            fclose(reg_fornecedores);
-            fclose(reg_index_vendas);
-            fclose(reg_vendas);
-            fclose(reg_produtos);
-            return getchclose(reg_clientes);
-        }
     }
     else
-    {
         conioPrintf(ALERTA, VERMELHO, 0, "Digite um CPF valido!");
-        fclose(reg_fornecedores);
-        fclose(reg_index_vendas);
-        fclose(reg_vendas);
-        fclose(reg_produtos);
-        return getchclose(reg_clientes);
-    }
+
+    fclose(reg_fornecedores);
+    fclose(reg_index_vendas);
+    fclose(reg_vendas);
+    fclose(reg_produtos);
+    return getchclose(reg_clientes);
     return 0;
 }
 int ExcluirVenda(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, FILE *reg_produtos)
