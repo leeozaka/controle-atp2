@@ -897,12 +897,12 @@ int RelatorioProdutos(FILE *reg_produtos)
     return getchclose(reg_produtos);
 }
 
-int _getactualvendascod(FILE *vendas)
+int _getactualvendascod(FILE *vendas, int vendas_size)
 {
     Vendas venda;
-    fseek(vendas, 0 - sizeof(Vendas), SEEK_END);
-    if (ftell(vendas) == 0)
+    if (vendas_size == 0)
         return 1;
+    fseek(vendas, sizeof(Vendas) - (vendas_size * sizeof(Vendas)), SEEK_SET);
     fread(&venda, sizeof(Vendas), 1, vendas);
     rewind(vendas);
     return venda.CodVenda + 1;
@@ -949,7 +949,7 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
 
     bool pass;
 
-    int codigo_venda_atual = _getactualvendascod(reg_vendas);
+    int codigo_venda_atual = _getactualvendascod(reg_vendas, vendas_size);
     conioPrintf(TOPO, ROSA, 0, "Nova Venda!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF do Cliente: ");
     fflush(stdin);
@@ -961,18 +961,18 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
         {
             fseek(reg_clientes, pos_cliente, SEEK_SET);
 
-            clearElement(RIGHTSIDE);
             conioPrintf(TOPO, ROSA_CLARO, 0, "Cliente: %s", cliente.NomeCli);
-            conioPrintf(MENU_RIGHT, BRANCO, 1, "[A] - Usar a data atual para a venda");
-            conioPrintf(MENU_RIGHT, BRANCO, 2, "[B] - Data personalizada;");
-            fflush(stdin);
-            datahelper = toupper(getch());
             pass = false;
+            construtor_data.Dia = tm.tm_mday;
+            construtor_data.Mes = tm.tm_mon + 1;
+            construtor_data.Ano = tm.tm_year + 1900;
             do
             {
-                construtor_data.Dia = tm.tm_mday;
-                construtor_data.Mes = tm.tm_mon + 1;
-                construtor_data.Ano = tm.tm_year + 1900;
+                clearElement(RIGHTSIDE);
+                conioPrintf(MENU_RIGHT, BRANCO, 1, "[A] - Usar a data atual para a venda");
+                conioPrintf(MENU_RIGHT, BRANCO, 2, "[B] - Data personalizada;");
+                fflush(stdin);
+                datahelper = toupper(getch());
                 switch (datahelper)
                 { // bool pass = true quando setar a data
                 case 'A':
@@ -980,21 +980,39 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
                     pass = true;
                     break;
                 case 'B':
-                    conioPrintf(MENU_RIGHT, BRANCO, 4, "Data: ");
+                    conioPrintf(MENU_RIGHT, AMARELO, 4, "Dia: ");
                     fflush(stdin);
-                    scanf("%d %d %d", &input.Dia, &input.Mes, &input.Ano);
+                    scanf("%d", &input.Dia);
+                    conioPrintf(MENU_RIGHT, AMARELO, 5, "Mês: ");
+                    fflush(stdin);
+                    scanf("%d", &input.Mes);
+                    conioPrintf(MENU_RIGHT, AMARELO, 6, "Ano: ");
+                    fflush(stdin);
+                    scanf("%d", &input.Ano);
+
                     if (input.Dia > 0 && input.Dia < 31 && input.Mes > 0 && input.Mes < 13 && input.Ano > 2000 && input.Ano < 2024)
-                        if (comparaData(input.Ano, input.Mes, input.Dia, construtor_data.Ano, construtor_data.Mes, construtor_data.Dia) <= 0)
+                    {
+                        if (comparaData(input.Ano, input.Mes, input.Dia, construtor_data.Ano, construtor_data.Mes, construtor_data.Dia) >= 0)
                         {
                             venda.DtVenda = input;
                             pass = true;
                         }
+                        else
+                        {
+                            conioPrintf(ALERTA, VERMELHO, 0, "Data invalida!!");
+                            getch();
+                        }
+                    }
+                    else
+                    {
+                        conioPrintf(ALERTA, VERMELHO, 0, "Data invalida!!");
+                        getch();
+                    }
                     break;
-                default:
-                    conioPrintf(SWITCHER, VERMELHO, 0, "Obrigatorio inserir data valida!");
-                    getch();
                 }
             } while (pass == false);
+
+            conioPrintf(TOPO, AZUL, 0, "Cliente: %s - %d/%d/%d - cod = %d", cliente.NomeCli, venda.DtVenda.Dia, venda.DtVenda.Mes, venda.DtVenda.Ano, codigo_venda_atual);
 
             clearElement(RIGHTSIDE);
             conioPrintf(MENU_RIGHT, BRANCO, 0, "Cod do prod. a ser adicionado: ");
@@ -1003,7 +1021,7 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
 
             while (cod_aux > 0)
             {
-                if (find_produtos(reg_produtos, produto, cod_aux, pos_produto, BYTE))
+                if (find_produtos(reg_produtos, produto, cod_aux, pos_produto, BYTE) && produto.Estoque > 0)
                 {
                     fseek(reg_produtos, pos_produto, SEEK_SET);
 
@@ -1049,7 +1067,7 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
                 }
                 else
                 {
-                    conioPrintf(SWITCHER, VERMELHO, 0, "Produto n. encontrado, tente novamente");
+                    conioPrintf(SWITCHER, VERMELHO, 0, "-- Erro na venda do produto");
                     getch();
                 }
                 clearElement(RIGHTSIDE);
