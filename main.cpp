@@ -1308,7 +1308,7 @@ void listaProdutos(FILE *produtos)
     Produtos produto;
     int TL = fsizer(produtos, sizeof(Produtos), SET, LOGIC);
     int linha = 2, i = 0;
-    gotoxy(1,1);
+    gotoxy(1, 1);
     printf("Cod.|  Nome do Produto  | Preco  | Data de Validade | Fornecedor");
 
     while (i < TL)
@@ -1324,9 +1324,9 @@ void listaProdutos(FILE *produtos)
             printf("%s", produto.Desc);
             gotoxy(27, linha);
             printf("%.2f", produto.Preco);
-            gotoxy(36,linha);
+            gotoxy(36, linha);
             printf("%d/%d/%d", produto.DtValidade.Dia, produto.DtValidade.Mes, produto.DtValidade.Ano);
-            gotoxy(55,linha);
+            gotoxy(55, linha);
             printf("%d", produto.CodForn);
             linha++;
         }
@@ -1336,6 +1336,70 @@ void listaProdutos(FILE *produtos)
     getch();
     clrscr();
 }
+
+void listaVendas(FILE *vendas, FILE *index_vendas)
+{
+    clrscr();
+    FILE *produtos = fopen("produtos\\produtos.dat", "rb");
+    vendas = fopen("vendas\\vendas.dat", "rb");
+    index_vendas = fopen("vendas\\index_vendas.dat", "rb");
+
+    Vendas venda;
+    Vendas_Produtos venda_produto;
+    Produtos produto;
+
+    int tl_vendas = fsizer(vendas, sizeof(Vendas), SET, LOGIC);
+    int tl_index_vendas = fsizer(index_vendas, sizeof(Vendas_Produtos), SET, LOGIC);
+
+    int linha = 2, lixo;
+    printf("Cod. Venda | Data da Venda |  CPF. Cli  | Total da Venda |");
+
+    int i = 1;
+    while (i <= tl_vendas)
+    {
+        fread(&venda, sizeof(Vendas), 1, vendas);
+        if (venda.flag)
+        {
+            gotoxy(1, linha);
+            printf("           |               |            |                |");
+            gotoxy(1, linha);
+            printf("%d", venda.CodVenda);
+            gotoxy(14, linha);
+            printf("%d/%d/%d", venda.DtVenda.Dia, venda.DtVenda.Mes, venda.DtVenda.Ano);
+            gotoxy(29, linha);
+            printf("%s", venda.CPF);
+            gotoxy(42, linha);
+            printf("R$%.2f", venda.TotVenda);
+            linha++;
+            int j = 0;
+            rewind(index_vendas);
+            while (j < tl_index_vendas)
+            {
+                fread(&venda_produto, sizeof(Vendas_Produtos), 1, index_vendas);
+                if (venda_produto.CodVenda == venda.CodVenda && venda_produto.flag)
+                {
+                    gotoxy(4, linha);
+                    printf("%dx", venda_produto.Qtde);
+                    gotoxy(8, linha);
+                    find_produtos(produtos, produto, venda_produto.CodProd, lixo, LOGIC);
+                    printf("%d - %s", produto.CodProd, produto.Desc);
+                    gotoxy(20, linha);
+                    printf("R$%.2f = R$%.2f", venda_produto.ValorUnitario, (venda_produto.ValorUnitario * venda_produto.Qtde));
+                }
+                linha++;
+                j++;
+            }
+            linha++;
+        }
+        i++;
+    }
+    getch();
+    fclose(produtos);
+    fclose(vendas);
+    fclose(index_vendas);
+    clrscr();
+}
+
 void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas, FILE *vendas)
 {
     int op, vendas_size;
@@ -1497,12 +1561,14 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
         case 'D':
             do
             {
+                Formulario();
                 conioPrintf(TOPO, CIANO, 0, "Controle de Vendas!");
                 conioPrintf(SWITCHER, CIANO, 0, "Selecione uma operacao em Vendas!");
                 conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - NOVA VENDA");
                 conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - EXCLUSAO");
                 conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - ALTERACAO");
                 conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - RELATORIO VENDAS");
+                conioPrintf(MENU_LEFT, VERDE, 5, "F - lista vendas");
                 opc = toupper(getch());
                 switch (opc)
                 {
@@ -1512,6 +1578,8 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 case 'B':
                     ExcluirVenda(vendas, index_vendas, clientes, produtos);
                     break;
+                case 'F':
+                    listaVendas(vendas, index_vendas);
                     //     case 'C':
                     //         AlterarVenda(index_vendas, index_vendasprod, index_produtos, TL_cupons, TL_vendas, TL_produtos);
                     //         getch();
