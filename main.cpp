@@ -1239,25 +1239,64 @@ int ExcluirVenda(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, F
 //     }
 // }
 
-void listaClientes(FILE *clientes) {
+void listaClientes(FILE *clientes)
+{
     clrscr();
-    clientes = fopen ("clientes\\clientes.dat", "rb");
+    clientes = fopen("clientes\\clientes.dat", "rb");
     Clientes cliente;
-    int TL = fsizer (clientes, sizeof(Clientes), SET, LOGIC);
-    for (int i=0; i<TL && cliente.flag; i++) {
-        fread(&cliente,sizeof(Clientes),1,clientes);
-        gotoxy(1,i+1);
-        printf("                          |           |            |        ");
-        gotoxy(1,i+1);
-        printf("%s",cliente.NomeCli);
-        gotoxy(28,i+1);
-        printf("%s",cliente.CPF);
-        gotoxy(40,i+1);
-        printf("%d compras", cliente.QtdeCompras);
-        gotoxy(53,i+1);
-        printf("R$%.2f total", cliente.ValorTotComprado);
+    int TL = fsizer(clientes, sizeof(Clientes), SET, LOGIC);
+    int i = 0;
+    int linha = 1;
+    // for (int i = 0; i < TL && cliente.flag; i++)
+    while (i < TL)
+    {
+        fread(&cliente, sizeof(Clientes), 1, clientes);
+        if (cliente.flag)
+        {
+            gotoxy(1, linha);
+            printf("                          |           |            |        ");
+            gotoxy(1, linha);
+            printf("%s", cliente.NomeCli);
+            gotoxy(28, linha);
+            printf("%s", cliente.CPF);
+            gotoxy(40, linha);
+            printf("%d compras", cliente.QtdeCompras);
+            gotoxy(53, linha);
+            printf("R$%.2f total", cliente.ValorTotComprado);
+            linha++;
+        }
+        i++;
     }
     fclose(clientes);
+    getch();
+    clrscr();
+}
+
+void listaFornecedores(FILE *fornecedores)
+{
+    clrscr();
+    fornecedores = fopen("fornecedores\\fornecedores.dat", "rb");
+    Fornecedores fornecedor;
+    int TL = fsizer(fornecedores, sizeof(Fornecedores), SET, LOGIC);
+    int linha = 1, i = 0;
+    while (i < TL)
+    {
+        fread(&fornecedor, sizeof(Fornecedores), 1, fornecedores);
+        if (fornecedor.flag)
+        {
+            gotoxy(1, linha);
+            printf("   |                       |           ");
+            gotoxy(1, linha);
+            printf("%d", fornecedor.CodForn);
+            gotoxy(5, linha);
+            printf("%s", fornecedor.NomeForn);
+            gotoxy(29, linha);
+            printf("%s", fornecedor.Cidade);
+            linha++;
+        }
+        i++;
+    }
+    fclose(fornecedores);
     getch();
     clrscr();
 }
@@ -1330,6 +1369,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
         case 'B':
             do
             {
+                Formulario();
                 conioPrintf(TOPO, MARROM, 0, "Controle de Fornecedores!");
                 conioPrintf(SWITCHER, AMARELO, 0, "Selecione uma opcao em fornecedores");
                 conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - CADASTRO");
@@ -1337,6 +1377,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - EXCLUSAO");
                 conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - ALTERACAO");
                 conioPrintf(MENU_LEFT, BRANCO, 4, "[E] - RELATORIO");
+                conioPrintf(MENU_LEFT, VERDE, 6, "F - Lista");
                 opc = toupper(getch());
 
                 switch (opc)
@@ -1355,6 +1396,9 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     break;
                 case 'E':
                     RelatorioFornecedores(fornecedores);
+                    break;
+                case 'F':
+                    listaFornecedores(fornecedores);
                     break;
                 case 27:
                     break;
