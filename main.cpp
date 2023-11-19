@@ -708,7 +708,7 @@ int AlterarProdCadastrado(FILE *reg_produtos)
 
     while (Aux > 0)
     {
-        if (find_produtos(reg_produtos, produto, Aux, pos, BYTE))
+        if (!find_produtos(reg_produtos, produto, Aux, pos, BYTE))
         {
             conioPrintf(SWITCHER, VERMELHO, 0, "Erro ao procurar pelo Codigo!");
             getch();
