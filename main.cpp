@@ -1017,9 +1017,9 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
                         do
                         {
                             conioPrintf(MENU_RIGHT, BRANCO, 3, "Quantidade vendida: ");
-                            int x = wherex(), y=wherey();
+                            int x = wherex(), y = wherey();
                             conioPrintf(MENU_RIGHT, CINZA_CLARO, 4, "Quantidade disponivel: %d", produto.Estoque);
-                            gotoxy(x,y);
+                            gotoxy(x, y);
                             fflush(stdin);
                             scanf("%d", &var);
 
@@ -1099,47 +1099,77 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
     }
     return 0;
 }
-// void ExcluirVenda(Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], int &TLvendas, int &TLvendasprod)
-// {
-//     int codVenda, i, j;
-//     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o codigo da venda a ser excluida (0 para cancelar): ");
-//     fflush(stdin);
-//     scanf("%d", &codVenda);
+int ExcluirVenda(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, FILE *reg_produtos)
+{
+    reg_clientes = fopen("clientes\\clientes.dat", "rb+");
+    reg_produtos = fopen("produtos\\produtos.dat", "rb+");
+    reg_index_vendas = fopen("vendas\\index_vendas.dat", "rb+");
+    reg_vendas = fopen("vendas\\vendas_dat", "rb+");
 
-//     if (codVenda > 0)
-//     {
-//         for (i = 0; i < TLvendas; ++i)
-//         {
-//             if (rootVendas[i].CodVenda == codVenda)
-//             {
-//                 for (j = 0; j < TLvendasprod; ++j)
-//                 {
-//                     if (rootVendasProdutos[j].CodVenda == codVenda)
-//                     {
-//                         for (int k = j; k < TLvendasprod - 1; ++k)
-//                         {
-//                             rootVendasProdutos[k] = rootVendasProdutos[k + 1];
-//                             // remover o restante
-//                         }
-//                         TLvendasprod--;
-//                         j--;
-//                     }
-//                 }
-//                 for (int k = i; k < TLvendas - 1; ++k)
-//                 {
-//                     rootVendas[k] = rootVendas[k + 1];
-//                 }
-//                 TLvendas--;
-//                 conioPrintf(ALERTA, VERDE, 0, "Venda de codigo %d excluida com sucesso", codVenda);
-//                 getch();
-//                 return;
-//             }
-//         }
-//         conioPrintf(ALERTA, VERMELHO, 0, "Venda de codigo %d nao encontrada!", codVenda);
-//     }
-//     else
-//         conioPrintf(ALERTA, CIANO_CLARO, 0, "Operacaoo de exclusao cancelada.");
-// }
+    if (!reg_clientes || !reg_produtos || !reg_index_vendas || !reg_vendas)
+    {
+        return 0;
+    }
+
+    Clientes cliente;
+    Produtos produto;
+    Vendas_Produtos venda_produto;
+    Vendas venda;
+    int pos_cliente, pos_produto, pos_venda_produto, pos_venda;
+
+    int index_vendas_size = fsizer(reg_index_vendas, sizeof(Vendas_Produtos), SET, LOGIC);
+
+    int codVenda, i, j;
+    conioPrintf(TOPO, CIANO, 0, "Exclusao de venda!");
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o codigo da venda a ser excluida (0 para cancelar): ");
+    fflush(stdin);
+    scanf("%d", &codVenda);
+
+    if (find_venda(reg_vendas, venda, codVenda, pos_venda, BYTE))
+    {
+        conioPrintf(ALERTA, VERMELHO, 0, "Apagar venda %d? ", venda.CodVenda);
+        fflush(stdin);
+        if ((toupper(getch())) == 'S')
+        {
+            for (i = 0; i < index_vendas_size; i++)
+            {
+                fread(&venda_produto, sizeof(Vendas_Produtos), 1, reg_index_vendas);
+                if (venda_produto.CodVenda == codVenda)
+                {
+                    venda_produto.flag = false;
+                    fseek(reg_index_vendas, i * sizeof(Vendas_Produtos), SEEK_SET);
+
+                    find_produtos(reg_produtos, produto, venda_produto.CodProd, pos_produto, BYTE);
+                    produto.Estoque += venda_produto.Qtde;
+                    fseek(reg_produtos, pos_produto, SEEK_SET);
+
+                    fwrite(&venda_produto, sizeof(Vendas_Produtos), 1, reg_index_vendas);
+                    fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
+                }
+            }
+            find_clientes(reg_clientes, cliente, venda.CPF, pos_cliente, BYTE);
+            cliente.ValorTotComprado -= venda.TotVenda;
+            --cliente.QtdeCompras;
+            fseek(reg_clientes, pos_cliente, SEEK_SET);
+
+            venda.flag = false;
+            fseek(reg_vendas, pos_venda, SEEK_SET);
+
+            fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
+            fwrite(&venda, sizeof(Vendas), 1, reg_vendas);
+            conioPrintf(ALERTA, VERDE, 0, "Venda de codigo %d excluida com sucesso", codVenda);
+        }
+        else
+            conioPrintf(ALERTA, CIANO_CLARO, 0, "Operacaoo de exclusao cancelada.");
+    }
+    else
+        conioPrintf(ALERTA, VERMELHO, 0, "Venda de codigo %d nao encontrada!", codVenda);
+
+    fclose(reg_vendas);
+    fclose(reg_index_vendas);
+    fclose(reg_clientes);
+    return getchclose(reg_produtos);
+}
 
 // void AlterarVenda(Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], Produtos rootProdutos[], int TLvendas, int TLvendasprod, int TLprodutos)
 // {
@@ -1371,10 +1401,9 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 case 'A':
                     novaVenda(clientes, fornecedores, produtos, index_vendas, vendas);
                     break;
-                    //     case 'B':
-                    //         ExcluirVenda(index_vendas, index_vendasprod, TL_cupons, TL_vendas);
-                    //         getch();
-                    //         break;
+                case 'B':
+                    ExcluirVenda(vendas, index_vendas, clientes, produtos);
+                    break;
                     //     case 'C':
                     //         AlterarVenda(index_vendas, index_vendasprod, index_produtos, TL_cupons, TL_vendas, TL_produtos);
                     //         getch();
