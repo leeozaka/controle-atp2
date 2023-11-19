@@ -1239,6 +1239,28 @@ int ExcluirVenda(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, F
 //     }
 // }
 
+void listaClientes(FILE *clientes) {
+    clrscr();
+    clientes = fopen ("clientes\\clientes.dat", "rb");
+    Clientes cliente;
+    int TL = fsizer (clientes, sizeof(Clientes), SET, LOGIC);
+    for (int i=0; i<TL && cliente.flag; i++) {
+        fread(&cliente,sizeof(Clientes),1,clientes);
+        gotoxy(1,i+1);
+        printf("                          |           |            |        ");
+        gotoxy(1,i+1);
+        printf("%s",cliente.NomeCli);
+        gotoxy(28,i+1);
+        printf("%s",cliente.CPF);
+        gotoxy(40,i+1);
+        printf("%d compras", cliente.QtdeCompras);
+        gotoxy(53,i+1);
+        printf("R$%.2f total", cliente.ValorTotComprado);
+    }
+    fclose(clientes);
+    getch();
+    clrscr();
+}
 void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas, FILE *vendas)
 {
     int op, vendas_size;
@@ -1270,6 +1292,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
         case 'A':
             do
             {
+                Formulario();
                 conioPrintf(TOPO, ROSA, 0, "Controle de Clientes!");
                 conioPrintf(SWITCHER, ROSA, 0, "Selecione uma operacao em clientes");
                 conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - CADASTRO");
@@ -1277,6 +1300,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - EXCLUSAO");
                 conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - ALTERACAO");
                 conioPrintf(MENU_LEFT, BRANCO, 4, "[E] - RELATORIO");
+                conioPrintf(MENU_LEFT, VERDE, 6, "F - Lista");
                 gotoxy(4, 14);
                 opc = toupper(getche());
 
@@ -1297,6 +1321,8 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 case 'E':
                     RelatorioClientes(clientes);
                     break;
+                case 'F':
+                    listaClientes(clientes);
                 }
             } while (opc != 27);
             break;
