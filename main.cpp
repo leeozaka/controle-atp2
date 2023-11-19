@@ -1072,7 +1072,7 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
             }
 
             venda.CodVenda = codigo_venda_atual;
-            strcmp(venda.CPF, cliente.CPF);
+            strcmp(venda.CPF, cpf);
             venda.DtVenda = construtor_data;
             venda.TotVenda = valor_variavel;
             venda.flag = true;
@@ -1400,6 +1400,29 @@ void listaVendas(FILE *vendas, FILE *index_vendas)
     clrscr();
 }
 
+int _getActualSells()
+{
+    FILE *vendas;
+    if ((vendas = fopen("vendas\\vendas.dat", "rb")) == NULL)
+    {
+        fclose(vendas);
+        return 0;
+    }
+    int i = 0, cont = 0, vendas_size;
+    vendas_size = fsizer(vendas, sizeof(Vendas), SET, LOGIC);
+
+    while (i < vendas_size)
+    {
+        Vendas venda;
+        fread(&venda, sizeof(Vendas), 1, vendas);
+        if (venda.flag)
+            cont++;
+        i++;
+    }
+    fclose(vendas);
+    return cont;
+}
+
 void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas, FILE *vendas)
 {
     int op, vendas_size;
@@ -1407,13 +1430,9 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
 
     Formulario();
 
-    if ((vendas = fopen("vendas\\vendas.dat", "rb+")) == NULL)
-        vendas_size = 0;
-    else
-        vendas_size = fsizer(vendas, sizeof(Vendas), SET, LOGIC);
-    fclose(vendas);
+    vendas_size = _getActualSells();
 
-    conioPrintf(TOPO, VERDE, 0, "%s %d", "Vendas:", vendas_size);
+    conioPrintf(TOPO, VERDE, 0, "%s %d", "Vendas realizadas:", vendas_size);
     conioPrintf(SWITCHER, VERDE, 0, "Selecione um item:");
     conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - CLIENTES");
     conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - FORNECEDORES");
@@ -1598,11 +1617,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
             } while (opc != 27);
         }
 
-        if ((vendas = fopen("vendas\\vendas.dat", "rb+")) == NULL)
-            vendas_size = 0;
-        else
-            vendas_size = fsizer(vendas, sizeof(Vendas), SET, LOGIC);
-        fclose(vendas);
+        vendas_size = _getActualSells();
 
         Formulario();
         conioPrintf(TOPO, VERDE, 0, "Vendas realizadas: %d", vendas_size);
