@@ -913,13 +913,8 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
     reg_clientes = fopen("clientes\\clientes.dat", "rb+");
     reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+");
     reg_produtos = fopen("produtos\\produtos.dat", "rb+");
-    reg_index_vendas = fopen("vendas\\index_vendas.dat", "rb+");
-    reg_vendas = fopen("vendas\\vendas.dat", "rb+");
-
-    if (reg_index_vendas == NULL)
-        reg_index_vendas = fopen("vendas\\index_vendas.dat", "ab+");
-    if (reg_vendas == NULL)
-        reg_vendas = fopen("vendas\\vendas.dat", "ab+");
+    reg_index_vendas = fopen("vendas\\index_vendas.dat", "ab+");
+    reg_vendas = reg_vendas = fopen("vendas\\vendas.dat", "ab+");
 
     if (!reg_clientes || !reg_fornecedores || !reg_produtos || !reg_index_vendas || !reg_vendas)
     {

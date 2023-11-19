@@ -119,13 +119,13 @@ static bool find_produtos(FILE *reg_produtos, Produtos &produto, int find, int &
 static bool find_venda(FILE *reg_vendas, Vendas &venda, int find, int &pos, SIZE_LOGIC res)
 {
     int run = 0;
-    int TL = fsizer(reg_vendas, sizeof(Produtos), SET, LOGIC);
+    int TL = fsizer(reg_vendas, sizeof(Vendas), SET, LOGIC);
     while (run < TL)
     {
         fread(&venda, sizeof(Vendas), 1, reg_vendas);
         if (find == venda.CodVenda && venda.flag)
         {
-            res == BYTE ? pos = run * sizeof(Produtos) : pos = run;
+            res == BYTE ? pos = run * sizeof(Vendas) : pos = run;
             return true;
         }
         run++;
@@ -142,13 +142,13 @@ static bool find_venda(FILE *reg_vendas, Vendas &venda, int find, int &pos, SIZE
 static bool find_index_venda(FILE *reg_index_vendas, Vendas_Produtos &index_venda, int find, int &pos, SIZE_LOGIC res)
 {
     int run = 0;
-    int TL = fsizer(reg_index_vendas, sizeof(Produtos), SET, LOGIC);
+    int TL = fsizer(reg_index_vendas, sizeof(Vendas_Produtos), SET, LOGIC);
     while (run < TL)
     {
-        fread(&index_venda, sizeof(Vendas), 1, reg_index_vendas);
+        fread(&index_venda, sizeof(Vendas_Produtos), 1, reg_index_vendas);
         if (find == index_venda.CodVenda &&index_venda.flag)
         {
-            res == BYTE ? pos = run * sizeof(Produtos) : pos = run;
+            res == BYTE ? pos = run * sizeof(Vendas_Produtos) : pos = run;
             return true;
         }
         run++;
