@@ -1300,6 +1300,42 @@ void listaFornecedores(FILE *fornecedores)
     getch();
     clrscr();
 }
+
+void listaProdutos(FILE *produtos)
+{
+    clrscr();
+    produtos = fopen("Produtos\\Produtos.dat", "rb");
+    Produtos produto;
+    int TL = fsizer(produtos, sizeof(Produtos), SET, LOGIC);
+    int linha = 2, i = 0;
+    gotoxy(1,1);
+    printf("Cod.|  Nome do Produto  | Preco  | Data de Validade | Fornecedor");
+
+    while (i < TL)
+    {
+        fread(&produto, sizeof(Produtos), 1, produtos);
+        if (produto.flag)
+        {
+            gotoxy(1, linha);
+            printf("    |                   |        |                  |           ");
+            gotoxy(1, linha);
+            printf("%d", produto.CodProd);
+            gotoxy(7, linha);
+            printf("%s", produto.Desc);
+            gotoxy(27, linha);
+            printf("%.2f", produto.Preco);
+            gotoxy(36,linha);
+            printf("%d/%d/%d", produto.DtValidade.Dia, produto.DtValidade.Mes, produto.DtValidade.Ano);
+            gotoxy(55,linha);
+            printf("%d", produto.CodForn);
+            linha++;
+        }
+        i++;
+    }
+    fclose(produtos);
+    getch();
+    clrscr();
+}
 void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas, FILE *vendas)
 {
     int op, vendas_size;
@@ -1412,6 +1448,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
         case 'C':
             do
             {
+                Formulario();
                 conioPrintf(TOPO, CINZA_CLARO, 0, "Controle de Produtos!");
                 conioPrintf(SWITCHER, MARROM, 0, "Selecione uma operacao em produtos");
                 conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - CADASTRO");
@@ -1419,7 +1456,8 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - EXCLUSAO");
                 conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - ALTERACAO");
                 conioPrintf(MENU_LEFT, BRANCO, 4, "[E] - DESC PERCENTUAL");
-                conioPrintf(MENU_LEFT, BRANCO, 4, "[F] - RELATORIO");
+                conioPrintf(MENU_LEFT, BRANCO, 5, "[F] - RELATORIO");
+                conioPrintf(MENU_LEFT, VERDE, 7, "G - Lista");
                 fflush(stdin);
                 opc = toupper(getch());
 
@@ -1442,6 +1480,9 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     break;
                 case 'F':
                     RelatorioProdutos(produtos);
+                    break;
+                case 'G':
+                    listaProdutos(produtos);
                     break;
                 case 27:
                     break;
