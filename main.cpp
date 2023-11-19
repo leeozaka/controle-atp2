@@ -895,9 +895,6 @@ int RelatorioProdutos(FILE *reg_produtos)
     conioPrintf(MENU_RIGHT, AMARELO, 6, "Valor: R$%f", highscore.Preco);
 
     return getchclose(reg_produtos);
-    // getch();
-    // fclose(reg_produtos);
-    // return 0;
 }
 
 int _getactualvendascod(FILE *vendas)
@@ -917,7 +914,7 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
     reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+");
     reg_produtos = fopen("produtos\\produtos.dat", "rb+");
     reg_index_vendas = fopen("vendas\\index_vendas.dat", "rb+");
-    reg_vendas = fopen("vendas\\vendas_dat", "rb+");
+    reg_vendas = fopen("vendas\\vendas.dat", "rb+");
 
     if (reg_index_vendas == NULL)
         reg_index_vendas = fopen("vendas\\index_vendas.dat", "ab+");
@@ -1084,14 +1081,13 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
     fclose(reg_vendas);
     fclose(reg_produtos);
     return getchclose(reg_clientes);
-    return 0;
 }
 int ExcluirVenda(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, FILE *reg_produtos)
 {
     reg_clientes = fopen("clientes\\clientes.dat", "rb+");
     reg_produtos = fopen("produtos\\produtos.dat", "rb+");
     reg_index_vendas = fopen("vendas\\index_vendas.dat", "rb+");
-    reg_vendas = fopen("vendas\\vendas_dat", "rb+");
+    reg_vendas = fopen("vendas\\vendas.dat", "rb+");
 
     if (!reg_clientes || !reg_produtos || !reg_index_vendas || !reg_vendas)
     {
@@ -1108,7 +1104,7 @@ int ExcluirVenda(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, F
 
     int codVenda, i, j;
     conioPrintf(TOPO, CIANO, 0, "Exclusao de venda!");
-    conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o codigo da venda a ser excluida (0 para cancelar): ");
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o codigo da venda a ser excluida: ");
     fflush(stdin);
     scanf("%d", &codVenda);
 
@@ -1237,10 +1233,11 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
 
     Formulario();
 
-    if ((vendas = fopen("\\vendas\\vendas.dat", "rb+")) == NULL)
+    if ((vendas = fopen("vendas\\vendas.dat", "rb+")) == NULL)
         vendas_size = 0;
     else
         vendas_size = fsizer(vendas, sizeof(Vendas), SET, LOGIC);
+    fclose(vendas);
 
     conioPrintf(TOPO, VERDE, 0, "%s %d", "Vendas:", vendas_size);
     conioPrintf(SWITCHER, VERDE, 0, "Selecione um item:");
@@ -1409,6 +1406,12 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
             } while (opc != 27);
         }
 
+        if ((vendas = fopen("vendas\\vendas.dat", "rb+")) == NULL)
+            vendas_size = 0;
+        else
+            vendas_size = fsizer(vendas, sizeof(Vendas), SET, LOGIC);
+        fclose(vendas);
+
         Formulario();
         conioPrintf(TOPO, VERDE, 0, "Vendas realizadas: %d", vendas_size);
         conioPrintf(SWITCHER, VERDE, 0, "Selecione um item:");
@@ -1421,15 +1424,19 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
     }
 }
 
-void file_clear(FILE *fornecedores, FILE *produtos, FILE *clientes)
+void file_clear(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas, FILE *vendas)
 {
     fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+");
     clientes = fopen("clientes\\clientes.dat", "rb+");
     produtos = fopen("produtos\\produtos.dat", "rb+");
+    index_vendas = fopen("vendas\\index_vendas.dat", "rb+");
+    vendas = fopen("vendas\\vendas.dat", "rb+");
 
     Fornecedores fornecedor;
     Clientes cliente;
     Produtos produto;
+    Vendas_Produtos index_venda;
+    Vendas venda;
 
     if (fornecedores != NULL)
     {
@@ -1483,6 +1490,42 @@ void file_clear(FILE *fornecedores, FILE *produtos, FILE *clientes)
         remove("produtos\\produtos.dat");
         rename("produtos\\produtos_temp.dat", "produtos\\produtos.dat");
     }
+
+    if (vendas != NULL)
+    {
+        int vendas_size = fsizer(vendas, sizeof(Vendas), SET, LOGIC);
+        FILE *vendas_temp = fopen("vendas\\vendas_temp.dat", "ab+");
+
+        for (int i = 0; i < vendas_size; i++)
+        {
+            fread(&venda, sizeof(Vendas), 1, vendas);
+            if (venda.flag)
+                fwrite(&venda, sizeof(Vendas), 1, vendas_temp);
+        }
+
+        fclose(vendas);
+        fclose(vendas_temp);
+        remove("vendas\\vendas.dat");
+        rename("vendas\\vendas_temp.dat", "vendas\\vendas.dat");
+    }
+
+    if (index_vendas != NULL)
+    {
+        int index_vendas_size = fsizer(index_vendas, sizeof(Vendas_Produtos), SET, LOGIC);
+        FILE *index_vendas_temp = fopen("vendas\\index_vendas_temp.dat", "ab+");
+
+        for (int i = 0; i < index_vendas_size; i++)
+        {
+            fread(&index_venda, sizeof(Vendas_Produtos), 1, index_vendas);
+            if (index_venda.flag)
+                fwrite(&index_venda, sizeof(Vendas_Produtos), 1, index_vendas_temp);
+        }
+
+        fclose(index_vendas);
+        fclose(index_vendas_temp);
+        remove("vendas\\index_vendas.dat");
+        rename("vendas\\index_vendas_temp.dat", "vendas\\index_vendas.dat");
+    }
 }
 
 int main(int morteaodevcpp, char **ideruim)
@@ -1495,7 +1538,7 @@ int main(int morteaodevcpp, char **ideruim)
 
     _setcursortype(0);
     Menu(fornecedores, produtos, clientes, index_vendas, vendas);
-    file_clear(fornecedores, produtos, clientes);
+    file_clear(fornecedores, produtos, clientes, index_vendas, vendas);
 
     return 0;
 }
