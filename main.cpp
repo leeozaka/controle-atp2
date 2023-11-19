@@ -913,9 +913,9 @@ int _getactualvendascod(FILE *vendas)
 
 int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FILE *reg_index_vendas, FILE *reg_vendas)
 {
-    reg_clientes = fopen("clientes\\clientes.dat", "rb");
-    reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb");
-    reg_produtos = fopen("produtos\\produtos.dat", "rb");
+    reg_clientes = fopen("clientes\\clientes.dat", "rb+");
+    reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+");
+    reg_produtos = fopen("produtos\\produtos.dat", "rb+");
     reg_index_vendas = fopen("vendas\\index_vendas.dat", "rb+");
     reg_vendas = fopen("vendas\\vendas_dat", "rb+");
 
@@ -962,7 +962,7 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
     {
         if (find_clientes(reg_clientes, cliente, cpf, pos_cliente, BYTE))
         {
-            fseek(reg_clientes, 0 - sizeof(Clientes), SEEK_CUR);
+            fseek(reg_clientes, pos_cliente, SEEK_SET);
 
             clearElement(RIGHTSIDE);
             conioPrintf(TOPO, ROSA_CLARO, 0, "Cliente: %s", cliente.NomeCli);
@@ -1008,17 +1008,18 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
             {
                 if (find_produtos(reg_produtos, produto, cod_aux, pos_produto, BYTE))
                 {
-                    fseek(reg_produtos, 0 - sizeof(Produtos), SEEK_CUR);
+                    fseek(reg_produtos, pos_produto, SEEK_SET);
 
                     pass = false;
                     if (comparaData(produto.DtValidade.Ano, produto.DtValidade.Mes, produto.DtValidade.Dia, construtor_data.Ano, construtor_data.Mes, construtor_data.Dia) <= 0)
                     {
                         conioPrintf(MENU_RIGHT, BRANCO, 1, "Produto: %s", produto.Desc, produto.Estoque);
-                        conioPrintf(MENU_RIGHT, BRANCO, 2, "Qtde em estoque:%d", produto.Estoque);
                         do
                         {
-                            conioPrintf(MENU_RIGHT, BRANCO, 4, "Quantidade vendida: ");
-                            conioPrintf(MENU_RIGHT, CINZA_CLARO, 5, "Quantidade disponivel: %d", produto.Estoque);
+                            conioPrintf(MENU_RIGHT, BRANCO, 3, "Quantidade vendida: ");
+                            int x = wherex(), y=wherey();
+                            conioPrintf(MENU_RIGHT, CINZA_CLARO, 4, "Quantidade disponivel: %d", produto.Estoque);
+                            gotoxy(x,y);
                             fflush(stdin);
                             scanf("%d", &var);
 
