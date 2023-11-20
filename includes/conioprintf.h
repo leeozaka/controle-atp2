@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <string.h>
+#include <math.h>
 #include <conio2.h>
 
 #define CONIOPRINTF
@@ -94,6 +95,8 @@ char *conv(unsigned int numero, int base)
 void conioPrintf(position pos, cores ref, int linha, const char *str, ...)
 {
     unsigned int i;
+    double j;
+    char buffer[50];
     char *transc;
     char *s;
 
@@ -177,7 +180,7 @@ void conioPrintf(position pos, cores ref, int linha, const char *str, ...)
     gotoxy(wherex(), wherey() + linha);
 
     // print function (ref: stdio, mingw, gnu)
-    for (transc = (char*)str; *transc != '\0';)
+    for (transc = (char *)str; *transc != '\0';)
     {
         while (*transc != '%' && *transc != '\0')
         {
@@ -204,14 +207,10 @@ void conioPrintf(position pos, cores ref, int linha, const char *str, ...)
             transc++;
             break;
         case 'f':
-            i = va_arg(arg, double);
-            if (i < 0)
-            {
-                i = -1;
-                putchar('-');
-            }
-            fputs(conv(i, 10), stdout);
+            j = va_arg(arg, double);
+            fprintf(stdout,"%.2f", j);
             transc++;
+
             break;
         }
     }

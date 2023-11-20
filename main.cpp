@@ -125,7 +125,7 @@ int ConsultaClientes(FILE *reg_clientes)
         fseek(reg_clientes, pos, SEEK_SET);
         conioPrintf(MENU_RIGHT, BRANCO, 1, "Cliente: %s", cliente.NomeCli);
         conioPrintf(MENU_RIGHT, BRANCO, 2, "%s", cliente.CPF);
-        conioPrintf(MENU_RIGHT, BRANCO, 3, "%d compras %f total", cliente.QtdeCompras, cliente.ValorTotComprado);
+        conioPrintf(MENU_RIGHT, BRANCO, 3, "%d compras R$%f total", cliente.QtdeCompras, cliente.ValorTotComprado);
     }
     else
         conioPrintf(ALERTA, VERMELHO, 0, "Cliente not found");
@@ -265,7 +265,7 @@ int RelatorioClientes(FILE *reg_clientes)
             conioPrintf(MENU_RIGHT, VERDE, 3, "-Cliente que mais comprou!-");
             conioPrintf(MENU_RIGHT, BRANCO, 4, "Nome: %s", highscore.NomeCli);
             conioPrintf(MENU_RIGHT, BRANCO, 5, "CPF: %s", highscore.CPF);
-            conioPrintf(MENU_RIGHT, BRANCO, 6, "Total de Compras: %f", highscore.ValorTotComprado);
+            conioPrintf(MENU_RIGHT, BRANCO, 6, "Total de Compras: R$%f", highscore.ValorTotComprado);
             conioPrintf(MENU_RIGHT, BRANCO, 7, "Quantidade de compras: %d", highscore.QtdeCompras);
         }
     }
@@ -1458,7 +1458,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - CADASTRO");
                 conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - CONSULTA");
                 conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - EXCLUSAO");
-                conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - ALTERACAO");
+                conioPrintf(MENU_LEFT, VERMELHO, 3, "[D] - ALTERACAO");
                 conioPrintf(MENU_LEFT, BRANCO, 4, "[E] - RELATORIO");
                 conioPrintf(MENU_LEFT, VERDE, 6, "F - Lista");
                 gotoxy(4, 14);
@@ -1476,7 +1476,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     DeletaClientes(clientes);
                     break;
                 case 'D':
-                    EditaClientes(clientes);
+                    // EditaClientes(clientes);
                     break;
                 case 'E':
                     RelatorioClientes(clientes);
