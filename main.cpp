@@ -9,6 +9,9 @@
 #include "includes\\fcontrol.h"
 #include "includes\\draw.h"
 
+int _getActualSells();
+int _getactualvendascod(FILE *, int);
+
 int validarCPF(char cpf[11])
 {
     int i, digito1 = 0, digito2 = 0, helper, soma;
@@ -897,17 +900,6 @@ int RelatorioProdutos(FILE *reg_produtos)
     return getchclose(reg_produtos);
 }
 
-int _getactualvendascod(FILE *vendas, int vendas_size)
-{
-    Vendas venda;
-    if (vendas_size == 0)
-        return 1;
-    fseek(vendas, sizeof(Vendas) - (vendas_size * sizeof(Vendas)), SEEK_SET);
-    fread(&venda, sizeof(Vendas), 1, vendas);
-    rewind(vendas);
-    return venda.CodVenda + 1;
-}
-
 int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FILE *reg_index_vendas, FILE *reg_vendas)
 {
     reg_clientes = fopen("clientes\\clientes.dat", "rb+");
@@ -964,8 +956,8 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
             do
             {
                 clearElement(RIGHTSIDE);
-                conioPrintf(MENU_RIGHT, BRANCO, 1, "[A] - Usar a data atual para a venda");
-                conioPrintf(MENU_RIGHT, BRANCO, 2, "[B] - Data personalizada;");
+                conioPrintf(MENU_RIGHT, BRANCO, 0, "[A] - Usar a data atual para a venda");
+                conioPrintf(MENU_RIGHT, BRANCO, 1, "[B] - Data personalizada;");
                 fflush(stdin);
                 datahelper = toupper(getch());
                 switch (datahelper)
@@ -1165,6 +1157,68 @@ int ExcluirVenda(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, F
     fclose(reg_index_vendas);
     fclose(reg_clientes);
     return getchclose(reg_produtos);
+}
+
+int RelatorioVendas(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, FILE *reg_produtos, FILE *reg_fornecedores)
+{
+    // Relatorio de vendas: quantidade de vendas, valor medio por venda,
+    // e o total geral das compras realizadas
+    // fornecedor que mais vendeu
+    // produto mais vendido
+
+    reg_clientes = fopen("clientes\\clientes.dat", "rb");
+    reg_produtos = fopen("produtos\\produtos.dat", "rb");
+    reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb");
+    reg_index_vendas = fopen("vendas\\index_vendas.dat", "rb");
+    reg_vendas = fopen("vendas\\vendas.dat", "rb");
+
+    if (!reg_clientes || !reg_produtos || !reg_index_vendas || !reg_vendas || !reg_fornecedores)
+        return 0;
+
+    Clientes cliente;
+    Produtos produto;
+    Fornecedores fornecedor, fornecedor_highscore = {0};
+    Vendas_Produtos venda_produto;
+    Vendas venda;
+    int pos_cliente, pos_produto, pos_venda_produto, pos_venda;
+
+    int vendas_size = fsizer(reg_vendas, sizeof(Vendas), SET, LOGIC);
+    int fornecedores_size = fsizer(reg_fornecedores, sizeof(Fornecedores), SET, LOGIC);
+    int vendas_produtos_size = fsizer(reg_index_vendas, sizeof(Vendas_Produtos), SET, LOGIC);
+
+    int quantidade_de_vendas = _getActualSells();
+    float valor_medio_por_venda = 0;
+    float valor_total_geral = 0;
+
+    for (int i = 0; i < vendas_size; i++)
+        fread(&venda, sizeof(Vendas), 1, reg_vendas);
+    if (venda.flag)
+        valor_total_geral += venda.TotVenda;
+
+    valor_medio_por_venda = valor_total_geral / quantidade_de_vendas;
+
+    int maior_qtde = 0;
+    for (int i = 0; i < fornecedores_size; i++)
+    {
+        fread(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
+        if (fornecedor.flag)
+        {
+            int venda_qtde_forn_atual = 0;
+            for (int j = 0; j < vendas_produtos_size; j++)
+            {
+                fread(&venda_produto, sizeof(Vendas_Produtos), 1, reg_index_vendas);
+                if (venda.flag && fornecedor.CodForn == venda_produto.CodProd)
+                {
+                    venda_qtde_forn_atual++;
+                }
+            }
+            if (venda_qtde_forn_atual > maior_qtde)
+            {
+                maior_qtde = venda_qtde_forn_atual;
+                fornecedor_highscore = fornecedor;
+            } // -- -- --  parei aqui 
+        }
+    }
 }
 
 // void AlterarVenda(Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], Produtos rootProdutos[], int TLvendas, int TLvendasprod, int TLprodutos)
@@ -1402,29 +1456,6 @@ void listaVendas(FILE *vendas, FILE *index_vendas)
     clrscr();
 }
 
-int _getActualSells()
-{
-    FILE *vendas;
-    if ((vendas = fopen("vendas\\vendas.dat", "rb")) == NULL)
-    {
-        fclose(vendas);
-        return 0;
-    }
-    int i = 0, cont = 0, vendas_size;
-    vendas_size = fsizer(vendas, sizeof(Vendas), SET, LOGIC);
-
-    while (i < vendas_size)
-    {
-        Vendas venda;
-        fread(&venda, sizeof(Vendas), 1, vendas);
-        if (venda.flag)
-            cont++;
-        i++;
-    }
-    fclose(vendas);
-    return cont;
-}
-
 void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas, FILE *vendas)
 {
     int op, vendas_size;
@@ -1587,8 +1618,8 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 conioPrintf(SWITCHER, CIANO, 0, "Selecione uma operacao em Vendas!");
                 conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - NOVA VENDA");
                 conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - EXCLUSAO");
-                conioPrintf(MENU_LEFT, BRANCO, 2, "[C] - ALTERACAO");
-                conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - RELATORIO VENDAS");
+                conioPrintf(MENU_LEFT, VERMELHO, 2, "[C] - ALTERACAO");
+                conioPrintf(MENU_LEFT, VERMELHO, 3, "[D] - RELATORIO VENDAS");
                 conioPrintf(MENU_LEFT, VERDE, 5, "F - lista vendas");
                 opc = toupper(getch());
                 switch (opc)
@@ -1603,22 +1634,14 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     listaVendas(vendas, index_vendas);
                     break;
                 case 'X':
-                    clrscr();
-                    FILE *teste;
-                    teste = fopen("vendas\\vendas.dat", "rb");
-                    Vendas venda;
-                    fread(&venda, sizeof(Vendas), 1, teste);
-                    puts(venda.CPF);
-                    getch();
-                    fclose(teste);
                     break;
                     //     case 'C':
                     //         AlterarVenda(index_vendas, index_vendasprod, index_produtos, TL_cupons, TL_vendas, TL_produtos);
                     //         getch();
                     //         break;
-                    //     case 'D':
-                    //         // RelatorioTotal();
-                    //         break;
+                case 'D':
+                    // RelatorioVendas(vendas);
+                    break;
                     //     case 27:
                     //         break;
                     //     default:
@@ -1761,4 +1784,38 @@ int main(int morteaodevcpp, char **ideruim)
     file_clear(fornecedores, produtos, clientes, index_vendas, vendas);
 
     return 0;
+}
+
+int _getActualSells()
+{
+    FILE *vendas;
+    if ((vendas = fopen("vendas\\vendas.dat", "rb")) == NULL)
+    {
+        fclose(vendas);
+        return 0;
+    }
+    int i = 0, cont = 0, vendas_size;
+    vendas_size = fsizer(vendas, sizeof(Vendas), SET, LOGIC);
+
+    while (i < vendas_size)
+    {
+        Vendas venda;
+        fread(&venda, sizeof(Vendas), 1, vendas);
+        if (venda.flag)
+            cont++;
+        i++;
+    }
+    fclose(vendas);
+    return cont;
+}
+
+int _getactualvendascod(FILE *vendas, int vendas_size)
+{
+    Vendas venda;
+    if (vendas_size == 0)
+        return 1;
+    fseek(vendas, sizeof(Vendas) - (vendas_size * sizeof(Vendas)), SEEK_SET);
+    fread(&venda, sizeof(Vendas), 1, vendas);
+    rewind(vendas);
+    return venda.CodVenda + 1;
 }
