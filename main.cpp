@@ -1161,11 +1161,6 @@ int ExcluirVenda(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, F
 
 int RelatorioVendas(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, FILE *reg_produtos, FILE *reg_fornecedores)
 {
-    // Relatorio de vendas: quantidade de vendas, valor medio por venda,
-    // e o total geral das compras realizadas
-    // fornecedor que mais vendeu
-    // produto mais vendido
-
     reg_clientes = fopen("clientes\\clientes.dat", "rb");
     reg_produtos = fopen("produtos\\produtos.dat", "rb");
     reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb");
@@ -1176,13 +1171,14 @@ int RelatorioVendas(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes
         return 0;
 
     Clientes cliente;
-    Produtos produto;
+    Produtos produto, produto_highscore = {0};
     Fornecedores fornecedor, fornecedor_highscore = {0};
     Vendas_Produtos venda_produto;
     Vendas venda;
     int pos_cliente, pos_produto, pos_venda_produto, pos_venda;
 
     int vendas_size = fsizer(reg_vendas, sizeof(Vendas), SET, LOGIC);
+    int produtos_size = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
     int fornecedores_size = fsizer(reg_fornecedores, sizeof(Fornecedores), SET, LOGIC);
     int vendas_produtos_size = fsizer(reg_index_vendas, sizeof(Vendas_Produtos), SET, LOGIC);
 
@@ -1191,13 +1187,15 @@ int RelatorioVendas(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes
     float valor_total_geral = 0;
 
     for (int i = 0; i < vendas_size; i++)
+    {
         fread(&venda, sizeof(Vendas), 1, reg_vendas);
-    if (venda.flag)
-        valor_total_geral += venda.TotVenda;
+        if (venda.flag)
+            valor_total_geral += venda.TotVenda;
+    }
 
     valor_medio_por_venda = valor_total_geral / quantidade_de_vendas;
 
-    int maior_qtde = 0;
+    int maior_qtde_fornecedor = 0;
     for (int i = 0; i < fornecedores_size; i++)
     {
         fread(&fornecedor, sizeof(Fornecedores), 1, reg_fornecedores);
@@ -1207,18 +1205,60 @@ int RelatorioVendas(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes
             for (int j = 0; j < vendas_produtos_size; j++)
             {
                 fread(&venda_produto, sizeof(Vendas_Produtos), 1, reg_index_vendas);
-                if (venda.flag && fornecedor.CodForn == venda_produto.CodProd)
+                find_produtos(reg_produtos, produto, venda_produto.CodProd, pos_produto, LOGIC);
+                if (venda.flag && fornecedor.CodForn == produto.CodForn)
                 {
                     venda_qtde_forn_atual++;
                 }
             }
-            if (venda_qtde_forn_atual > maior_qtde)
+            if (venda_qtde_forn_atual > maior_qtde_fornecedor)
             {
-                maior_qtde = venda_qtde_forn_atual;
+                maior_qtde_fornecedor = venda_qtde_forn_atual;
                 fornecedor_highscore = fornecedor;
-            } // -- -- --  parei aqui 
+            }
         }
+        rewind(reg_index_vendas);
     }
+
+    rewind(reg_produtos);
+    rewind(reg_index_vendas);
+    int maior_qtde_produto = 0;
+    for (int i = 0; i < produtos_size; i++)
+    {
+        fread(&produto, sizeof(Produtos), 1, reg_produtos);
+        if (produto.flag)
+        {
+            int qtde_produto_atual = 0;
+            for (int j = 0; j < vendas_produtos_size; j++)
+            {
+                fread(&venda_produto, sizeof(Vendas_Produtos), 1, reg_index_vendas);
+                if (venda_produto.flag && produto.CodProd == venda_produto.CodProd)
+                {
+                    qtde_produto_atual++;
+                }
+            }
+            if (qtde_produto_atual > maior_qtde_produto)
+            {
+                maior_qtde_produto = qtde_produto_atual;
+                produto_highscore = produto;
+            }
+        }
+        rewind(reg_index_vendas);
+    }
+
+    conioPrintf(MENU_RIGHT, BRANCO, 0, "Quantidade de vendas: %d", quantidade_de_vendas);
+    conioPrintf(MENU_RIGHT, BRANCO, 1, "Maior Fornecedor: %s", fornecedor_highscore.NomeForn);
+    conioPrintf(MENU_RIGHT, BRANCO, 2, "com %d vendas", maior_qtde_fornecedor);
+    conioPrintf(MENU_RIGHT, BRANCO, 4, "Produto mais vendido: %s", produto_highscore.Desc);
+    conioPrintf(MENU_RIGHT, BRANCO, 5, "com %d vendas", maior_qtde_produto);
+    conioPrintf(MENU_RIGHT, BRANCO, 7, "Media de vendas: R$%f", valor_medio_por_venda);
+    conioPrintf(MENU_RIGHT, AMARELO, 8, "Valor total vendido: R$%f", valor_total_geral);
+
+    fclose(reg_clientes);
+    fclose(reg_produtos);
+    fclose(reg_vendas);
+    fclose(reg_fornecedores);
+    return getchclose(reg_index_vendas);
 }
 
 // void AlterarVenda(Vendas rootVendas[], Vendas_Produtos rootVendasProdutos[], Produtos rootProdutos[], int TLvendas, int TLvendasprod, int TLprodutos)
@@ -1619,7 +1659,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                 conioPrintf(MENU_LEFT, BRANCO, 0, "[A] - NOVA VENDA");
                 conioPrintf(MENU_LEFT, BRANCO, 1, "[B] - EXCLUSAO");
                 conioPrintf(MENU_LEFT, VERMELHO, 2, "[C] - ALTERACAO");
-                conioPrintf(MENU_LEFT, VERMELHO, 3, "[D] - RELATORIO VENDAS");
+                conioPrintf(MENU_LEFT, BRANCO, 3, "[D] - RELATORIO VENDAS");
                 conioPrintf(MENU_LEFT, VERDE, 5, "F - lista vendas");
                 opc = toupper(getch());
                 switch (opc)
@@ -1631,16 +1671,21 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     ExcluirVenda(vendas, index_vendas, clientes, produtos);
                     break;
                 case 'F':
-                    listaVendas(vendas, index_vendas);
-                    break;
-                case 'X':
+                    if (vendas_size > 0)
+                        listaVendas(vendas, index_vendas);
                     break;
                     //     case 'C':
                     //         AlterarVenda(index_vendas, index_vendasprod, index_produtos, TL_cupons, TL_vendas, TL_produtos);
                     //         getch();
                     //         break;
                 case 'D':
-                    // RelatorioVendas(vendas);
+                    if (vendas_size > 0)
+                        RelatorioVendas(vendas, index_vendas, clientes, produtos, fornecedores);
+                    else
+                    {
+                        conioPrintf(SWITCHER, VERMELHO, 0, "Nenhuma venda realizada");
+                        getch();
+                    }
                     break;
                     //     case 27:
                     //         break;
