@@ -235,6 +235,7 @@ int DeletaClientes(FILE *reg_clientes)
         conioPrintf(ALERTA, VERMELHO, 0, "Cliente nao encontrado!");
         return getchclose(reg_clientes);
     }
+    return 0;
 }
 
 int RelatorioClientes(FILE *reg_clientes)
@@ -487,6 +488,7 @@ int ExcluirFornecedor(FILE *reg_fornecedores, FILE *reg_produtos)
         getch();
         return 1;
     }
+    return 0;
 }
 
 int RelatorioFornecedores(FILE *reg_fornecedores)
@@ -774,6 +776,7 @@ int AlterarProdCadastrado(FILE *reg_produtos)
         scanf("%d", &Aux);
     }
     fclose(reg_produtos);
+    return 0;
 }
 
 int produtosPercent(FILE *reg_produtos, FILE *reg_fornecedores)
@@ -1817,10 +1820,13 @@ int main(int morteaodevcpp, char **ideruim)
     FILE *index_vendas;
     FILE *vendas;
 
+
+    system("cls");
     _setcursortype(0);
     Menu(fornecedores, produtos, clientes, index_vendas, vendas);
     file_clear(fornecedores, produtos, clientes, index_vendas, vendas);
-
+    
+    system("cls");
     return 0;
 }
 
