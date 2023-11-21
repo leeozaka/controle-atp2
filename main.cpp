@@ -11,6 +11,7 @@
 
 int _getActualSells();
 int _getactualvendascod(FILE *, int);
+int _clearclientecompras(char *);
 
 int validarCPF(char cpf[11])
 {
@@ -167,8 +168,6 @@ int EditaClientes(FILE *reg_clientes)
         conioPrintf(MENU_RIGHT, BRANCO, 3, "A - Nome");
         conioPrintf(MENU_RIGHT, BRANCO, 4, "B - Zerar Compras");
 
-        opc = toupper(getch());
-
         switch (toupper(getch()))
         {
         case 'A':
@@ -179,13 +178,20 @@ int EditaClientes(FILE *reg_clientes)
             fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
             conioPrintf(SWITCHER, VERDE, 0, "Nome atualizado!!");
             break;
+
         case 'B':
-            cliente.QtdeCompras = 0;
-            cliente.ValorTotComprado = 0;
-            fseek(reg_clientes, pos, SEEK_SET);
-            fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
-            conioPrintf(MENU_RIGHT, BRANCO, 5, "Compras zeradas!");
-            // buscar compras no cpf e deletar do index_vendas;
+            if (_clearclientecompras(cpf))
+            {
+                conioPrintf(MENU_RIGHT, BRANCO, 5, "Compras zeradas, index deletado");
+                cliente.QtdeCompras = 0;
+                cliente.ValorTotComprado = 0;
+                fseek(reg_clientes, pos, SEEK_SET);
+                fwrite(&cliente, sizeof(Clientes), 1, reg_clientes);
+            }
+            else
+            {
+                conioPrintf(MENU_RIGHT, VERMELHO, 5, "Erro ao deletar vendas");
+            }
             break;
         }
     }
@@ -346,7 +352,6 @@ int AlterarDadosFornecedor(FILE *reg_fornecedores)
                 conioPrintf(MENU_RIGHT, VERDE, 5, "Digite a nova cidade: ");
                 fflush(stdin);
                 gets(fornecedor.Cidade);
-                // buscar compras no cpf e deletar do index_vendas?;
                 break;
             default:
                 conioPrintf(ALERTA, VERMELHO, 0, "Cond. errada!");
@@ -454,7 +459,6 @@ int ExcluirFornecedor(FILE *reg_fornecedores, FILE *reg_produtos)
 
             int produtos_size = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
 
-            // busca e deleta logicamente produtos com o cod. do forn.
             for (int i = 0; i < produtos_size; i++)
             {
                 if (find_produtos(reg_produtos, produto, cod, pos, BYTE))
@@ -650,9 +654,6 @@ int ExcluirProd(FILE *reg_produtos)
         conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
 
     return getchclose(reg_produtos);
-    // fclose(reg_produtos);
-    // getch();
-    // return 0;
 }
 
 int ConsultaProd(FILE *reg_produtos)
@@ -685,9 +686,6 @@ int ConsultaProd(FILE *reg_produtos)
         conioPrintf(ALERTA, VERMELHO, 0, "Produto nao encontrado!");
 
     return getchclose(reg_produtos);
-    // getch();
-    // fclose(reg_produtos);
-    // return 0;
 }
 
 int AlterarProdCadastrado(FILE *reg_produtos)
@@ -860,9 +858,6 @@ int RelatorioProdutos(FILE *reg_produtos)
     conioPrintf(TOPO, ROSA_CLARO, 0, "Relatorio de Produtos!");
     Produtos produto, highscore = {0};
 
-    // Relatorio de produtos:
-    // Quantidade total de produtos cadastrados, estoque total, preço total da mercadoria
-
     int total_produtos = 0, total_estoque = 0, produtos_size = 0;
     float media_precos = 0;
     double total_preco = 0;
@@ -961,7 +956,7 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
                 fflush(stdin);
                 datahelper = toupper(getch());
                 switch (datahelper)
-                { // bool pass = true quando setar a data
+                {
                 case 'A':
                     venda.DtVenda = construtor_data;
                     pass = true;
@@ -1095,9 +1090,7 @@ int ExcluirVenda(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, F
     reg_vendas = fopen("vendas\\vendas.dat", "rb+");
 
     if (!reg_clientes || !reg_produtos || !reg_index_vendas || !reg_vendas)
-    {
         return 0;
-    }
 
     Clientes cliente;
     Produtos produto;
@@ -1547,7 +1540,7 @@ void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas
                     DeletaClientes(clientes);
                     break;
                 case 'D':
-                    // EditaClientes(clientes);
+                    EditaClientes(clientes);
                     break;
                 case 'E':
                     RelatorioClientes(clientes);
@@ -1863,4 +1856,48 @@ int _getactualvendascod(FILE *vendas, int vendas_size)
     fread(&venda, sizeof(Vendas), 1, vendas);
     rewind(vendas);
     return venda.CodVenda + 1;
+}
+
+int _clearclientecompras(char *cpf)
+{
+    FILE *reg_vendas;
+    FILE *reg_index_vendas;
+
+    reg_vendas = fopen("vendas\\vendas.dat", "rb+");
+    reg_index_vendas = fopen("vendas\\index_vendas.dat", "rb+");
+
+    if (!reg_vendas && !reg_index_vendas)
+        return 0;
+
+    Vendas venda;
+    int vendas_size = fsizer(reg_vendas, sizeof(Vendas), SET, LOGIC);
+
+    Vendas_Produtos index_venda;
+    int index_venda_size = fsizer(reg_index_vendas, sizeof(Vendas_Produtos), SET, LOGIC);
+
+    for (int i = 0; i < vendas_size; i++)
+    {
+        fread(&venda, sizeof(Vendas), 1, reg_vendas);
+        if (!strcmp(cpf, venda.CPF))
+        {
+            int aux_cod_venda = venda.CodVenda;
+            for (int j = 0; j < index_venda_size; j++)
+            {
+                fread(&index_venda, sizeof(Vendas_Produtos), 1, reg_index_vendas);
+                if (aux_cod_venda == index_venda.CodVenda)
+                {
+                    index_venda.flag = false;
+                    fseek(reg_index_vendas, j * sizeof(Vendas_Produtos), SEEK_SET);
+                    fwrite(&index_venda, sizeof(Vendas_Produtos), 1, reg_index_vendas);
+                }
+            }
+            venda.flag = false;
+            fseek(reg_vendas, i * sizeof(Vendas), SEEK_SET);
+            fwrite(&venda, sizeof(Vendas), 1, reg_vendas);
+        }
+        rewind(reg_index_vendas);
+    }
+    fclose(reg_vendas);
+    fclose(reg_index_vendas);
+    return 1;
 }
