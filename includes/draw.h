@@ -1,9 +1,8 @@
-#include <stdio.h>
 #include <conio2.h>
+#include <stdio.h>
 #define DRAW
 
-void Moldura(int CI, int LI, int CF, int LF, int CorT, int CorF)
-{
+void Moldura(int CI, int LI, int CF, int LF, int CorT, int CorF) {
     int i;
     textcolor(CorT);
     textbackground(CorF);
@@ -15,15 +14,13 @@ void Moldura(int CI, int LI, int CF, int LF, int CorT, int CorF)
     printf("%c", 187);
     gotoxy(CF, LF);
     printf("%c", 188);
-    for (i = CI + 1; i < CF; i++)
-    {
+    for (i = CI + 1; i < CF; i++) {
         gotoxy(i, LI);
         printf("%c", 205);
         gotoxy(i, LF);
         printf("%c", 205);
     }
-    for (i = LI + 1; i < LF; i++)
-    {
+    for (i = LI + 1; i < LF; i++) {
         gotoxy(CI, i);
         printf("%c", 186);
         gotoxy(CF, i);
@@ -34,8 +31,7 @@ void Moldura(int CI, int LI, int CF, int LF, int CorT, int CorF)
     textbackground(0);
 }
 
-void Formulario(void)
-{
+void Formulario(void) {
     Moldura(1, 1, 80, 25, 10, 5);
     Moldura(2, 2, 79, 4, 14, 1);
     Moldura(2, 5, 27, 21, 12, 7);

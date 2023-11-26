@@ -1,17 +1,15 @@
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #define DATA
 
-enum POS_SET
-{
+enum POS_SET {
     SET,
     CUR,
     END
 };
 
-enum SIZE_LOGIC
-{
+enum SIZE_LOGIC {
     LOGIC,
     BYTE
 };
@@ -20,21 +18,18 @@ enum SIZE_LOGIC
 #define QUANT 40
 #define BUFFER 50
 
-struct Fornecedores
-{
+struct Fornecedores {
     int CodForn;
     char NomeForn[QUANT];
     char Cidade[QUANT];
     bool flag;
 };
 
-struct TpData
-{
+struct TpData {
     int Dia, Mes, Ano;
 };
 
-struct Produtos
-{
+struct Produtos {
     int CodProd, Estoque;
     char Desc[QUANT];
     float Preco;
@@ -43,8 +38,7 @@ struct Produtos
     bool flag;
 };
 
-struct Clientes
-{
+struct Clientes {
     char CPF[12];
     char NomeCli[QUANT];
     int QtdeCompras;
@@ -52,8 +46,7 @@ struct Clientes
     bool flag;
 };
 
-struct Vendas
-{
+struct Vendas {
     int CodVenda;
     char CPF[12];
     TpData DtVenda;
@@ -61,8 +54,7 @@ struct Vendas
     bool flag;
 };
 
-struct Vendas_Produtos
-{
+struct Vendas_Produtos {
     int CodVenda;
     int CodProd;
     int Qtde;
