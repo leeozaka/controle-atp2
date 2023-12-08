@@ -34,6 +34,8 @@ static int fsizer(FILE *ref, int size, POS_SET dir, SIZE_LOGIC tipo_retorno) {
         case LOGIC:
             contagem /= size;
             break;
+        case BYTE:
+            break;
     }
     return contagem;
 }
@@ -123,19 +125,19 @@ static bool find_venda(FILE *reg_vendas, Vendas &venda, int find, int &pos, SIZE
 //@param find cod a ser consultado
 //@param pos posicao a retornar na variavel
 //@param res BYTE ou LOGIC - retorna a posicao em bytes em pos ou em posicao logica
-static bool find_index_venda(FILE *reg_index_vendas, Vendas_Produtos &index_venda, int find, int &pos, SIZE_LOGIC res) {
-    int run = 0;
-    int TL = fsizer(reg_index_vendas, sizeof(Vendas_Produtos), SET, LOGIC);
-    while (run < TL) {
-        fread(&index_venda, sizeof(Vendas_Produtos), 1, reg_index_vendas);
-        if (find == index_venda.CodVenda && index_venda.flag) {
-            res == BYTE ? pos = run * sizeof(Vendas_Produtos) : pos = run;
-            return true;
-        }
-        run++;
-    }
-    return false;
-}
+// static bool find_index_venda(FILE *reg_index_vendas, Vendas_Produtos &index_venda, int find, int &pos, SIZE_LOGIC res) {
+//     int run = 0;
+//     int TL = fsizer(reg_index_vendas, sizeof(Vendas_Produtos), SET, LOGIC);
+//     while (run < TL) {
+//         fread(&index_venda, sizeof(Vendas_Produtos), 1, reg_index_vendas);
+//         if (find == index_venda.CodVenda && index_venda.flag) {
+//             res == BYTE ? pos = run * sizeof(Vendas_Produtos) : pos = run;
+//             return true;
+//         }
+//         run++;
+//     }
+//     return false;
+// }
 
 // usa getch, em sequencia fecha o arquivo atual e retorna 0
 //@param file arquivo a ser fechado

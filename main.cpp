@@ -25,7 +25,7 @@ int validarCPF(char cpf[11]) {
     if (cpf[0] - '0' == soma)
         return 0;
     else {
-        for (i = 0; i < strlen(cpf) - 2; i++)
+        for (i = 0; i < (int)strlen(cpf) - 2; i++)
             digito1 += (cpf[i] - '0') * (i + 1);
 
         digito1 %= 11;
@@ -35,7 +35,7 @@ int validarCPF(char cpf[11]) {
             return 0;
 
         else {
-            for (i = 0; i < strlen(cpf) - 1; i++)
+            for (i = 0; i < (int)strlen(cpf) - 1; i++)
                 digito2 += (cpf[i] - '0') * i;
             digito2 %= 11;
             if (digito2 == 10 || digito2 == 11)
@@ -49,12 +49,12 @@ int validarCPF(char cpf[11]) {
 
 // funciona como <string.h> strcmp()
 double comparaData(int ano1, int mes1, int dia1, int ano2, int mes2, int dia2) {
-    struct tm data1 = {0};
+    struct tm data1 = {};
     data1.tm_year = ano1 - 1900;
     data1.tm_mon = mes1 - 1;
     data1.tm_mday = dia1;
 
-    struct tm data2 = {0};
+    struct tm data2 = {};
     data2.tm_year = ano2 - 1900;
     data2.tm_mon = mes2 - 1;
     data2.tm_mday = dia2;
@@ -67,7 +67,7 @@ int CadastraCliente(FILE *reg_clientes) {
 
     Clientes cliente;
     char CPF[11];
-    int i, validar = 0, pos = 0;
+    int pos = 0;
 
     conioPrintf(TOPO, ROSA_CLARO, 0, "Cadastro de Clientes!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o CPF: ");
@@ -84,7 +84,7 @@ int CadastraCliente(FILE *reg_clientes) {
 
         conioPrintf(MENU_RIGHT, BRANCO, 1, "Digite o nome: ");
         fflush(stdin);
-        scanf("%s", &cliente.NomeCli);
+        fgets(cliente.NomeCli, BUFFER, stdin);
 
         cliente.QtdeCompras = 0;
         cliente.ValorTotComprado = 0;
@@ -131,8 +131,8 @@ int EditaClientes(FILE *reg_clientes) {
         return 1;
 
     Clientes cliente;
-    int opcao, pos;
-    char cpf[12], opc;
+    int pos;
+    char cpf[12];
 
     conioPrintf(TOPO, CIANO, 0, "Editar Clientes!");
     clearElement(RIGHTSIDE);
@@ -193,8 +193,6 @@ int DeletaClientes(FILE *reg_clientes) {
     conioPrintf(MENU_RIGHT, VERMELHO, 0, "Cpf a ser cancelado: ");
     fflush(stdin);
     fgets(cpf, 12, stdin);
-
-    int documentsize = fsizer(reg_clientes, sizeof(Clientes), SET, LOGIC);
 
     if (find_clientes(reg_clientes, cliente, cpf, pos, BYTE)) {
         conioPrintf(MENU_RIGHT, VERMELHO, 1, "Deletar %s?  S/N", cliente.NomeCli);
@@ -257,15 +255,13 @@ int ConsultaFornecedor(FILE *reg_fornecedores) {
     if ((reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+")) == NULL)
         return 1;
 
-    int i = 0, cod, pos;
+    int cod, pos;
     Fornecedores fornecedor;
 
     conioPrintf(TOPO, AZUL_CLARO, 0, "Consultar Fornecedor!");
     conioPrintf(MENU_RIGHT, VERDE, 0, "Codigo do Fornecedor a ser Consultado: ");
     fflush(stdin);
     scanf("%d", &cod);
-
-    int fornecedores_size = fsizer(reg_fornecedores, sizeof(Fornecedores), SET, LOGIC);
 
     if (find_fornecedores(reg_fornecedores, fornecedor, cod, pos, BYTE)) {
         conioPrintf(SWITCHER, AMARELO, 0, "Fornecedor Encontrado!");
@@ -283,7 +279,7 @@ int AlterarDadosFornecedor(FILE *reg_fornecedores) {
     if ((reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+")) == NULL)
         return 1;
 
-    int opcao, cod, pos, fornecedores_size;
+    int cod, pos, fornecedores_size;
     char opc;
 
     Fornecedores fornecedor;
@@ -307,12 +303,12 @@ int AlterarDadosFornecedor(FILE *reg_fornecedores) {
                 case 'A':
                     conioPrintf(MENU_RIGHT, VERDE, 5, "Digite o novo nome: ");
                     fflush(stdin);
-                    gets(fornecedor.NomeForn);
+                    fgets(fornecedor.NomeForn, BUFFER, stdin);
                     break;
                 case 'B':
                     conioPrintf(MENU_RIGHT, VERDE, 5, "Digite a nova cidade: ");
                     fflush(stdin);
-                    gets(fornecedor.Cidade);
+                    fgets(fornecedor.Cidade, BUFFER, stdin);
                     break;
                 default:
                     conioPrintf(ALERTA, VERMELHO, 0, "Cond. errada!");
@@ -341,7 +337,7 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod) {
     if ((reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+")) == NULL)
         reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "ab+");
 
-    int i = 0, codforn, busca;
+    int codforn, busca;
     Fornecedores fornecedor;
 
     int fornecedores_size = fsizer(reg_fornecedores, sizeof(Fornecedores), SET, LOGIC);
@@ -367,10 +363,10 @@ int CadastraFornecedor(FILE *reg_fornecedores, int *cod) {
     fornecedor.CodForn = codforn;
     conioPrintf(MENU_RIGHT, BRANCO, 1, "Nome: ");
     fflush(stdin);
-    gets(fornecedor.NomeForn);
+    fgets(fornecedor.NomeForn, BUFFER, stdin);
     conioPrintf(MENU_RIGHT, BRANCO, 2, "Cidade: ");
     fflush(stdin);
-    gets(fornecedor.Cidade);
+    fgets(fornecedor.Cidade, BUFFER, stdin);
     fornecedor.flag = true;
 
     fseek(reg_fornecedores, 0, SEEK_END);
@@ -390,7 +386,6 @@ int ExcluirFornecedor(FILE *reg_fornecedores, FILE *reg_produtos) {
     Produtos produto;
 
     int cod, pos;
-    int fornecedores_size = fsizer(reg_fornecedores, sizeof(Fornecedores), SET, BYTE);
 
     conioPrintf(TOPO, CIANO, 0, "Excluir Fornecedor!!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Busca fornecedor pelo codigo: ");
@@ -480,9 +475,6 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores) {
     int AuxCod, pos, helper, codigo;
     char arg;
 
-    int prodsize = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
-    int fornsize = fsizer(reg_fornecedores, sizeof(Fornecedores), SET, LOGIC);
-
     conioPrintf(TOPO, VERDE, 0, "Cadastro de Produtos!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Codigo: ");
 
@@ -494,7 +486,7 @@ void CadastraProd(FILE *reg_produtos, FILE *reg_fornecedores) {
             produto.CodProd = AuxCod;
             conioPrintf(MENU_RIGHT, BRANCO, 1, "Descricao: ");
             fflush(stdin);
-            gets(produto.Desc);
+            fgets(produto.Desc, BUFFER, stdin);
 
             conioPrintf(MENU_RIGHT, BRANCO, 2, "Estoque: ");
             fflush(stdin);
@@ -561,7 +553,6 @@ int ExcluirProd(FILE *reg_produtos) {
     Produtos produto;
 
     int Aux, pos;
-    int documentsize = fsizer(reg_produtos, sizeof(Produtos), SET, BYTE);
 
     conioPrintf(TOPO, VERDE_CLARO, 0, "Exclusao de produtos!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o cod. do produto a excluir: ");
@@ -593,8 +584,6 @@ int ConsultaProd(FILE *reg_produtos) {
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Cod. a ser consultado: ");
     scanf("%d", &ponto);
 
-    int documentsize = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
-
     if (find_produtos(reg_produtos, produto, ponto, i, LOGIC)) {
         fseek(reg_produtos, i * sizeof(Produtos), SEEK_SET);
         fread(&produto, sizeof(Produtos), 1, reg_produtos);
@@ -621,8 +610,6 @@ int AlterarProdCadastrado(FILE *reg_produtos) {
     char resp;
     int Aux, pos;
     float Aux_Preco;
-
-    int documentsize = fsizer(reg_produtos, sizeof(Produtos), SET, BYTE);
 
     conioPrintf(TOPO, VERMELHO, 0, "Alterar produto ja cadastrado!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Insira o codigo do produto: ");
@@ -699,7 +686,6 @@ int produtosPercent(FILE *reg_produtos, FILE *reg_fornecedores) {
         return 1;
 
     int documentsize = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
-    int fornsize = fsizer(reg_fornecedores, sizeof(Produtos), SET, LOGIC);
 
     int valor, cod, pos;
     char resp;
@@ -728,7 +714,7 @@ int produtosPercent(FILE *reg_produtos, FILE *reg_fornecedores) {
                 for (int i = 0; i < documentsize; i++) {
                     fread(&produto, sizeof(Produtos), 1, reg_produtos);
                     if (produto.CodForn == cod) {
-                        fseek(reg_produtos, 0 - sizeof(Produtos), SEEK_CUR);
+                        // fseek(reg_produtos, 0 - sizeof(Produtos), SEEK_CUR);
                         produto.Preco += produto.Preco * valor / 100;
                         fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
                     }
@@ -741,7 +727,7 @@ int produtosPercent(FILE *reg_produtos, FILE *reg_fornecedores) {
                 for (int i = 0; i < documentsize; i++) {
                     fread(&produto, sizeof(Produtos), 1, reg_produtos);
                     if (produto.CodForn == cod) {
-                        fseek(reg_produtos, 0 - sizeof(Produtos), SEEK_CUR);
+                        // fseek(reg_produtos, 0 - sizeof(Produtos), SEEK_CUR);
                         produto.Preco -= produto.Preco * valor / 100;
                         fwrite(&produto, sizeof(Produtos), 1, reg_produtos);
                     }
@@ -763,7 +749,7 @@ int RelatorioProdutos(FILE *reg_produtos) {
         return 1;
 
     conioPrintf(TOPO, ROSA_CLARO, 0, "Relatorio de Produtos!");
-    Produtos produto, highscore = {0};
+    Produtos produto, highscore = {};
 
     int total_produtos = 0, total_estoque = 0, produtos_size = 0;
     float media_precos = 0;
@@ -803,26 +789,21 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
     reg_fornecedores = fopen("fornecedores\\fornecedores.dat", "rb+");
     reg_produtos = fopen("produtos\\produtos.dat", "rb+");
     reg_index_vendas = fopen("vendas\\index_vendas.dat", "ab+");
-    reg_vendas = reg_vendas = fopen("vendas\\vendas.dat", "ab+");
+    reg_vendas = fopen("vendas\\vendas.dat", "ab+");
 
     if (!reg_clientes || !reg_fornecedores || !reg_produtos || !reg_index_vendas || !reg_vendas) {
         return 0;
     }
 
     Clientes cliente;
-    Fornecedores fornecedor;
     Produtos produto;
     Vendas_Produtos venda_produto;
     Vendas venda;
-    int pos_cliente, pos_fornecedor, pos_produto, pos_venda_produto, pos_venda;
+    int pos_cliente, pos_produto;
 
-    static int clientes_size = fsizer(reg_clientes, sizeof(Clientes), SET, LOGIC);
-    static int fornecedores_size = fsizer(reg_fornecedores, sizeof(Fornecedores), SET, LOGIC);
-    static int produtos_size = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
-    int index_vendas_size = fsizer(reg_index_vendas, sizeof(Vendas_Produtos), SET, LOGIC);
     int vendas_size = fsizer(reg_vendas, sizeof(Vendas), SET, LOGIC);
 
-    int i, var, cod_aux;
+    int var, cod_aux;
     float valor_variavel = 0;
     char cpf[11], datahelper;
 
@@ -836,7 +817,7 @@ int novaVenda(FILE *reg_clientes, FILE *reg_fornecedores, FILE *reg_produtos, FI
     conioPrintf(TOPO, ROSA, 0, "Nova Venda!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "CPF do Cliente: ");
     fflush(stdin);
-    gets(cpf);
+    fgets(cpf, BUFFER, stdin);
 
     if (validarCPF(cpf)) {
         if (find_clientes(reg_clientes, cliente, cpf, pos_cliente, BYTE)) {
@@ -973,11 +954,11 @@ int ExcluirVenda(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes, F
     Produtos produto;
     Vendas_Produtos venda_produto;
     Vendas venda;
-    int pos_cliente, pos_produto, pos_venda_produto, pos_venda;
+    int pos_cliente, pos_produto, pos_venda;
 
     int index_vendas_size = fsizer(reg_index_vendas, sizeof(Vendas_Produtos), SET, LOGIC);
 
-    int codVenda, i, j;
+    int codVenda, i;
     conioPrintf(TOPO, CIANO, 0, "Exclusao de venda!");
     conioPrintf(MENU_RIGHT, BRANCO, 0, "Digite o codigo da venda a ser excluida: ");
     fflush(stdin);
@@ -1033,12 +1014,11 @@ int RelatorioVendas(FILE *reg_vendas, FILE *reg_index_vendas, FILE *reg_clientes
     if (!reg_clientes || !reg_produtos || !reg_index_vendas || !reg_vendas || !reg_fornecedores)
         return 0;
 
-    Clientes cliente;
-    Produtos produto, produto_highscore = {0};
-    Fornecedores fornecedor, fornecedor_highscore = {0};
+    Produtos produto , produto_highscore ;
+    Fornecedores fornecedor, fornecedor_highscore ;
     Vendas_Produtos venda_produto;
     Vendas venda;
-    int pos_cliente, pos_produto, pos_venda_produto, pos_venda;
+    int pos_produto;
 
     int vendas_size = fsizer(reg_vendas, sizeof(Vendas), SET, LOGIC);
     int produtos_size = fsizer(reg_produtos, sizeof(Produtos), SET, LOGIC);
@@ -1335,8 +1315,8 @@ void listaVendas(FILE *vendas, FILE *index_vendas) {
 }
 
 void Menu(FILE *fornecedores, FILE *produtos, FILE *clientes, FILE *index_vendas, FILE *vendas) {
-    int op, vendas_size;
-    char opc, opc_sub;
+    int vendas_size;
+    char opc;
 
     Formulario();
 

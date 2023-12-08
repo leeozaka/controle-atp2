@@ -1,4 +1,4 @@
-#include <conio2.h>
+#include <conio3.h>
 #include <ctype.h>
 #include <math.h>
 #include <stdarg.h>
@@ -7,23 +7,23 @@
 
 #define CONIOPRINTF
 
-enum cores {
-    PRETO,
-    AZUL,
-    VERDE,
-    CIANO,
-    VERMELHO,
-    ROSA,
-    MARROM,
-    BRANCO,
-    CINZA_CLARO,
-    AZUL_CLARO,
-    VERDE_CLARO,
-    CIANO_CLARO,
-    VERMELHO_CLARO,
-    ROSA_CLARO,
-    AMARELO,
-};
+// enum cores {
+//     PRETO,
+//     AZUL,
+//     VERDE,
+//     CIANO,
+//     VERMELHO,
+//     ROSA,
+//     MARROM,
+//     BRANCO,
+//     CINZA_CLARO,
+//     AZUL_CLARO,
+//     VERDE_CLARO,
+//     CIANO_CLARO,
+//     VERMELHO_CLARO,
+//     ROSA_CLARO,
+//     AMARELO,
+// };
 
 enum position {
     TOPO,
@@ -61,6 +61,10 @@ void clearElement(position pos) {
         case RIGHTSIDE:
             clrfunc(6, 29, 20, 78);
             break;
+        case MENU_RIGHT:
+            break;
+        case MENU_LEFT:
+            break;
     }
 }
 
@@ -83,10 +87,9 @@ char *conv(unsigned int numero, int base) {
 //>>conioPrintf("posicao", "Cor", somar linha,"string" ...formatacao...);
 //
 // posicao=topo, alerta, menu_left, menu_right, switcher
-void conioPrintf(position pos, cores ref, int linha, const char *str, ...) {
-    unsigned int i;
+void conioPrintf(position pos, COLORS ref, int linha, const char *str, ...) {
+    int i;
     double j;
-    char buffer[50];
     char *transc;
     char *s;
 
@@ -162,6 +165,9 @@ void conioPrintf(position pos, cores ref, int linha, const char *str, ...) {
             break;
         case SWITCHER:
             gotoxy(3, 23);
+            break;
+        case RIGHTSIDE:
+            break;  
     }
 
     // setLinha

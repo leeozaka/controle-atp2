@@ -1,6 +1,7 @@
-#include <conio2.h>
+#include <conio3.h>
 #include <stdio.h>
-#define DRAW
+#ifndef DRAW_
+#define DRAW_
 
 void Moldura(int CI, int LI, int CF, int LF, int CorT, int CorF) {
     int i;
@@ -30,6 +31,7 @@ void Moldura(int CI, int LI, int CF, int LF, int CorT, int CorF) {
     textcolor(7);
     textbackground(0);
 }
+#endif
 
 void Formulario(void) {
     Moldura(1, 1, 80, 25, 10, 5);
